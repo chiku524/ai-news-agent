@@ -85,8 +85,8 @@ database_id = "your-database-id-here"
 
 ### 3.2 Configure Build Settings
 - **Framework preset**: Create React App
-- **Build command**: `npm run build`
-- **Build output directory**: `client/build`
+- **Build command**: `npm install && npm run build`
+- **Build output directory**: `build`
 - **Root directory**: `/` (leave empty)
 
 ### 3.3 Set Environment Variables
