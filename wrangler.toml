@@ -1,0 +1,14 @@
+# Cloudflare Workers configuration for BlockchainVibe
+name = "blockchainvibe-api"
+main = "server/worker.js"
+compatibility_date = "2024-01-01"
+
+# Environment variables
+[vars]
+NODE_ENV = "production"
+
+# D1 Database binding (will be created)
+[[d1_databases]]
+binding = "DB"
+database_name = "blockchainvibe-db"
+database_id = "4d7784cc-f73a-4d7d-a108-fc283cc21916"
