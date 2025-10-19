@@ -1,16 +1,16 @@
 # Cloudflare Pages configuration for BlockchainVibe Frontend
 
 [build]
-command = "npm run build"
-publish = "client/build"
+command = "npm install && npm run build"
+publish = "build"
 
 [build.environment_variables]
 NODE_VERSION = "18"
-REACT_APP_API_URL = "https://your-backend-domain.com"
+REACT_APP_API_URL = "https://blockchainvibe-api.nico-chikuji.workers.dev"
 
 [[redirects]]
 from = "/api/*"
-to = "https://your-backend-domain.com/api/:splat"
+to = "https://blockchainvibe-api.nico-chikuji.workers.dev/api/:splat"
 status = 200
 
 [[redirects]]
