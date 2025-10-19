@@ -2,21 +2,47 @@
   "name": "blockchainvibe",
   "version": "1.0.0",
   "description": "BlockchainVibe - AI-powered blockchain news aggregator with Fetch.ai uAgents and SingularityNET MeTTa",
-  "main": "index.js",
-  "scripts": {
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "cd server && py simple_main.py",
-    "client": "cd client && npm start",
-    "build": "cd client && npm run build",
-    "build:cloudflare": "cd client && npm run build && cd ../server && wrangler deploy",
-    "install-all": "npm install && cd client && npm install && cd ../server && pip install -r requirements.txt",
-    "deploy:worker": "cd server && wrangler deploy",
-    "deploy:pages": "cd client && npm run build"
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^14.5.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "react-router-dom": "^6.8.1",
+    "axios": "^1.6.2",
+    "styled-components": "^6.1.1",
+    "framer-motion": "^10.16.5",
+    "lucide-react": "^0.294.0",
+    "react-query": "^3.39.3",
+    "react-hot-toast": "^2.4.1",
+    "date-fns": "^2.30.0",
+    "web-vitals": "^2.1.4"
   },
-  "keywords": ["ai", "news", "blockchain", "oauth", "cloudflare", "react", "fastapi"],
-  "author": "AI News Agent",
-  "license": "MIT",
-  "devDependencies": {
-    "concurrently": "^8.2.2"
-  }
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "homepage": "https://blockchainvibe.news"
 }
