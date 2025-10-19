@@ -1,0 +1,5 @@
+# API redirects
+/api/* https://blockchainvibe-api.nico-chikuji.workers.dev/api/:splat 200
+
+# SPA redirects
+/* /index.html 200
