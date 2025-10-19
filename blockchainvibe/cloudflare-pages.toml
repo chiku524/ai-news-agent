@@ -1,5 +1,7 @@
 # Cloudflare Pages configuration for BlockchainVibe Frontend
 
+pages_build_output_dir = "build"
+
 [build]
 command = "npm install && npm run build"
 publish = "build"
