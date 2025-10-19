@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { 
-  User, 
   Settings, 
   Heart, 
-  Bookmark, 
-  Share2, 
   Clock,
-  TrendingUp,
-  Filter,
   Save
 } from 'lucide-react';
 import { useUser } from '../hooks/useUser';

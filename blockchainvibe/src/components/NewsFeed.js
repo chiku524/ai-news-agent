@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { useQuery } from 'react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Clock, 
-  ExternalLink, 
-  Heart, 
-  Share2, 
-  Bookmark, 
   TrendingUp,
-  Filter,
   RefreshCw
 } from 'lucide-react';
 import toast from 'react-hot-toast';

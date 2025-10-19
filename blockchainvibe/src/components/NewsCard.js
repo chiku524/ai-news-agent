@@ -3,13 +3,11 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { 
   Clock, 
-  ExternalLink, 
   Heart, 
   Share2, 
   Bookmark, 
   TrendingUp,
   MessageCircle,
-  Eye,
   ChevronRight
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -279,11 +277,6 @@ const NewsCard = ({ news, featured = false, onInteraction }) => {
     }
   };
 
-  const getRelevanceColor = (score) => {
-    if (score >= 0.8) return '#10b981'; // green
-    if (score >= 0.6) return '#f59e0b'; // yellow
-    return '#ef4444'; // red
-  };
 
   return (
     <CardContainer
