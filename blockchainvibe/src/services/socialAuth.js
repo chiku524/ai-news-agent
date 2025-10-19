@@ -17,13 +17,17 @@ class SocialAuthService {
         return;
       }
       
+      // Store provider in localStorage for callback detection
+      localStorage.setItem('oauth_provider', 'google');
+      
       // Use Google's OAuth 2.0 flow
       const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
         `client_id=${this.googleClientId}&` +
         `redirect_uri=${encodeURIComponent(this.redirectUri)}&` +
         `response_type=code&` +
         `scope=openid%20email%20profile&` +
-        `access_type=offline`;
+        `access_type=offline&` +
+        `state=google`;
 
       // Redirect to Google OAuth
       window.location.href = googleAuthUrl;
@@ -48,35 +52,6 @@ class SocialAuthService {
     });
   }
 
-  handleGoogleCallback(response) {
-    // Send the authorization code to your backend
-    fetch('/api/auth/google', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        code: response.code,
-        redirect_uri: this.redirectUri
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Store tokens and redirect
-        localStorage.setItem('access_token', data.access_token);
-        localStorage.setItem('refresh_token', data.refresh_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        window.location.href = '/dashboard';
-      } else {
-        throw new Error(data.error || 'Authentication failed');
-      }
-    })
-    .catch(error => {
-      console.error('Google authentication error:', error);
-      alert('Google authentication failed. Please try again.');
-    });
-  }
 
   // GitHub OAuth
   async signInWithGitHub() {
@@ -87,10 +62,14 @@ class SocialAuthService {
         return;
       }
       
+      // Store provider in localStorage for callback detection
+      localStorage.setItem('oauth_provider', 'github');
+      
       const githubAuthUrl = `https://github.com/login/oauth/authorize?` +
         `client_id=${this.githubClientId}&` +
         `redirect_uri=${encodeURIComponent(this.redirectUri)}&` +
-        `scope=user:email`;
+        `scope=user:email&` +
+        `state=github`;
 
       // Redirect to GitHub OAuth
       window.location.href = githubAuthUrl;
@@ -109,12 +88,15 @@ class SocialAuthService {
         return;
       }
       
+      // Store provider in localStorage for callback detection
+      localStorage.setItem('oauth_provider', 'twitter');
+      
       const twitterAuthUrl = `https://twitter.com/i/oauth2/authorize?` +
         `response_type=code&` +
         `client_id=${this.twitterClientId}&` +
         `redirect_uri=${encodeURIComponent(this.redirectUri)}&` +
         `scope=tweet.read%20users.read&` +
-        `state=state&` +
+        `state=twitter&` +
         `code_challenge=challenge&` +
         `code_challenge_method=plain`;
 
@@ -131,42 +113,93 @@ class SocialAuthService {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const error = urlParams.get('error');
+    const state = urlParams.get('state');
 
     if (error) {
+      console.error('OAuth error:', error);
       window.opener?.postMessage({
-        type: 'GITHUB_AUTH_ERROR',
+        type: 'OAUTH_AUTH_ERROR',
         error: error
       }, window.location.origin);
+      window.close();
       return;
     }
 
     if (code) {
-      // Determine which provider based on the current URL or state
-      const provider = this.detectProvider();
+      // Determine which provider based on state or URL
+      const provider = this.detectProvider(state);
       
-      if (provider === 'github') {
+      if (provider === 'google') {
+        this.handleGoogleCallback(code);
+      } else if (provider === 'github') {
         this.handleGitHubCallback(code);
       } else if (provider === 'twitter') {
         this.handleTwitterCallback(code);
+      } else {
+        console.error('Unknown OAuth provider');
+        window.close();
       }
+    } else {
+      console.error('No authorization code received');
+      window.close();
     }
   }
 
-  detectProvider() {
-    // This would be set by the popup window or determined by URL parameters
+  detectProvider(state) {
+    // Check state parameter first, then localStorage
+    if (state) {
+      return state;
+    }
     return localStorage.getItem('oauth_provider') || 'github';
   }
 
-  async handleGitHubCallback(code) {
+  async handleGoogleCallback(code) {
     try {
-      const response = await fetch('/api/auth/github', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           code: code,
-          redirect_uri: this.redirectUri
+          redirect_uri: this.redirectUri,
+          provider: 'google'
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        window.opener?.postMessage({
+          type: 'GOOGLE_AUTH_SUCCESS',
+          access_token: data.access_token,
+          user: data.user
+        }, window.location.origin);
+        window.close();
+      } else {
+        throw new Error(data.message || 'Google authentication failed');
+      }
+    } catch (error) {
+      console.error('Google callback error:', error);
+      window.opener?.postMessage({
+        type: 'GOOGLE_AUTH_ERROR',
+        error: error.message
+      }, window.location.origin);
+      window.close();
+    }
+  }
+
+  async handleGitHubCallback(code) {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code: code,
+          redirect_uri: this.redirectUri,
+          provider: 'github'
         })
       });
 
@@ -192,14 +225,15 @@ class SocialAuthService {
 
   async handleTwitterCallback(code) {
     try {
-      const response = await fetch('/api/auth/twitter', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           code: code,
-          redirect_uri: this.redirectUri
+          redirect_uri: this.redirectUri,
+          provider: 'twitter'
         })
       });
 
