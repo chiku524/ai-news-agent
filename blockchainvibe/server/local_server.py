@@ -202,11 +202,14 @@ async def handle_twitter_oauth(code, redirect_uri, code_verifier):
         if "errors" in user_info:
             raise Exception(f"Twitter user error: {user_info['errors'][0].get('detail', user_info['errors'][0]['message'])}")
         
+        # Handle different possible profile image field names
+        profile_image = user_info["data"].get("profile_image_url") or user_info["data"].get("profile_image_url_https") or ""
+        
         return {
             "id": user_info["data"]["id"],
             "email": user_info["data"].get("email", ""),
             "name": user_info["data"]["name"],
-            "picture": user_info["data"]["profile_image_url"]
+            "picture": profile_image
         }, token_result["access_token"]
 
 if __name__ == "__main__":

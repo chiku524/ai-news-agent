@@ -81,7 +81,8 @@ class SocialAuthService {
         `scope=user:email&` +
         `state=github&` +
         `allow_signup=true&` +
-        `random=${randomParam}`;
+        `random=${randomParam}&` +
+        `prompt=consent`;
 
       console.log('GitHub OAuth URL:', githubAuthUrl);
       console.log('GitHub Client ID:', this.githubClientId);
@@ -210,6 +211,13 @@ class SocialAuthService {
       });
 
       console.log('Google callback: Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Google callback: HTTP error response:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
       const data = await response.json();
       console.log('Google callback: Response data:', data);
       
@@ -250,6 +258,13 @@ class SocialAuthService {
       });
 
       console.log('GitHub callback: Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('GitHub callback: HTTP error response:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
       const data = await response.json();
       console.log('GitHub callback: Response data:', data);
       
@@ -294,6 +309,13 @@ class SocialAuthService {
       });
 
       console.log('Twitter callback: Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Twitter callback: HTTP error response:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
       const data = await response.json();
       console.log('Twitter callback: Response data:', data);
       
