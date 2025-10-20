@@ -19,6 +19,7 @@ class SocialAuthService {
       hasGithubClientId: !!this.githubClientId,
       hasTwitterClientId: !!this.twitterClientId
     });
+  }
 
   // Google OAuth
   async signInWithGoogle() {
