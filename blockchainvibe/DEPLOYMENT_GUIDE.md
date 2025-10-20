@@ -97,8 +97,12 @@ REACT_APP_GOOGLE_CLIENT_ID=579208613672-c4pvdarqdnckdai6re7n9nei5svk72st.apps.go
 REACT_APP_GITHUB_CLIENT_ID=Ov23lisuJwAjEECYLj0y
 REACT_APP_TWITTER_CLIENT_ID=QmVxRHdKal81ZW9QU1pfWFhpWWQ6MTpjaQ
 REACT_APP_REDIRECT_URI=https://blockchainvibe.news/auth/callback
-REACT_APP_API_URL=https://blockchainvibe-api.your-subdomain.workers.dev
+REACT_APP_API_URL=https://blockchainvibe-api.nico-chikuji.workers.dev
 ```
+
+**Important**: Make sure you've updated your OAuth app settings (GitHub and Twitter) to include the production callback URL before deploying!
+
+📋 **For detailed OAuth configuration steps, see**: [PRODUCTION_OAUTH_SETUP.md](./PRODUCTION_OAUTH_SETUP.md)
 
 ### 3.4 Deploy
 Click "Save and Deploy"

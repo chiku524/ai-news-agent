@@ -18,6 +18,8 @@ const SpinnerContainer = styled.div`
   justify-content: center;
   padding: 4rem 2rem;
   gap: 1rem;
+  min-height: 100vh;
+  width: 100%;
 `;
 
 const Spinner = styled.div`

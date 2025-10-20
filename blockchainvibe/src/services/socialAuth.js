@@ -6,13 +6,11 @@ class SocialAuthService {
     this.twitterClientId = process.env.REACT_APP_TWITTER_CLIENT_ID;
     this.redirectUri = process.env.REACT_APP_REDIRECT_URI || window.location.origin;
     
-    // Debug environment variables
-    console.log('SocialAuth Environment Variables:');
-    console.log('REACT_APP_GOOGLE_CLIENT_ID:', this.googleClientId);
-    console.log('REACT_APP_GITHUB_CLIENT_ID:', this.githubClientId);
-    console.log('REACT_APP_TWITTER_CLIENT_ID:', this.twitterClientId);
-    console.log('REACT_APP_REDIRECT_URI:', this.redirectUri);
-    console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+    // For production, ensure we use the correct redirect URI
+    if (process.env.NODE_ENV === 'production' && !process.env.REACT_APP_REDIRECT_URI) {
+      this.redirectUri = 'https://blockchainvibe.news/auth/callback';
+    }
+    
   }
 
   // Google OAuth
