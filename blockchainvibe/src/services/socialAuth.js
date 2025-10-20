@@ -72,6 +72,10 @@ class SocialAuthService {
         `state=github&` +
         `allow_signup=true`;
 
+      console.log('GitHub OAuth URL:', githubAuthUrl);
+      console.log('GitHub Client ID:', this.githubClientId);
+      console.log('Redirect URI:', this.redirectUri);
+
       // Redirect to GitHub OAuth
       window.location.href = githubAuthUrl;
     } catch (error) {
@@ -108,6 +112,11 @@ class SocialAuthService {
         `code_challenge=${codeChallenge}&` +
         `code_challenge_method=S256`;
 
+      console.log('Twitter OAuth URL:', twitterAuthUrl);
+      console.log('Twitter Client ID:', this.twitterClientId);
+      console.log('Redirect URI:', this.redirectUri);
+      console.log('Code Challenge:', codeChallenge);
+
       // Redirect to X (Twitter) OAuth
       window.location.href = twitterAuthUrl;
     } catch (error) {
@@ -122,13 +131,21 @@ class SocialAuthService {
     const code = urlParams.get('code');
     const error = urlParams.get('error');
     const state = urlParams.get('state');
+    const errorDescription = urlParams.get('error_description');
 
-    console.log('OAuth callback params:', { code, error, state });
+    console.log('OAuth callback params:', { 
+      code, 
+      error, 
+      state, 
+      errorDescription,
+      fullUrl: window.location.href,
+      search: window.location.search
+    });
 
     if (error) {
-      console.error('OAuth error:', error);
+      console.error('OAuth error:', error, errorDescription);
       // Redirect to sign-in with error
-      window.location.href = '/signin?error=' + encodeURIComponent(error);
+      window.location.href = '/signin?error=' + encodeURIComponent(`${error}: ${errorDescription || 'Unknown error'}`);
       return;
     }
 
@@ -152,6 +169,7 @@ class SocialAuthService {
       }
     } else {
       console.error('No authorization code received');
+      console.log('Available URL params:', Array.from(urlParams.entries()));
       window.location.href = '/signin?error=' + encodeURIComponent('No authorization code received');
     }
   }
@@ -200,6 +218,10 @@ class SocialAuthService {
 
   async handleGitHubCallback(code) {
     try {
+      console.log('GitHub callback: Starting API call with code:', code);
+      console.log('API URL:', process.env.REACT_APP_API_URL);
+      console.log('Redirect URI:', this.redirectUri);
+      
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
         method: 'POST',
         headers: {
@@ -212,7 +234,9 @@ class SocialAuthService {
         })
       });
 
+      console.log('GitHub callback: Response status:', response.status);
       const data = await response.json();
+      console.log('GitHub callback: Response data:', data);
       
       if (data.success) {
         // Store authentication data
@@ -220,10 +244,11 @@ class SocialAuthService {
         localStorage.setItem('refresh_token', data.refresh_token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
+        console.log('GitHub callback: Success, redirecting to dashboard');
         // Redirect to dashboard
         window.location.href = '/dashboard';
       } else {
-        throw new Error(data.error || 'GitHub authentication failed');
+        throw new Error(data.message || data.error || 'GitHub authentication failed');
       }
     } catch (error) {
       console.error('GitHub callback error:', error);
@@ -236,6 +261,10 @@ class SocialAuthService {
     try {
       // Get the stored code verifier
       const codeVerifier = localStorage.getItem('twitter_code_verifier');
+      console.log('Twitter callback: Starting API call with code:', code);
+      console.log('Code verifier:', codeVerifier);
+      console.log('API URL:', process.env.REACT_APP_API_URL);
+      console.log('Redirect URI:', this.redirectUri);
       
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
         method: 'POST',
@@ -250,7 +279,9 @@ class SocialAuthService {
         })
       });
 
+      console.log('Twitter callback: Response status:', response.status);
       const data = await response.json();
+      console.log('Twitter callback: Response data:', data);
       
       if (data.success) {
         // Store authentication data
@@ -258,10 +289,11 @@ class SocialAuthService {
         localStorage.setItem('refresh_token', data.refresh_token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
+        console.log('Twitter callback: Success, redirecting to dashboard');
         // Redirect to dashboard
         window.location.href = '/dashboard';
       } else {
-        throw new Error(data.error || 'Twitter authentication failed');
+        throw new Error(data.message || data.error || 'Twitter authentication failed');
       }
     } catch (error) {
       console.error('Twitter callback error:', error);
