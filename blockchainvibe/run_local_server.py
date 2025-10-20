@@ -10,7 +10,7 @@ import subprocess
 def main():
     # Set environment variables for OAuth secrets
     # You'll need to replace these with your actual secrets
-    os.environ["GOOGLE_CLIENT_SECRET"] = "your_google_client_secret_here"
+    os.environ["GOOGLE_CLIENT_SECRET"] = "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"
     os.environ["GITHUB_CLIENT_SECRET"] = "7567121f79e7ba2520d5d8cce22a4f90e90ff3c8"
     os.environ["TWITTER_CLIENT_SECRET"] = "Qw8ImtckPxdNs9YljLMigQwtmJqtjrPE5pLb0VfqKDxlCQDQme"
     

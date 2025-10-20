@@ -465,11 +465,14 @@ async function handleTwitterOAuth(code, redirect_uri, codeVerifier, env) {
   console.log('Twitter OAuth: Starting token exchange');
   
   // Twitter OAuth 2.0 implementation with PKCE
+  const authString = `${env.TWITTER_CLIENT_ID}:${env.TWITTER_CLIENT_SECRET}`;
+  const authHeader = btoa(authString);
+  
   const tokenResponse = await fetch('https://api.twitter.com/2/oauth2/token', {
     method: 'POST',
     headers: { 
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${btoa(`${env.TWITTER_CLIENT_ID}:${env.TWITTER_CLIENT_SECRET}`)}`
+      'Authorization': `Basic ${authHeader}`
     },
     body: new URLSearchParams({
       code: code,
@@ -498,13 +501,16 @@ async function handleTwitterOAuth(code, redirect_uri, codeVerifier, env) {
     throw new Error(`Twitter user error: ${userInfo.errors[0].detail || userInfo.errors[0].message}`);
   }
   
+  // Handle different possible profile image field names
+  const profileImage = userInfo.data.profile_image_url || userInfo.data.profile_image_url_https || '';
+  
   return {
     access_token: tokenData.access_token,
     user: {
       id: userInfo.data.id,
       email: userInfo.data.email || '',
       name: userInfo.data.name,
-      picture: userInfo.data.profile_image_url
+      picture: profileImage
     }
   };
 }
