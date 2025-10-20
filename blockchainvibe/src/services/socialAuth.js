@@ -12,7 +12,13 @@ class SocialAuthService {
       this.redirectUri = process.env.REACT_APP_REDIRECT_URI || 'http://localhost:3000/auth/callback';
     }
     
-  }
+    console.log('SocialAuth initialized:', {
+      environment: process.env.NODE_ENV,
+      redirectUri: this.redirectUri,
+      hasGoogleClientId: !!this.googleClientId,
+      hasGithubClientId: !!this.githubClientId,
+      hasTwitterClientId: !!this.twitterClientId
+    });
 
   // Google OAuth
   async signInWithGoogle() {
