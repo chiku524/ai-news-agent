@@ -365,6 +365,178 @@ async function calculateUserRelevance(newsItems, userProfile, env) {
   return count > 0 ? totalRelevance / count : 0.0;
 }
 
+// Individual OAuth handlers for unified callback
+async function handleGoogleOAuth(code, redirect_uri, env) {
+  const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: env.GOOGLE_CLIENT_ID,
+      client_secret: env.GOOGLE_CLIENT_SECRET,
+      code: code,
+      grant_type: 'authorization_code',
+      redirect_uri: redirect_uri
+    })
+  });
+  
+  const tokenData = await tokenResponse.json();
+  
+  // Get user info
+  const userResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+    headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
+  });
+  
+  const userInfo = await userResponse.json();
+  
+  return {
+    access_token: tokenData.access_token,
+    user: {
+      id: userInfo.id,
+      email: userInfo.email,
+      name: userInfo.name,
+      picture: userInfo.picture
+    }
+  };
+}
+
+async function handleGitHubOAuth(code, redirect_uri, env) {
+  const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+    method: 'POST',
+    headers: { 'Accept': 'application/json' },
+    body: new URLSearchParams({
+      client_id: env.GITHUB_CLIENT_ID,
+      client_secret: env.GITHUB_CLIENT_SECRET,
+      code: code,
+      redirect_uri: redirect_uri
+    })
+  });
+  
+  const tokenData = await tokenResponse.json();
+  
+  // Get user info
+  const userResponse = await fetch('https://api.github.com/user', {
+    headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
+  });
+  
+  const userInfo = await userResponse.json();
+  
+  return {
+    access_token: tokenData.access_token,
+    user: {
+      id: userInfo.id.toString(),
+      email: userInfo.email,
+      name: userInfo.name || userInfo.login,
+      picture: userInfo.avatar_url
+    }
+  };
+}
+
+async function handleTwitterOAuth(code, redirect_uri, env) {
+  // Twitter OAuth 2.0 implementation
+  const tokenResponse = await fetch('https://api.twitter.com/2/oauth2/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: env.TWITTER_CLIENT_ID,
+      code: code,
+      grant_type: 'authorization_code',
+      redirect_uri: redirect_uri,
+      code_verifier: 'challenge' // This should be properly implemented
+    })
+  });
+  
+  const tokenData = await tokenResponse.json();
+  
+  // Get user info
+  const userResponse = await fetch('https://api.twitter.com/2/users/me', {
+    headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
+  });
+  
+  const userInfo = await userResponse.json();
+  
+  return {
+    access_token: tokenData.access_token,
+    user: {
+      id: userInfo.data.id,
+      email: userInfo.data.email || '',
+      name: userInfo.data.name,
+      picture: userInfo.data.profile_image_url
+    }
+  };
+}
+
+// Unified OAuth callback handler
+async function handleOAuthCallback(request, env) {
+  try {
+    const { code, redirect_uri, provider } = await request.json();
+    
+    if (!code || !provider) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: 'Missing required parameters'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+
+    let userData;
+    let accessToken;
+
+    // Handle different OAuth providers
+    if (provider === 'google') {
+      const result = await handleGoogleOAuth(code, redirect_uri, env);
+      userData = result.user;
+      accessToken = result.access_token;
+    } else if (provider === 'github') {
+      const result = await handleGitHubOAuth(code, redirect_uri, env);
+      userData = result.user;
+      accessToken = result.access_token;
+    } else if (provider === 'twitter') {
+      const result = await handleTwitterOAuth(code, redirect_uri, env);
+      userData = result.user;
+      accessToken = result.access_token;
+    } else {
+      return new Response(JSON.stringify({
+        success: false,
+        message: 'Unsupported OAuth provider'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+
+    // Save user to database
+    const db = new DatabaseService(env.DB);
+    await db.createUser({
+      id: userData.id,
+      email: userData.email,
+      name: userData.name,
+      picture: userData.picture || userData.avatar_url,
+      provider: provider
+    });
+
+    return new Response(JSON.stringify({
+      success: true,
+      access_token: accessToken,
+      user: userData
+    }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+
+  } catch (error) {
+    console.error('OAuth callback error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      message: 'OAuth callback failed',
+      error: error.message
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
 // Main request handler
 export default {
   async fetch(request, env, ctx) {
@@ -388,6 +560,10 @@ export default {
       
       if (path === '/api/auth/github' && method === 'POST') {
         return await handleGitHubAuth(request, env);
+      }
+      
+      if (path === '/api/auth/callback' && method === 'POST') {
+        return await handleOAuthCallback(request, env);
       }
       
       if (path === '/api/news/trending' && method === 'POST') {
