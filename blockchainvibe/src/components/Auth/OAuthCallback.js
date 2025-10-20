@@ -35,6 +35,11 @@ const CallbackText = styled.p`
 
 const OAuthCallback = () => {
   useEffect(() => {
+    // Add debugging
+    console.log('OAuthCallback: Starting callback handling');
+    console.log('Current URL:', window.location.href);
+    console.log('URL params:', window.location.search);
+    
     // Handle the OAuth callback
     socialAuthService.handleOAuthCallback();
   }, []);

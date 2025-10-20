@@ -115,33 +115,36 @@ class SocialAuthService {
     const error = urlParams.get('error');
     const state = urlParams.get('state');
 
+    console.log('OAuth callback params:', { code, error, state });
+
     if (error) {
       console.error('OAuth error:', error);
-      window.opener?.postMessage({
-        type: 'OAUTH_AUTH_ERROR',
-        error: error
-      }, window.location.origin);
-      window.close();
+      // Redirect to sign-in with error
+      window.location.href = '/signin?error=' + encodeURIComponent(error);
       return;
     }
 
     if (code) {
       // Determine which provider based on state or URL
       const provider = this.detectProvider(state);
+      console.log('Detected provider:', provider);
       
       if (provider === 'google') {
+        console.log('Handling Google callback');
         this.handleGoogleCallback(code);
       } else if (provider === 'github') {
+        console.log('Handling GitHub callback');
         this.handleGitHubCallback(code);
       } else if (provider === 'twitter') {
+        console.log('Handling Twitter callback');
         this.handleTwitterCallback(code);
       } else {
-        console.error('Unknown OAuth provider');
-        window.close();
+        console.error('Unknown OAuth provider:', provider);
+        window.location.href = '/signin?error=' + encodeURIComponent('Unknown OAuth provider');
       }
     } else {
       console.error('No authorization code received');
-      window.close();
+      window.location.href = '/signin?error=' + encodeURIComponent('No authorization code received');
     }
   }
 
@@ -170,22 +173,20 @@ class SocialAuthService {
       const data = await response.json();
       
       if (data.success) {
-        window.opener?.postMessage({
-          type: 'GOOGLE_AUTH_SUCCESS',
-          access_token: data.access_token,
-          user: data.user
-        }, window.location.origin);
-        window.close();
+        // Store authentication data
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('refresh_token', data.refresh_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Redirect to dashboard
+        window.location.href = '/dashboard';
       } else {
         throw new Error(data.message || 'Google authentication failed');
       }
     } catch (error) {
       console.error('Google callback error:', error);
-      window.opener?.postMessage({
-        type: 'GOOGLE_AUTH_ERROR',
-        error: error.message
-      }, window.location.origin);
-      window.close();
+      // Redirect to sign-in with error
+      window.location.href = '/signin?error=' + encodeURIComponent(error.message);
     }
   }
 
@@ -206,20 +207,20 @@ class SocialAuthService {
       const data = await response.json();
       
       if (data.success) {
-        window.opener?.postMessage({
-          type: 'GITHUB_AUTH_SUCCESS',
-          access_token: data.access_token,
-          user: data.user
-        }, window.location.origin);
+        // Store authentication data
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('refresh_token', data.refresh_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Redirect to dashboard
+        window.location.href = '/dashboard';
       } else {
         throw new Error(data.error || 'GitHub authentication failed');
       }
     } catch (error) {
       console.error('GitHub callback error:', error);
-      window.opener?.postMessage({
-        type: 'GITHUB_AUTH_ERROR',
-        error: error.message
-      }, window.location.origin);
+      // Redirect to sign-in with error
+      window.location.href = '/signin?error=' + encodeURIComponent(error.message);
     }
   }
 
@@ -240,20 +241,20 @@ class SocialAuthService {
       const data = await response.json();
       
       if (data.success) {
-        window.opener?.postMessage({
-          type: 'TWITTER_AUTH_SUCCESS',
-          access_token: data.access_token,
-          user: data.user
-        }, window.location.origin);
+        // Store authentication data
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('refresh_token', data.refresh_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Redirect to dashboard
+        window.location.href = '/dashboard';
       } else {
         throw new Error(data.error || 'Twitter authentication failed');
       }
     } catch (error) {
       console.error('Twitter callback error:', error);
-      window.opener?.postMessage({
-        type: 'TWITTER_AUTH_ERROR',
-        error: error.message
-      }, window.location.origin);
+      // Redirect to sign-in with error
+      window.location.href = '/signin?error=' + encodeURIComponent(error.message);
     }
   }
 
