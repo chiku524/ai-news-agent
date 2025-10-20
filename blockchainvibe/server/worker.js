@@ -432,11 +432,29 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
     throw new Error(`GitHub user error: ${userInfo.message}`);
   }
   
+  // Get user email addresses (GitHub user email might be private)
+  let userEmail = userInfo.email;
+  if (!userEmail) {
+    try {
+      const emailResponse = await fetch('https://api.github.com/user/emails', {
+        headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
+      });
+      const emails = await emailResponse.json();
+      console.log('GitHub OAuth: User emails:', emails);
+      
+      // Find primary email or first verified email
+      const primaryEmail = emails.find(email => email.primary) || emails.find(email => email.verified);
+      userEmail = primaryEmail ? primaryEmail.email : (emails[0] ? emails[0].email : null);
+    } catch (emailError) {
+      console.log('GitHub OAuth: Could not fetch emails:', emailError);
+    }
+  }
+  
   return {
     access_token: tokenData.access_token,
     user: {
       id: userInfo.id.toString(),
-      email: userInfo.email,
+      email: userEmail || `${userInfo.login}@github.local`,
       name: userInfo.name || userInfo.login,
       picture: userInfo.avatar_url
     }
@@ -533,14 +551,16 @@ async function handleOAuthCallback(request, env) {
     }
 
     // Save user to database
+    console.log('OAuth callback: Saving user to database:', userData);
     const db = new DatabaseService(env.DB);
-    await db.createUser({
+    const dbResult = await db.createUser({
       id: userData.id,
       email: userData.email,
       name: userData.name,
       picture: userData.picture || userData.avatar_url,
       provider: provider
     });
+    console.log('OAuth callback: Database result:', dbResult);
 
     return new Response(JSON.stringify({
       success: true,

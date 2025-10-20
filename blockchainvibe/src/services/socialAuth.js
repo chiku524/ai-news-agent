@@ -65,12 +65,16 @@ class SocialAuthService {
       // Store provider in localStorage for callback detection
       localStorage.setItem('oauth_provider', 'github');
       
+      // Add a random parameter to force GitHub to show authorization screen
+      const randomParam = Math.random().toString(36).substring(7);
+      
       const githubAuthUrl = `https://github.com/login/oauth/authorize?` +
         `client_id=${this.githubClientId}&` +
         `redirect_uri=${encodeURIComponent(this.redirectUri)}&` +
         `scope=user:email&` +
         `state=github&` +
-        `allow_signup=true`;
+        `allow_signup=true&` +
+        `random=${randomParam}`;
 
       console.log('GitHub OAuth URL:', githubAuthUrl);
       console.log('GitHub Client ID:', this.githubClientId);
