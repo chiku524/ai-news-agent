@@ -404,7 +404,10 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
   
   const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
-    headers: { 'Accept': 'application/json' },
+    headers: { 
+      'Accept': 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
     body: new URLSearchParams({
       client_id: env.GITHUB_CLIENT_ID,
       client_secret: env.GITHUB_CLIENT_SECRET,
@@ -420,10 +423,21 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
     throw new Error(`GitHub token error: ${tokenData.error_description || tokenData.error}`);
   }
   
+  if (!tokenData.access_token) {
+    throw new Error('GitHub token error: No access token received');
+  }
+  
   // Get user info
   const userResponse = await fetch('https://api.github.com/user', {
-    headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
+    headers: { 
+      'Authorization': `Bearer ${tokenData.access_token}`,
+      'Accept': 'application/vnd.github.v3+json'
+    }
   });
+  
+  if (!userResponse.ok) {
+    throw new Error(`GitHub API error: ${userResponse.status} ${userResponse.statusText}`);
+  }
   
   const userInfo = await userResponse.json();
   console.log('GitHub OAuth: User info:', userInfo);
@@ -437,7 +451,10 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
   if (!userEmail) {
     try {
       const emailResponse = await fetch('https://api.github.com/user/emails', {
-        headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
+        headers: { 
+          'Authorization': `Bearer ${tokenData.access_token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
       });
       const emails = await emailResponse.json();
       console.log('GitHub OAuth: User emails:', emails);
@@ -454,9 +471,10 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
     access_token: tokenData.access_token,
     user: {
       id: userInfo.id.toString(),
-      email: userEmail || `${userInfo.login}@github.local`,
+      email: userEmail || `${userInfo.login}@github.com`,
       name: userInfo.name || userInfo.login,
-      picture: userInfo.avatar_url
+      picture: userInfo.avatar_url || '',
+      provider: 'github'
     }
   };
 }
@@ -472,7 +490,8 @@ async function handleTwitterOAuth(code, redirect_uri, codeVerifier, env) {
     method: 'POST',
     headers: { 
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${authHeader}`
+      'Authorization': `Basic ${authHeader}`,
+      'Accept': 'application/json'
     },
     body: new URLSearchParams({
       code: code,
@@ -481,6 +500,11 @@ async function handleTwitterOAuth(code, redirect_uri, codeVerifier, env) {
       code_verifier: codeVerifier
     })
   });
+  
+  if (!tokenResponse.ok) {
+    const errorText = await tokenResponse.text();
+    throw new Error(`Twitter token request failed: ${tokenResponse.status} ${tokenResponse.statusText} - ${errorText}`);
+  }
   
   const tokenData = await tokenResponse.json();
   console.log('Twitter OAuth: Token response:', tokenData);
@@ -491,8 +515,16 @@ async function handleTwitterOAuth(code, redirect_uri, codeVerifier, env) {
   
   // Get user info
   const userResponse = await fetch('https://api.twitter.com/2/users/me', {
-    headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
+    headers: { 
+      'Authorization': `Bearer ${tokenData.access_token}`,
+      'Accept': 'application/json'
+    }
   });
+  
+  if (!userResponse.ok) {
+    const errorText = await userResponse.text();
+    throw new Error(`Twitter user API error: ${userResponse.status} ${userResponse.statusText} - ${errorText}`);
+  }
   
   const userInfo = await userResponse.json();
   console.log('Twitter OAuth: User info:', userInfo);
@@ -510,7 +542,8 @@ async function handleTwitterOAuth(code, redirect_uri, codeVerifier, env) {
       id: userInfo.data.id,
       email: userInfo.data.email || '',
       name: userInfo.data.name,
-      picture: profileImage
+      picture: profileImage,
+      provider: 'twitter'
     }
   };
 }

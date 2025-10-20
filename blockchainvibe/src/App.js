@@ -15,7 +15,6 @@ import NewsDetail from './components/NewsDetail';
 import UserProfile from './components/UserProfile';
 import SearchResults from './components/SearchResults';
 import NotFound from './components/NotFound';
-import EnvTest from './components/EnvTest';
 
 // Context
 import { ThemeProvider as CustomThemeProvider, useTheme } from './contexts/ThemeContext';
@@ -137,7 +136,6 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <CustomThemeProvider>
-        <EnvTest />
         <AppContent />
       </CustomThemeProvider>
     </QueryClientProvider>
