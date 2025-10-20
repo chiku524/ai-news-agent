@@ -137,7 +137,7 @@ class SocialAuthService {
   }
 
   // Handle OAuth callbacks (for popup windows)
-  handleOAuthCallback() {
+  async handleOAuthCallback() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const error = urlParams.get('error');
@@ -155,9 +155,7 @@ class SocialAuthService {
 
     if (error) {
       console.error('OAuth error:', error, errorDescription);
-      // Redirect to sign-in with error
-      window.location.href = '/signin?error=' + encodeURIComponent(`${error}: ${errorDescription || 'Unknown error'}`);
-      return;
+      throw new Error(`${error}: ${errorDescription || 'Unknown error'}`);
     }
 
     if (code) {
@@ -167,21 +165,21 @@ class SocialAuthService {
       
       if (provider === 'google') {
         console.log('Handling Google callback');
-        this.handleGoogleCallback(code);
+        await this.handleGoogleCallback(code);
       } else if (provider === 'github') {
         console.log('Handling GitHub callback');
-        this.handleGitHubCallback(code);
+        await this.handleGitHubCallback(code);
       } else if (provider === 'twitter') {
         console.log('Handling Twitter callback');
-        this.handleTwitterCallback(code);
+        await this.handleTwitterCallback(code);
       } else {
         console.error('Unknown OAuth provider:', provider);
-        window.location.href = '/signin?error=' + encodeURIComponent('Unknown OAuth provider');
+        throw new Error('Unknown OAuth provider');
       }
     } else {
       console.error('No authorization code received');
       console.log('Available URL params:', Array.from(urlParams.entries()));
-      window.location.href = '/signin?error=' + encodeURIComponent('No authorization code received');
+      throw new Error('No authorization code received');
     }
   }
 
@@ -195,6 +193,10 @@ class SocialAuthService {
 
   async handleGoogleCallback(code) {
     try {
+      console.log('Google callback: Starting API call with code:', code);
+      console.log('API URL:', process.env.REACT_APP_API_URL);
+      console.log('Redirect URI:', this.redirectUri);
+      
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
         method: 'POST',
         headers: {
@@ -207,7 +209,9 @@ class SocialAuthService {
         })
       });
 
+      console.log('Google callback: Response status:', response.status);
       const data = await response.json();
+      console.log('Google callback: Response data:', data);
       
       if (data.success) {
         // Store authentication data
@@ -215,15 +219,15 @@ class SocialAuthService {
         localStorage.setItem('refresh_token', data.refresh_token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
+        console.log('Google callback: Success, redirecting to dashboard');
         // Redirect to dashboard
         window.location.href = '/dashboard';
       } else {
-        throw new Error(data.message || 'Google authentication failed');
+        throw new Error(data.message || data.error || 'Google authentication failed');
       }
     } catch (error) {
       console.error('Google callback error:', error);
-      // Redirect to sign-in with error
-      window.location.href = '/signin?error=' + encodeURIComponent(error.message);
+      throw error; // Re-throw to be handled by the calling function
     }
   }
 
@@ -263,8 +267,7 @@ class SocialAuthService {
       }
     } catch (error) {
       console.error('GitHub callback error:', error);
-      // Redirect to sign-in with error
-      window.location.href = '/signin?error=' + encodeURIComponent(error.message);
+      throw error; // Re-throw to be handled by the calling function
     }
   }
 
@@ -308,8 +311,7 @@ class SocialAuthService {
       }
     } catch (error) {
       console.error('Twitter callback error:', error);
-      // Redirect to sign-in with error
-      window.location.href = '/signin?error=' + encodeURIComponent(error.message);
+      throw error; // Re-throw to be handled by the calling function
     }
   }
 

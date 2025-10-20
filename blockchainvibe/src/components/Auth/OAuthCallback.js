@@ -34,14 +34,31 @@ const CallbackText = styled.p`
 `;
 
 const OAuthCallback = () => {
+  const [status, setStatus] = React.useState('Completing authentication...');
+  const [error, setError] = React.useState(null);
+
   useEffect(() => {
-    // Add debugging
-    console.log('OAuthCallback: Starting callback handling');
-    console.log('Current URL:', window.location.href);
-    console.log('URL params:', window.location.search);
-    
-    // Handle the OAuth callback
-    socialAuthService.handleOAuthCallback();
+    const handleCallback = async () => {
+      try {
+        // Add debugging
+        console.log('OAuthCallback: Starting callback handling');
+        console.log('Current URL:', window.location.href);
+        console.log('URL params:', window.location.search);
+        
+        setStatus('Processing OAuth callback...');
+        
+        // Handle the OAuth callback
+        await socialAuthService.handleOAuthCallback();
+        
+        setStatus('Authentication successful! Redirecting...');
+      } catch (error) {
+        console.error('OAuthCallback error:', error);
+        setError(error.message);
+        setStatus('Authentication failed');
+      }
+    };
+
+    handleCallback();
   }, []);
 
   return (
@@ -51,8 +68,13 @@ const OAuthCallback = () => {
           <Loader size={48} />
         </Spinner>
         <CallbackText>
-          Completing authentication...
+          {status}
         </CallbackText>
+        {error && (
+          <div style={{ color: 'red', marginTop: '1rem' }}>
+            Error: {error}
+          </div>
+        )}
       </CallbackContent>
     </CallbackContainer>
   );
