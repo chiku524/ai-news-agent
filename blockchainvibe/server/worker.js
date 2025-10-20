@@ -400,6 +400,8 @@ async function handleGoogleOAuth(code, redirect_uri, env) {
 }
 
 async function handleGitHubOAuth(code, redirect_uri, env) {
+  console.log('GitHub OAuth: Starting token exchange');
+  
   const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
     headers: { 'Accept': 'application/json' },
@@ -412,6 +414,11 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
   });
   
   const tokenData = await tokenResponse.json();
+  console.log('GitHub OAuth: Token response:', tokenData);
+  
+  if (tokenData.error) {
+    throw new Error(`GitHub token error: ${tokenData.error_description || tokenData.error}`);
+  }
   
   // Get user info
   const userResponse = await fetch('https://api.github.com/user', {
@@ -419,6 +426,11 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
   });
   
   const userInfo = await userResponse.json();
+  console.log('GitHub OAuth: User info:', userInfo);
+  
+  if (userInfo.message) {
+    throw new Error(`GitHub user error: ${userInfo.message}`);
+  }
   
   return {
     access_token: tokenData.access_token,
@@ -431,21 +443,30 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
   };
 }
 
-async function handleTwitterOAuth(code, redirect_uri, env) {
-  // Twitter OAuth 2.0 implementation
+async function handleTwitterOAuth(code, redirect_uri, codeVerifier, env) {
+  console.log('Twitter OAuth: Starting token exchange');
+  
+  // Twitter OAuth 2.0 implementation with PKCE
   const tokenResponse = await fetch('https://api.twitter.com/2/oauth2/token', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': `Basic ${btoa(`${env.TWITTER_CLIENT_ID}:${env.TWITTER_CLIENT_SECRET}`)}`
+    },
     body: new URLSearchParams({
-      client_id: env.TWITTER_CLIENT_ID,
       code: code,
       grant_type: 'authorization_code',
       redirect_uri: redirect_uri,
-      code_verifier: 'challenge' // This should be properly implemented
+      code_verifier: codeVerifier
     })
   });
   
   const tokenData = await tokenResponse.json();
+  console.log('Twitter OAuth: Token response:', tokenData);
+  
+  if (tokenData.error) {
+    throw new Error(`Twitter token error: ${tokenData.error_description || tokenData.error}`);
+  }
   
   // Get user info
   const userResponse = await fetch('https://api.twitter.com/2/users/me', {
@@ -453,6 +474,11 @@ async function handleTwitterOAuth(code, redirect_uri, env) {
   });
   
   const userInfo = await userResponse.json();
+  console.log('Twitter OAuth: User info:', userInfo);
+  
+  if (userInfo.errors) {
+    throw new Error(`Twitter user error: ${userInfo.errors[0].detail || userInfo.errors[0].message}`);
+  }
   
   return {
     access_token: tokenData.access_token,
@@ -468,7 +494,7 @@ async function handleTwitterOAuth(code, redirect_uri, env) {
 // Unified OAuth callback handler
 async function handleOAuthCallback(request, env) {
   try {
-    const { code, redirect_uri, provider } = await request.json();
+    const { code, redirect_uri, provider, code_verifier } = await request.json();
     
     if (!code || !provider) {
       return new Response(JSON.stringify({
@@ -493,7 +519,7 @@ async function handleOAuthCallback(request, env) {
       userData = result.user;
       accessToken = result.access_token;
     } else if (provider === 'twitter') {
-      const result = await handleTwitterOAuth(code, redirect_uri, env);
+      const result = await handleTwitterOAuth(code, redirect_uri, code_verifier, env);
       userData = result.user;
       accessToken = result.access_token;
     } else {

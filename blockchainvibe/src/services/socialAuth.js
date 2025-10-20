@@ -69,7 +69,8 @@ class SocialAuthService {
         `client_id=${this.githubClientId}&` +
         `redirect_uri=${encodeURIComponent(this.redirectUri)}&` +
         `scope=user:email&` +
-        `state=github`;
+        `state=github&` +
+        `allow_signup=true`;
 
       // Redirect to GitHub OAuth
       window.location.href = githubAuthUrl;
@@ -91,14 +92,21 @@ class SocialAuthService {
       // Store provider in localStorage for callback detection
       localStorage.setItem('oauth_provider', 'twitter');
       
+      // Generate PKCE code challenge
+      const codeVerifier = this.generateCodeVerifier();
+      const codeChallenge = await this.generateCodeChallenge(codeVerifier);
+      
+      // Store code verifier for later use
+      localStorage.setItem('twitter_code_verifier', codeVerifier);
+      
       const twitterAuthUrl = `https://twitter.com/i/oauth2/authorize?` +
         `response_type=code&` +
         `client_id=${this.twitterClientId}&` +
         `redirect_uri=${encodeURIComponent(this.redirectUri)}&` +
         `scope=tweet.read%20users.read&` +
         `state=twitter&` +
-        `code_challenge=challenge&` +
-        `code_challenge_method=plain`;
+        `code_challenge=${codeChallenge}&` +
+        `code_challenge_method=S256`;
 
       // Redirect to X (Twitter) OAuth
       window.location.href = twitterAuthUrl;
@@ -226,6 +234,9 @@ class SocialAuthService {
 
   async handleTwitterCallback(code) {
     try {
+      // Get the stored code verifier
+      const codeVerifier = localStorage.getItem('twitter_code_verifier');
+      
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
         method: 'POST',
         headers: {
@@ -234,7 +245,8 @@ class SocialAuthService {
         body: JSON.stringify({
           code: code,
           redirect_uri: this.redirectUri,
-          provider: 'twitter'
+          provider: 'twitter',
+          code_verifier: codeVerifier
         })
       });
 
@@ -256,6 +268,26 @@ class SocialAuthService {
       // Redirect to sign-in with error
       window.location.href = '/signin?error=' + encodeURIComponent(error.message);
     }
+  }
+
+  // PKCE helper methods for Twitter OAuth 2.0
+  generateCodeVerifier() {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return btoa(String.fromCharCode.apply(null, array))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+  }
+
+  async generateCodeChallenge(verifier) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(verifier);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(digest)))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
   }
 
   // Demo authentication for testing without OAuth setup
