@@ -14,10 +14,10 @@ def main():
     os.environ["GITHUB_CLIENT_SECRET"] = "7567121f79e7ba2520d5d8cce22a4f90e90ff3c8"
     os.environ["TWITTER_CLIENT_SECRET"] = "Qw8ImtckPxdNs9YljLMigQwtmJqtjrPE5pLb0VfqKDxlCQDQme"
     
-    print("🚀 Starting BlockchainVibe Local Development Server...")
-    print("📝 Make sure to update OAuth secrets in this script!")
-    print("🌐 Server will run on http://localhost:8000")
-    print("🔗 Frontend should run on http://localhost:3000")
+    print("Starting BlockchainVibe Local Development Server...")
+    print("Make sure to update OAuth secrets in this script!")
+    print("Server will run on http://localhost:8000")
+    print("Frontend should run on http://localhost:3000")
     print("\n" + "="*50)
     
     # Change to server directory and run the local server
