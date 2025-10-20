@@ -4,11 +4,12 @@ class SocialAuthService {
     this.googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
     this.githubClientId = process.env.REACT_APP_GITHUB_CLIENT_ID;
     this.twitterClientId = process.env.REACT_APP_TWITTER_CLIENT_ID;
-    this.redirectUri = process.env.REACT_APP_REDIRECT_URI || window.location.origin;
     
-    // For production, ensure we use the correct redirect URI
-    if (process.env.NODE_ENV === 'production' && !process.env.REACT_APP_REDIRECT_URI) {
+    // Set redirect URI based on environment
+    if (process.env.NODE_ENV === 'production') {
       this.redirectUri = 'https://blockchainvibe.news/auth/callback';
+    } else {
+      this.redirectUri = process.env.REACT_APP_REDIRECT_URI || 'http://localhost:3000/auth/callback';
     }
     
   }
