@@ -1,6 +1,11 @@
 import React from 'react';
 
 const EnvTest = () => {
+  // Log all environment variables for debugging
+  console.log('All process.env variables:', process.env);
+  console.log('REACT_APP_REDIRECT_URI:', process.env.REACT_APP_REDIRECT_URI);
+  console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+  
   return (
     <div style={{ 
       position: 'fixed', 
@@ -17,6 +22,7 @@ const EnvTest = () => {
       <p><strong>REACT_APP_REDIRECT_URI:</strong> {process.env.REACT_APP_REDIRECT_URI}</p>
       <p><strong>REACT_APP_API_URL:</strong> {process.env.REACT_APP_API_URL}</p>
       <p><strong>NODE_ENV:</strong> {process.env.NODE_ENV}</p>
+      <p><strong>All env vars:</strong> {JSON.stringify(process.env, null, 2)}</p>
     </div>
   );
 };
