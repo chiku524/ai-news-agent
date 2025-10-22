@@ -234,6 +234,8 @@ class SocialAuthService {
         localStorage.setItem('user', JSON.stringify(data.user));
         
         console.log('Google callback: Success, redirecting to dashboard');
+        // Clear any stored OAuth provider info
+        localStorage.removeItem('oauth_provider');
         // Redirect to dashboard
         window.location.href = '/dashboard';
       } else {
@@ -281,6 +283,8 @@ class SocialAuthService {
         localStorage.setItem('user', JSON.stringify(data.user));
         
         console.log('GitHub callback: Success, redirecting to dashboard');
+        // Clear any stored OAuth provider info
+        localStorage.removeItem('oauth_provider');
         // Redirect to dashboard
         window.location.href = '/dashboard';
       } else {
@@ -332,6 +336,9 @@ class SocialAuthService {
         localStorage.setItem('user', JSON.stringify(data.user));
         
         console.log('Twitter callback: Success, redirecting to dashboard');
+        // Clear any stored OAuth provider info
+        localStorage.removeItem('oauth_provider');
+        localStorage.removeItem('twitter_code_verifier');
         // Redirect to dashboard
         window.location.href = '/dashboard';
       } else {

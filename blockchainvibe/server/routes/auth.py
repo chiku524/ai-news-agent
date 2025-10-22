@@ -25,6 +25,8 @@ JWT_ALGORITHM = "HS256"
 class OAuthRequest(BaseModel):
     code: str
     redirect_uri: str
+    provider: Optional[str] = None
+    code_verifier: Optional[str] = None
 
 class AuthResponse(BaseModel):
     success: bool
@@ -66,7 +68,11 @@ async def google_auth(request: OAuthRequest):
         }
         
         async with httpx.AsyncClient() as client:
-            token_response = await client.post(token_url, data=token_data)
+            token_response = await client.post(
+                token_url, 
+                data=token_data,
+                headers={"Content-Type": "application/x-www-form-urlencoded"}
+            )
             token_response.raise_for_status()
             token_info = token_response.json()
             
@@ -122,7 +128,10 @@ async def github_auth(request: OAuthRequest):
             token_response = await client.post(
                 token_url, 
                 data=token_data,
-                headers={"Accept": "application/json"}
+                headers={
+                    "Accept": "application/json",
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
             )
             token_response.raise_for_status()
             token_info = token_response.json()
@@ -175,16 +184,26 @@ async def twitter_auth(request: OAuthRequest):
         # Exchange authorization code for access token
         token_url = "https://api.twitter.com/2/oauth2/token"
         token_data = {
-            "client_id": TWITTER_CLIENT_ID,
-            "client_secret": TWITTER_CLIENT_SECRET,
             "code": request.code,
             "grant_type": "authorization_code",
             "redirect_uri": request.redirect_uri,
-            "code_verifier": "challenge"  # In production, use proper PKCE
+            "code_verifier": request.code_verifier or "challenge"  # Use provided code_verifier or fallback
         }
         
+        # Create Basic Auth header for Twitter OAuth 2.0
+        import base64
+        credentials = f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}"
+        auth_header = base64.b64encode(credentials.encode()).decode()
+        
         async with httpx.AsyncClient() as client:
-            token_response = await client.post(token_url, data=token_data)
+            token_response = await client.post(
+                token_url, 
+                data=token_data,
+                headers={
+                    "Authorization": f"Basic {auth_header}",
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
+            )
             token_response.raise_for_status()
             token_info = token_response.json()
             
@@ -223,9 +242,31 @@ async def twitter_auth(request: OAuthRequest):
             error=str(e)
         )
 
-@router.get("/callback")
-async def oauth_callback(code: str, state: str = None):
-    """Handle OAuth callback redirect"""
-    # This endpoint can be used for direct redirects
-    # For popup-based auth, the frontend handles the callback
-    return {"message": "OAuth callback received", "code": code}
+@router.post("/callback")
+async def oauth_callback(request: OAuthRequest):
+    """Handle OAuth callback from frontend"""
+    try:
+        # Get provider from request body or determine from context
+        provider = getattr(request, 'provider', None)
+        if not provider:
+            # Try to determine from the code or other means
+            # For now, we'll need to modify the OAuthRequest model
+            raise HTTPException(status_code=400, detail="Provider not specified")
+        
+        if provider == "google":
+            return await google_auth(request)
+        elif provider == "github":
+            return await github_auth(request)
+        elif provider == "twitter":
+            return await twitter_auth(request)
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported OAuth provider")
+            
+    except Exception as e:
+        return AuthResponse(
+            success=False,
+            access_token="",
+            refresh_token="",
+            user={},
+            error=str(e)
+        )

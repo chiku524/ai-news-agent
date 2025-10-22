@@ -51,6 +51,8 @@ const OAuthCallback = () => {
         await socialAuthService.handleOAuthCallback();
         
         setStatus('Authentication successful! Redirecting...');
+        // Clear any previous errors on success
+        setError(null);
       } catch (error) {
         console.error('OAuthCallback error:', error);
         setError(error.message);

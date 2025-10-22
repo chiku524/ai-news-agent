@@ -131,7 +131,10 @@ async def handle_github_oauth(code, redirect_uri):
         async with session.post(
             "https://github.com/login/oauth/access_token",
             data=token_data,
-            headers={"Accept": "application/json"}
+            headers={
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
         ) as response:
             token_result = await response.json()
             
@@ -174,7 +177,7 @@ async def handle_twitter_oauth(code, redirect_uri, code_verifier):
             "code": code,
             "grant_type": "authorization_code",
             "redirect_uri": redirect_uri,
-            "code_verifier": code_verifier
+            "code_verifier": code_verifier or "challenge"
         }
         
         auth_header = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode()
