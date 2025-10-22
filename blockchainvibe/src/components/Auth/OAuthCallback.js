@@ -46,13 +46,19 @@ const OAuthCallback = () => {
         console.log('URL params:', window.location.search);
         
         setStatus('Processing OAuth callback...');
+        setError(null); // Clear any previous errors
         
         // Handle the OAuth callback
         await socialAuthService.handleOAuthCallback();
         
         setStatus('Authentication successful! Redirecting...');
-        // Clear any previous errors on success
-        setError(null);
+        setError(null); // Ensure no error is set on success
+        
+        // Add a small delay to show success message before redirect
+        setTimeout(() => {
+          setStatus('Redirecting to dashboard...');
+        }, 1000);
+        
       } catch (error) {
         console.error('OAuthCallback error:', error);
         setError(error.message);

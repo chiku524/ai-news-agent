@@ -160,7 +160,10 @@ async function handleGitHubAuth(request, env) {
     // Exchange code for token
     const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
-      headers: { 'Accept': 'application/json' },
+      headers: { 
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
       body: new URLSearchParams({
         client_id: env.GITHUB_CLIENT_ID,
         client_secret: env.GITHUB_CLIENT_SECRET,
@@ -367,6 +370,11 @@ async function calculateUserRelevance(newsItems, userProfile, env) {
 
 // Individual OAuth handlers for unified callback
 async function handleGoogleOAuth(code, redirect_uri, env) {
+  console.log('Google OAuth: Starting token exchange');
+  console.log('Google OAuth: Redirect URI:', redirect_uri);
+  console.log('Google OAuth: Client ID:', env.GOOGLE_CLIENT_ID);
+  console.log('Google OAuth: Client Secret length:', env.GOOGLE_CLIENT_SECRET ? env.GOOGLE_CLIENT_SECRET.length : 'undefined');
+  
   const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -378,6 +386,9 @@ async function handleGoogleOAuth(code, redirect_uri, env) {
       redirect_uri: redirect_uri
     })
   });
+  
+  console.log('Google OAuth: Token response status:', tokenResponse.status);
+  console.log('Google OAuth: Token response headers:', Object.fromEntries(tokenResponse.headers.entries()));
   
   const tokenData = await tokenResponse.json();
   
@@ -403,6 +414,7 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
   console.log('GitHub OAuth: Starting token exchange');
   console.log('GitHub OAuth: Redirect URI:', redirect_uri);
   console.log('GitHub OAuth: Client ID:', env.GITHUB_CLIENT_ID);
+  console.log('GitHub OAuth: Client Secret length:', env.GITHUB_CLIENT_SECRET ? env.GITHUB_CLIENT_SECRET.length : 'undefined');
   
   const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
@@ -417,6 +429,9 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
       redirect_uri: redirect_uri
     })
   });
+  
+  console.log('GitHub OAuth: Token response status:', tokenResponse.status);
+  console.log('GitHub OAuth: Token response headers:', Object.fromEntries(tokenResponse.headers.entries()));
   
   const tokenData = await tokenResponse.json();
   console.log('GitHub OAuth: Token response:', tokenData);
@@ -485,11 +500,14 @@ async function handleTwitterOAuth(code, redirect_uri, codeVerifier, env) {
   console.log('Twitter OAuth: Starting token exchange');
   console.log('Twitter OAuth: Redirect URI:', redirect_uri);
   console.log('Twitter OAuth: Client ID:', env.TWITTER_CLIENT_ID);
+  console.log('Twitter OAuth: Client Secret length:', env.TWITTER_CLIENT_SECRET ? env.TWITTER_CLIENT_SECRET.length : 'undefined');
+  console.log('Twitter OAuth: Code Verifier:', codeVerifier);
   
   // Twitter OAuth 2.0 implementation with PKCE
   const authString = `${env.TWITTER_CLIENT_ID}:${env.TWITTER_CLIENT_SECRET}`;
   const authHeader = btoa(authString);
   console.log('Twitter OAuth: Auth header length:', authHeader.length);
+  console.log('Twitter OAuth: Auth header preview:', authHeader.substring(0, 10) + '...');
   
   const tokenResponse = await fetch('https://api.twitter.com/2/oauth2/token', {
     method: 'POST',
