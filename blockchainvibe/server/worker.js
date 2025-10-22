@@ -22,10 +22,36 @@ class DatabaseService {
     this.db = db;
   }
 
+  async initDatabase() {
+    try {
+      await this.db.prepare(`
+        CREATE TABLE IF NOT EXISTS users (
+          user_id TEXT PRIMARY KEY,
+          email TEXT NOT NULL,
+          name TEXT,
+          picture TEXT,
+          provider TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          last_login DATETIME DEFAULT CURRENT_TIMESTAMP,
+          is_active BOOLEAN DEFAULT 1
+        )
+      `).run();
+      
+      console.log('Database initialized successfully');
+      return { success: true };
+    } catch (error) {
+      console.error('Database initialization error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   async createUser(userData) {
     const { id, email, name, picture, provider } = userData;
     
     try {
+      // Initialize database if needed
+      await this.initDatabase();
+      
       await this.db.prepare(`
         INSERT OR REPLACE INTO users (user_id, email, name, picture, provider, created_at, last_login, is_active)
         VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'), 1)
@@ -390,12 +416,30 @@ async function handleGoogleOAuth(code, redirect_uri, env) {
   console.log('Google OAuth: Token response status:', tokenResponse.status);
   console.log('Google OAuth: Token response headers:', Object.fromEntries(tokenResponse.headers.entries()));
   
+  if (!tokenResponse.ok) {
+    const errorText = await tokenResponse.text();
+    throw new Error(`Google token request failed: ${tokenResponse.status} ${tokenResponse.statusText} - ${errorText}`);
+  }
+  
   const tokenData = await tokenResponse.json();
+  console.log('Google OAuth: Token response:', tokenData);
+  
+  if (tokenData.error) {
+    throw new Error(`Google token error: ${tokenData.error_description || tokenData.error}`);
+  }
+  
+  if (!tokenData.access_token) {
+    throw new Error('Google token error: No access token received');
+  }
   
   // Get user info
   const userResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
     headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
   });
+  
+  if (!userResponse.ok) {
+    throw new Error(`Google API error: ${userResponse.status} ${userResponse.statusText}`);
+  }
   
   const userInfo = await userResponse.json();
   
@@ -432,6 +476,11 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
   
   console.log('GitHub OAuth: Token response status:', tokenResponse.status);
   console.log('GitHub OAuth: Token response headers:', Object.fromEntries(tokenResponse.headers.entries()));
+  
+  if (!tokenResponse.ok) {
+    const errorText = await tokenResponse.text();
+    throw new Error(`GitHub token request failed: ${tokenResponse.status} ${tokenResponse.statusText} - ${errorText}`);
+  }
   
   const tokenData = await tokenResponse.json();
   console.log('GitHub OAuth: Token response:', tokenData);
@@ -590,24 +639,36 @@ async function handleOAuthCallback(request, env) {
     let accessToken;
 
     // Handle different OAuth providers
-    if (provider === 'google') {
-      const result = await handleGoogleOAuth(code, redirect_uri, env);
-      userData = result.user;
-      accessToken = result.access_token;
-    } else if (provider === 'github') {
-      const result = await handleGitHubOAuth(code, redirect_uri, env);
-      userData = result.user;
-      accessToken = result.access_token;
-    } else if (provider === 'twitter') {
-      const result = await handleTwitterOAuth(code, redirect_uri, code_verifier, env);
-      userData = result.user;
-      accessToken = result.access_token;
-    } else {
+    try {
+      if (provider === 'google') {
+        const result = await handleGoogleOAuth(code, redirect_uri, env);
+        userData = result.user;
+        accessToken = result.access_token;
+      } else if (provider === 'github') {
+        const result = await handleGitHubOAuth(code, redirect_uri, env);
+        userData = result.user;
+        accessToken = result.access_token;
+      } else if (provider === 'twitter') {
+        const result = await handleTwitterOAuth(code, redirect_uri, code_verifier, env);
+        userData = result.user;
+        accessToken = result.access_token;
+      } else {
+        return new Response(JSON.stringify({
+          success: false,
+          message: 'Unsupported OAuth provider'
+        }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+    } catch (oauthError) {
+      console.error(`${provider} OAuth error:`, oauthError);
       return new Response(JSON.stringify({
         success: false,
-        message: 'Unsupported OAuth provider'
+        message: 'OAuth callback failed',
+        error: oauthError.message
       }), {
-        status: 400,
+        status: 500,
         headers: { 'Content-Type': 'application/json', ...corsHeaders }
       });
     }
