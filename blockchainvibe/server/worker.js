@@ -398,8 +398,6 @@ async function calculateUserRelevance(newsItems, userProfile, env) {
 async function handleGoogleOAuth(code, redirect_uri, env) {
   console.log('Google OAuth: Starting token exchange');
   console.log('Google OAuth: Redirect URI:', redirect_uri);
-  console.log('Google OAuth: Client ID:', env.GOOGLE_CLIENT_ID);
-  console.log('Google OAuth: Client Secret length:', env.GOOGLE_CLIENT_SECRET ? env.GOOGLE_CLIENT_SECRET.length : 'undefined');
   
   const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
@@ -457,8 +455,6 @@ async function handleGoogleOAuth(code, redirect_uri, env) {
 async function handleGitHubOAuth(code, redirect_uri, env) {
   console.log('GitHub OAuth: Starting token exchange');
   console.log('GitHub OAuth: Redirect URI:', redirect_uri);
-  console.log('GitHub OAuth: Client ID:', env.GITHUB_CLIENT_ID);
-  console.log('GitHub OAuth: Client Secret length:', env.GITHUB_CLIENT_SECRET ? env.GITHUB_CLIENT_SECRET.length : 'undefined');
   
   const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
@@ -548,8 +544,6 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
 async function handleTwitterOAuth(code, redirect_uri, codeVerifier, env) {
   console.log('Twitter OAuth: Starting token exchange');
   console.log('Twitter OAuth: Redirect URI:', redirect_uri);
-  console.log('Twitter OAuth: Client ID:', env.TWITTER_CLIENT_ID);
-  console.log('Twitter OAuth: Client Secret length:', env.TWITTER_CLIENT_SECRET ? env.TWITTER_CLIENT_SECRET.length : 'undefined');
   console.log('Twitter OAuth: Code Verifier:', codeVerifier);
   
   // Twitter OAuth 2.0 implementation with PKCE
