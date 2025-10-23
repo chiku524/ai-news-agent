@@ -5,8 +5,7 @@ import {
   Heart, 
   Clock,
   Save,
-  Camera,
-  Image as ImageIcon
+  Camera
 } from 'lucide-react';
 import { useUser } from '../hooks/useUser';
 import LoadingSpinner from './LoadingSpinner';
