@@ -31,6 +31,8 @@ class DatabaseService {
           name TEXT,
           picture TEXT,
           provider TEXT NOT NULL,
+          profile_picture TEXT,
+          banner_image TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           last_login DATETIME DEFAULT CURRENT_TIMESTAMP,
           is_active BOOLEAN DEFAULT 1
@@ -60,6 +62,19 @@ class DatabaseService {
       return { success: true };
     } catch (error) {
       console.error('Database error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async updateUserField(userId, field, value) {
+    try {
+      await this.db.prepare(`
+        UPDATE users SET ${field} = ? WHERE user_id = ?
+      `).bind(value, userId).run();
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Database update error:', error);
       return { success: false, error: error.message };
     }
   }
@@ -392,6 +407,92 @@ async function calculateUserRelevance(newsItems, userProfile, env) {
   }
   
   return count > 0 ? totalRelevance / count : 0.0;
+}
+
+// File upload handler
+async function handleFileUpload(request, env) {
+  try {
+    const formData = await request.formData();
+    const file = formData.get('file');
+    const type = formData.get('type'); // 'profile' or 'banner'
+    const userId = formData.get('userId');
+    
+    if (!file || !type || !userId) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: 'Missing required fields: file, type, userId'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: 'Invalid file type. Only JPEG, PNG, and WebP images are allowed.'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: 'File too large. Maximum size is 5MB.'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    
+    // Generate unique filename
+    const timestamp = Date.now();
+    const fileExtension = file.name.split('.').pop();
+    const filename = `${type}/${userId}/${timestamp}.${fileExtension}`;
+    
+    // Upload to R2
+    const arrayBuffer = await file.arrayBuffer();
+    await env.blockchainvibe_assets.put(filename, arrayBuffer, {
+      httpMetadata: {
+        contentType: file.type,
+        cacheControl: 'public, max-age=31536000' // 1 year cache
+      }
+    });
+    
+    // Generate public URL
+    const publicUrl = `https://blockchainvibe-assets.nico-chikuji.workers.dev/${filename}`;
+    
+    // Update user record in database
+    const db = new DatabaseService(env.DB);
+    const updateField = type === 'profile' ? 'profile_picture' : 'banner_image';
+    await db.updateUserField(userId, updateField, publicUrl);
+    
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'File uploaded successfully',
+      url: publicUrl,
+      filename: filename
+    }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+    
+  } catch (error) {
+    console.error('File upload error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      message: 'File upload failed',
+      error: error.message
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
 }
 
 // Individual OAuth handlers for unified callback
@@ -727,6 +828,10 @@ export default {
       
       if (path === '/api/auth/callback' && method === 'POST') {
         return await handleOAuthCallback(request, env);
+      }
+      
+      if (path === '/api/upload' && method === 'POST') {
+        return await handleFileUpload(request, env);
       }
       
       if (path === '/api/news/trending' && method === 'POST') {

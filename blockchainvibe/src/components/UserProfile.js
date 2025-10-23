@@ -4,10 +4,13 @@ import {
   Settings, 
   Heart, 
   Clock,
-  Save
+  Save,
+  Camera,
+  Image as ImageIcon
 } from 'lucide-react';
 import { useUser } from '../hooks/useUser';
 import LoadingSpinner from './LoadingSpinner';
+import FileUpload from './FileUpload';
 
 const ProfileContainer = styled.div`
   max-width: 800px;
@@ -28,7 +31,10 @@ const Avatar = styled.div`
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: ${props => props.theme.gradients.primary};
+  background: ${props => props.imageUrl ? 'none' : props.theme.gradients.primary};
+  background-image: ${props => props.imageUrl ? `url(${props.imageUrl})` : 'none'};
+  background-size: cover;
+  background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -36,6 +42,7 @@ const Avatar = styled.div`
   font-weight: ${props => props.theme.fontWeight.bold};
   color: ${props => props.theme.colors.textInverse};
   margin: 0 auto 1rem auto;
+  border: 3px solid ${props => props.theme.colors.border};
 `;
 
 const UserName = styled.h1`
@@ -278,7 +285,9 @@ const UserProfile = () => {
   return (
     <ProfileContainer>
       <ProfileHeader>
-        <Avatar>U</Avatar>
+        <Avatar imageUrl={userProfile?.profile_picture}>
+          {!userProfile?.profile_picture && 'U'}
+        </Avatar>
         <UserName>{userProfile?.user_id || 'Demo User'}</UserName>
         <UserEmail>demo@ainewsagent.com</UserEmail>
       </ProfileHeader>
@@ -309,6 +318,13 @@ const UserProfile = () => {
         >
           <Settings size={18} style={{ marginRight: '0.5rem' }} />
           Preferences
+        </Tab>
+        <Tab 
+          className={activeTab === 'customize' ? 'active' : ''}
+          onClick={() => setActiveTab('customize')}
+        >
+          <Camera size={18} style={{ marginRight: '0.5rem' }} />
+          Customize
         </Tab>
         <Tab 
           className={activeTab === 'activity' ? 'active' : ''}
@@ -415,6 +431,44 @@ const UserProfile = () => {
               <Save size={18} />
               {isUpdatingPreferences ? 'Saving...' : 'Save Preferences'}
             </SaveButton>
+          </PreferencesSection>
+        )}
+
+        {activeTab === 'customize' && (
+          <PreferencesSection>
+            <SectionTitle>Profile Customization</SectionTitle>
+            
+            <PreferenceGroup>
+              <PreferenceLabel>Profile Picture</PreferenceLabel>
+              <PreferenceDescription>
+                Upload a profile picture to personalize your account
+              </PreferenceDescription>
+              <FileUpload 
+                type="profile" 
+                onUploadSuccess={(url) => {
+                  // Update the user profile with the new image URL
+                  if (userProfile) {
+                    userProfile.profile_picture = url;
+                  }
+                }}
+              />
+            </PreferenceGroup>
+
+            <PreferenceGroup>
+              <PreferenceLabel>Banner Image</PreferenceLabel>
+              <PreferenceDescription>
+                Upload a banner image for your profile header
+              </PreferenceDescription>
+              <FileUpload 
+                type="banner" 
+                onUploadSuccess={(url) => {
+                  // Update the user profile with the new banner URL
+                  if (userProfile) {
+                    userProfile.banner_image = url;
+                  }
+                }}
+              />
+            </PreferenceGroup>
           </PreferencesSection>
         )}
 

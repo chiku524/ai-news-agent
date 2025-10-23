@@ -12,3 +12,8 @@ NODE_ENV = "production"
 binding = "DB"
 database_name = "blockchainvibe-db"
 database_id = "4d7784cc-f73a-4d7d-a108-fc283cc21916"
+
+# R2 Bucket binding for file storage
+[[r2_buckets]]
+bucket_name = "blockchainvibe-assets"
+binding = "blockchainvibe_assets"
