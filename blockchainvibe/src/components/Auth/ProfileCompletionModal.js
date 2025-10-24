@@ -393,11 +393,7 @@ const ProfileCompletionModal = ({
     setIsSubmitting(true);
 
     try {
-      // Here you would typically send the data to your API
-      // For now, we'll simulate the API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast.success('Profile completed successfully!');
+      // Call the parent's onComplete handler which will handle the API call
       onComplete(formData);
       onClose();
     } catch (error) {
