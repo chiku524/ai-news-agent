@@ -67,7 +67,6 @@ const FileUpload = ({ type = 'profile', onUploadSuccess, className = '' }) => {
       }
     } catch (err) {
       setError('Upload failed. Please try again.');
-      console.error('Upload error:', err);
     } finally {
       setUploading(false);
     }

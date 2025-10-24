@@ -458,7 +458,6 @@ const Register = () => {
       }
     } catch (error) {
       toast.error(`Failed to sign in with ${provider}`);
-      console.error(`${provider} sign-in error:`, error);
     }
   };
 

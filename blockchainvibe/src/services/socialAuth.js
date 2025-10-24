@@ -12,13 +12,6 @@ class SocialAuthService {
       this.redirectUri = process.env.REACT_APP_REDIRECT_URI || 'http://localhost:3000/auth/callback';
     }
     
-    console.log('SocialAuth initialized:', {
-      environment: process.env.NODE_ENV,
-      redirectUri: this.redirectUri,
-      hasGoogleClientId: !!this.googleClientId,
-      hasGithubClientId: !!this.githubClientId,
-      hasTwitterClientId: !!this.twitterClientId
-    });
   }
 
   // Google OAuth
@@ -45,7 +38,6 @@ class SocialAuthService {
       // Redirect to Google OAuth
       window.location.href = googleAuthUrl;
     } catch (error) {
-      console.error('Google sign-in error:', error);
       throw new Error('Failed to sign in with Google');
     }
   }
@@ -90,14 +82,10 @@ class SocialAuthService {
         `random=${randomParam}&` +
         `prompt=consent`;
 
-      console.log('GitHub OAuth URL:', githubAuthUrl);
-      console.log('GitHub Client ID:', this.githubClientId);
-      console.log('Redirect URI:', this.redirectUri);
 
       // Redirect to GitHub OAuth
       window.location.href = githubAuthUrl;
     } catch (error) {
-      console.error('GitHub sign-in error:', error);
       throw new Error('Failed to sign in with GitHub');
     }
   }
@@ -130,15 +118,10 @@ class SocialAuthService {
         `code_challenge=${codeChallenge}&` +
         `code_challenge_method=S256`;
 
-      console.log('Twitter OAuth URL:', twitterAuthUrl);
-      console.log('Twitter Client ID:', this.twitterClientId);
-      console.log('Redirect URI:', this.redirectUri);
-      console.log('Code Challenge:', codeChallenge);
 
       // Redirect to X (Twitter) OAuth
       window.location.href = twitterAuthUrl;
     } catch (error) {
-      console.error('X sign-in error:', error);
       throw new Error('Failed to sign in with X');
     }
   }
@@ -151,41 +134,25 @@ class SocialAuthService {
     const state = urlParams.get('state');
     const errorDescription = urlParams.get('error_description');
 
-    console.log('OAuth callback params:', { 
-      code, 
-      error, 
-      state, 
-      errorDescription,
-      fullUrl: window.location.href,
-      search: window.location.search
-    });
 
     if (error) {
-      console.error('OAuth error:', error, errorDescription);
       throw new Error(`${error}: ${errorDescription || 'Unknown error'}`);
     }
 
     if (code) {
       // Determine which provider based on state or URL
       const provider = this.detectProvider(state);
-      console.log('Detected provider:', provider);
       
       if (provider === 'google') {
-        console.log('Handling Google callback');
         await this.handleGoogleCallback(code);
       } else if (provider === 'github') {
-        console.log('Handling GitHub callback');
         await this.handleGitHubCallback(code);
       } else if (provider === 'twitter') {
-        console.log('Handling Twitter callback');
         await this.handleTwitterCallback(code);
       } else {
-        console.error('Unknown OAuth provider:', provider);
         throw new Error('Unknown OAuth provider');
       }
     } else {
-      console.error('No authorization code received');
-      console.log('Available URL params:', Array.from(urlParams.entries()));
       throw new Error('No authorization code received');
     }
   }
@@ -200,9 +167,6 @@ class SocialAuthService {
 
   async handleGoogleCallback(code) {
     try {
-      console.log('Google callback: Starting API call with code:', code);
-      console.log('API URL:', process.env.REACT_APP_API_URL);
-      console.log('Redirect URI:', this.redirectUri);
       
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
         method: 'POST',
@@ -216,16 +180,13 @@ class SocialAuthService {
         })
       });
 
-      console.log('Google callback: Response status:', response.status);
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Google callback: HTTP error response:', errorText);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
       
       const data = await response.json();
-      console.log('Google callback: Response data:', data);
       
       if (data.success) {
         // Store authentication data
@@ -233,7 +194,6 @@ class SocialAuthService {
         localStorage.setItem('refresh_token', data.refresh_token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
-        console.log('Google callback: Success, redirecting to dashboard');
         // Clear any stored OAuth provider info
         localStorage.removeItem('oauth_provider');
         // Redirect to dashboard
@@ -242,16 +202,12 @@ class SocialAuthService {
         throw new Error(data.message || data.error || 'Google authentication failed');
       }
     } catch (error) {
-      console.error('Google callback error:', error);
       throw error; // Re-throw to be handled by the calling function
     }
   }
 
   async handleGitHubCallback(code) {
     try {
-      console.log('GitHub callback: Starting API call with code:', code);
-      console.log('API URL:', process.env.REACT_APP_API_URL);
-      console.log('Redirect URI:', this.redirectUri);
       
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
         method: 'POST',
@@ -265,16 +221,13 @@ class SocialAuthService {
         })
       });
 
-      console.log('GitHub callback: Response status:', response.status);
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('GitHub callback: HTTP error response:', errorText);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
       
       const data = await response.json();
-      console.log('GitHub callback: Response data:', data);
       
       if (data.success) {
         // Store authentication data
@@ -282,7 +235,6 @@ class SocialAuthService {
         localStorage.setItem('refresh_token', data.refresh_token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
-        console.log('GitHub callback: Success, redirecting to dashboard');
         // Clear any stored OAuth provider info
         localStorage.removeItem('oauth_provider');
         // Redirect to dashboard
@@ -291,7 +243,6 @@ class SocialAuthService {
         throw new Error(data.message || data.error || 'GitHub authentication failed');
       }
     } catch (error) {
-      console.error('GitHub callback error:', error);
       throw error; // Re-throw to be handled by the calling function
     }
   }
@@ -300,10 +251,6 @@ class SocialAuthService {
     try {
       // Get the stored code verifier
       const codeVerifier = localStorage.getItem('twitter_code_verifier');
-      console.log('Twitter callback: Starting API call with code:', code);
-      console.log('Code verifier:', codeVerifier);
-      console.log('API URL:', process.env.REACT_APP_API_URL);
-      console.log('Redirect URI:', this.redirectUri);
       
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
         method: 'POST',
@@ -318,16 +265,13 @@ class SocialAuthService {
         })
       });
 
-      console.log('Twitter callback: Response status:', response.status);
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Twitter callback: HTTP error response:', errorText);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
       
       const data = await response.json();
-      console.log('Twitter callback: Response data:', data);
       
       if (data.success) {
         // Store authentication data
@@ -335,7 +279,6 @@ class SocialAuthService {
         localStorage.setItem('refresh_token', data.refresh_token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
-        console.log('Twitter callback: Success, redirecting to dashboard');
         // Clear any stored OAuth provider info
         localStorage.removeItem('oauth_provider');
         localStorage.removeItem('twitter_code_verifier');
@@ -345,7 +288,6 @@ class SocialAuthService {
         throw new Error(data.message || data.error || 'Twitter authentication failed');
       }
     } catch (error) {
-      console.error('Twitter callback error:', error);
       throw error; // Re-throw to be handled by the calling function
     }
   }

@@ -41,9 +41,6 @@ const OAuthCallback = () => {
     const handleCallback = async () => {
       try {
         // Add debugging
-        console.log('OAuthCallback: Starting callback handling');
-        console.log('Current URL:', window.location.href);
-        console.log('URL params:', window.location.search);
         
         setStatus('Processing OAuth callback...');
         setError(null); // Clear any previous errors
@@ -60,7 +57,6 @@ const OAuthCallback = () => {
         }, 1000);
         
       } catch (error) {
-        console.error('OAuthCallback error:', error);
         setError(error.message);
         setStatus('Authentication failed');
       }

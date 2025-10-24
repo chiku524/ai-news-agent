@@ -269,7 +269,6 @@ const UserProfile = () => {
     try {
       await updatePreferences(preferences);
     } catch (error) {
-      console.error('Failed to save preferences:', error);
     }
   };
 

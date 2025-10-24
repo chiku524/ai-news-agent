@@ -38,7 +38,6 @@ export const useUser = () => {
     try {
       await trackActivityMutation.mutateAsync(activityData);
     } catch (error) {
-      console.error('Failed to track activity:', error);
       throw error;
     }
   };
@@ -47,7 +46,6 @@ export const useUser = () => {
     try {
       await updatePreferencesMutation.mutateAsync(preferences);
     } catch (error) {
-      console.error('Failed to update preferences:', error);
       throw error;
     }
   };

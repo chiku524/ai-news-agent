@@ -131,7 +131,6 @@ const SearchResults = ({ query }) => {
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Failed to track activity:', error);
     }
   };
 

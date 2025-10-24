@@ -39,7 +39,6 @@ class DatabaseService {
         )
       `).run();
       
-      console.log('Database initialized successfully');
       return { success: true };
     } catch (error) {
       console.error('Database initialization error:', error);
@@ -497,8 +496,6 @@ async function handleFileUpload(request, env) {
 
 // Individual OAuth handlers for unified callback
 async function handleGoogleOAuth(code, redirect_uri, env) {
-  console.log('Google OAuth: Starting token exchange');
-  console.log('Google OAuth: Redirect URI:', redirect_uri);
   
   const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
@@ -512,8 +509,6 @@ async function handleGoogleOAuth(code, redirect_uri, env) {
     })
   });
   
-  console.log('Google OAuth: Token response status:', tokenResponse.status);
-  console.log('Google OAuth: Token response headers:', Object.fromEntries(tokenResponse.headers.entries()));
   
   if (!tokenResponse.ok) {
     const errorText = await tokenResponse.text();
@@ -521,7 +516,6 @@ async function handleGoogleOAuth(code, redirect_uri, env) {
   }
   
   const tokenData = await tokenResponse.json();
-  console.log('Google OAuth: Token response:', tokenData);
   
   if (tokenData.error) {
     throw new Error(`Google token error: ${tokenData.error_description || tokenData.error}`);
@@ -554,8 +548,6 @@ async function handleGoogleOAuth(code, redirect_uri, env) {
 }
 
 async function handleGitHubOAuth(code, redirect_uri, env) {
-  console.log('GitHub OAuth: Starting token exchange');
-  console.log('GitHub OAuth: Redirect URI:', redirect_uri);
   
   const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
@@ -571,8 +563,6 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
     })
   });
   
-  console.log('GitHub OAuth: Token response status:', tokenResponse.status);
-  console.log('GitHub OAuth: Token response headers:', Object.fromEntries(tokenResponse.headers.entries()));
   
   if (!tokenResponse.ok) {
     const errorText = await tokenResponse.text();
@@ -580,7 +570,6 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
   }
   
   const tokenData = await tokenResponse.json();
-  console.log('GitHub OAuth: Token response:', tokenData);
   
   if (tokenData.error) {
     throw new Error(`GitHub token error: ${tokenData.error_description || tokenData.error}`);
@@ -603,7 +592,6 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
   }
   
   const userInfo = await userResponse.json();
-  console.log('GitHub OAuth: User info:', userInfo);
   
   if (userInfo.message) {
     throw new Error(`GitHub user error: ${userInfo.message}`);
@@ -620,13 +608,11 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
         }
       });
       const emails = await emailResponse.json();
-      console.log('GitHub OAuth: User emails:', emails);
       
       // Find primary email or first verified email
       const primaryEmail = emails.find(email => email.primary) || emails.find(email => email.verified);
       userEmail = primaryEmail ? primaryEmail.email : (emails[0] ? emails[0].email : null);
     } catch (emailError) {
-      console.log('GitHub OAuth: Could not fetch emails:', emailError);
     }
   }
   
@@ -643,15 +629,10 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
 }
 
 async function handleTwitterOAuth(code, redirect_uri, codeVerifier, env) {
-  console.log('Twitter OAuth: Starting token exchange');
-  console.log('Twitter OAuth: Redirect URI:', redirect_uri);
-  console.log('Twitter OAuth: Code Verifier:', codeVerifier);
   
   // Twitter OAuth 2.0 implementation with PKCE
   const authString = `${env.TWITTER_CLIENT_ID}:${env.TWITTER_CLIENT_SECRET}`;
   const authHeader = btoa(authString);
-  console.log('Twitter OAuth: Auth header length:', authHeader.length);
-  console.log('Twitter OAuth: Auth header preview:', authHeader.substring(0, 10) + '...');
   
   const tokenResponse = await fetch('https://api.twitter.com/2/oauth2/token', {
     method: 'POST',
@@ -674,7 +655,6 @@ async function handleTwitterOAuth(code, redirect_uri, codeVerifier, env) {
   }
   
   const tokenData = await tokenResponse.json();
-  console.log('Twitter OAuth: Token response:', tokenData);
   
   if (tokenData.error) {
     throw new Error(`Twitter token error: ${tokenData.error_description || tokenData.error}`);
@@ -694,7 +674,6 @@ async function handleTwitterOAuth(code, redirect_uri, codeVerifier, env) {
   }
   
   const userInfo = await userResponse.json();
-  console.log('Twitter OAuth: User info:', userInfo);
   
   if (userInfo.errors) {
     throw new Error(`Twitter user error: ${userInfo.errors[0].detail || userInfo.errors[0].message}`);
@@ -769,7 +748,6 @@ async function handleOAuthCallback(request, env) {
     }
 
     // Save user to database
-    console.log('OAuth callback: Saving user to database:', userData);
     const db = new DatabaseService(env.DB);
     const dbResult = await db.createUser({
       id: userData.id,
@@ -778,7 +756,6 @@ async function handleOAuthCallback(request, env) {
       picture: userData.picture || userData.avatar_url,
       provider: provider
     });
-    console.log('OAuth callback: Database result:', dbResult);
 
     return new Response(JSON.stringify({
       success: true,
