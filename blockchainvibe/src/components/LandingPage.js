@@ -12,15 +12,92 @@ import {
   Play,
   Github,
   Twitter,
-  Linkedin
+  Linkedin,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import Navigation from './Navigation';
+// Navigation removed - using simple header instead
 
 const LandingContainer = styled.div`
   min-height: 100vh;
   background: ${props => props.theme.colors.background};
   color: ${props => props.theme.colors.text};
+`;
+
+const SimpleHeader = styled.header`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: ${props => props.theme.colors.surface};
+  border-bottom: 1px solid ${props => props.theme.colors.border};
+  padding: 1rem 2rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const Logo = styled.div`
+  font-size: ${props => props.theme.fontSize.xl};
+  font-weight: ${props => props.theme.fontWeight.bold};
+  color: ${props => props.theme.colors.primary};
+`;
+
+const HeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const ThemeButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: ${props => props.theme.colors.surface};
+  border: 1px solid ${props => props.theme.colors.border};
+  color: ${props => props.theme.colors.text};
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+  
+  &:hover {
+    background: ${props => props.theme.colors.surfaceHover};
+  }
+`;
+
+const Button = styled.button`
+  padding: 0.75rem 1.5rem;
+  border-radius: ${props => props.theme.borderRadius.lg};
+  font-weight: ${props => props.theme.fontWeight.medium};
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  ${props => props.variant === 'primary' && `
+    background: ${props.theme.colors.primary};
+    color: ${props.theme.colors.textInverse};
+    
+    &:hover {
+      background: ${props.theme.colors.primaryHover};
+    }
+  `}
+  
+  ${props => props.variant === 'secondary' && `
+    background: transparent;
+    color: ${props.theme.colors.text};
+    border: 1px solid ${props.theme.colors.border};
+    
+    &:hover {
+      background: ${props.theme.colors.surfaceHover};
+    }
+  `}
 `;
 
 const HeroSection = styled.section`
@@ -425,7 +502,20 @@ const LandingPage = ({ theme, onThemeChange }) => {
 
   return (
     <LandingContainer>
-      <Navigation theme={theme} onThemeChange={onThemeChange} />
+      <SimpleHeader>
+        <Logo>BlockchainVibe</Logo>
+        <HeaderActions>
+          <ThemeButton onClick={() => onThemeChange(theme === 'light' ? 'dark' : 'light')}>
+            {theme === 'light' ? <Sun size={20} /> : <Moon size={20} />}
+          </ThemeButton>
+          <Button variant="secondary" onClick={() => navigate('/signin')}>
+            Sign In
+          </Button>
+          <Button variant="primary" onClick={() => navigate('/register')}>
+            Get Started
+          </Button>
+        </HeaderActions>
+      </SimpleHeader>
       <HeroSection>
         <HeroContent>
           <HeroTitle
