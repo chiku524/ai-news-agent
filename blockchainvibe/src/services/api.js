@@ -76,6 +76,14 @@ export const userAPI = {
     return response.data;
   },
 
+  updateProfile: async (userId, profileData) => {
+    const response = await api.put('/user/profile', {
+      userId,
+      profileData
+    });
+    return response.data;
+  },
+
   updatePreferences: async (preferences) => {
     const response = await api.post('/user/preferences', {
       user_id: 'demo_user',

@@ -519,8 +519,45 @@ const Dashboard = () => {
 
   const handleProfileComplete = async (profileData) => {
     try {
-      // Here you would typically send the profile data to your API
-      // For now, we'll just update local storage
+      // Convert form data to backend format
+      const backendProfileData = {
+        name: profileData.name,
+        email: profileData.email,
+        bio: profileData.bio,
+        profile_picture: profileData.profilePicture,
+        banner_image: profileData.bannerImage,
+        location: profileData.location,
+        website: profileData.website,
+        twitter: profileData.twitter,
+        linkedin: profileData.linkedin
+      };
+
+      // Get user ID from stored user data
+      const userId = user?.user_id || user?.id;
+      
+      if (!userId) {
+        throw new Error('User ID not found');
+      }
+
+      // Call API to update profile
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://blockchainvibe-api.nico-chikuji.workers.dev'}/api/user/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify({
+          userId,
+          profileData: backendProfileData
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update profile');
+      }
+
+      // Update local storage
       const updatedUser = { ...user, ...profileData };
       localStorage.setItem('user', JSON.stringify(updatedUser));
       localStorage.setItem('profileCompleted', 'true');
@@ -530,7 +567,8 @@ const Dashboard = () => {
       setShowProfileModal(false);
       toast.success('Profile completed successfully!');
     } catch (error) {
-      toast.error('Failed to complete profile. Please try again.');
+      console.error('Profile update error:', error);
+      toast.error(`Failed to complete profile: ${error.message}`);
     }
   };
 
