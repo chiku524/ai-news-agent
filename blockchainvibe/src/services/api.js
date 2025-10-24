@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://blockchainvibe-api.nico-chikuji.workers.dev';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -14,7 +14,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Add auth token if available
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
