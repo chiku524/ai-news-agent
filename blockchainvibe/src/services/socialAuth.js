@@ -9,10 +9,22 @@ class SocialAuthService {
     // Set redirect URI based on environment
     if (process.env.NODE_ENV === 'production') {
       this.redirectUri = 'https://blockchainvibe.news/auth/callback';
+      this.apiUrl = 'https://blockchainvibe-api.nico-chikuji.workers.dev';
     } else {
       this.redirectUri = process.env.REACT_APP_REDIRECT_URI || 'http://localhost:3000/auth/callback';
+      this.apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
     }
     
+    // Log environment info for debugging
+    console.log('SocialAuth initialized:', {
+      environment: process.env.NODE_ENV,
+      redirectUri: this.redirectUri,
+      apiUrl: this.apiUrl,
+      hasGoogleClientId: !!this.googleClientId,
+      hasGithubClientId: !!this.githubClientId,
+      hasTwitterClientId: !!this.twitterClientId,
+      hasDiscordClientId: !!this.discordClientId
+    });
   }
 
   // Google OAuth
@@ -66,6 +78,19 @@ class SocialAuthService {
       if (!this.githubClientId || this.githubClientId === 'your_github_client_id_here' || this.githubClientId.trim() === '') {
         this.handleDemoAuth('GitHub');
         return;
+      }
+      
+      // Check if we're in development mode and GitHub OAuth might not work
+      const isDevelopment = this.redirectUri.includes('localhost');
+      if (isDevelopment) {
+        // Show a warning that GitHub OAuth might not work in development
+        if (window.confirm('GitHub OAuth is configured for production only. It may not work in development mode. Would you like to try anyway, or use Discord OAuth instead?')) {
+          // User chose to try anyway, continue with GitHub OAuth
+        } else {
+          // User chose to use Discord instead
+          await this.signInWithDiscord();
+          return;
+        }
       }
       
       // Store provider in localStorage for callback detection
@@ -197,7 +222,7 @@ class SocialAuthService {
   async handleGoogleCallback(code) {
     try {
       
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
+      const response = await fetch(`${this.apiUrl}/api/auth/callback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -238,7 +263,7 @@ class SocialAuthService {
   async handleGitHubCallback(code) {
     try {
       
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
+      const response = await fetch(`${this.apiUrl}/api/auth/callback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -278,7 +303,7 @@ class SocialAuthService {
 
   async handleDiscordCallback(code) {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
+      const response = await fetch(`${this.apiUrl}/api/auth/callback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -320,7 +345,7 @@ class SocialAuthService {
       // Get the stored code verifier
       const codeVerifier = localStorage.getItem('twitter_code_verifier');
       
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
+      const response = await fetch(`${this.apiUrl}/api/auth/callback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

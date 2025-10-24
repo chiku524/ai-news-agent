@@ -16,6 +16,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useTheme } from '../../contexts/ThemeContext';
 import socialAuthService from '../../services/socialAuth';
+import OAuthStatus from './OAuthStatus';
 
 const AuthContainer = styled.div`
   min-height: 100vh;
@@ -474,6 +475,8 @@ const SignIn = () => {
           </svg>
           Continue with Discord
         </SocialButton>
+        
+        <OAuthStatus environment={process.env.NODE_ENV} />
         
         <AuthFooter>
           <p>
