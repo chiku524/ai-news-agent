@@ -18,7 +18,8 @@ import {
   Activity,
   Zap,
   Sun,
-  Moon
+  Moon,
+  Newspaper
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
@@ -680,19 +681,26 @@ const Dashboard = () => {
         <SidebarMenu>
           <MenuSection>
             <SectionTitle>Navigation</SectionTitle>
-            <MenuItem className="active">
+            <MenuItem 
+              className="active"
+              onClick={() => navigate('/dashboard')}
+            >
               <TrendingUp size={18} />
               Dashboard
             </MenuItem>
-            <MenuItem>
+            <MenuItem onClick={() => navigate('/news')}>
+              <Newspaper size={18} />
+              News Feed
+            </MenuItem>
+            <MenuItem onClick={() => navigate('/saved')}>
               <Bookmark size={18} />
               Saved Articles
             </MenuItem>
-            <MenuItem>
+            <MenuItem onClick={() => navigate('/liked')}>
               <Heart size={18} />
               Liked Articles
             </MenuItem>
-            <MenuItem>
+            <MenuItem onClick={() => navigate('/analytics')}>
               <BarChart3 size={18} />
               Analytics
             </MenuItem>
@@ -713,7 +721,11 @@ const Dashboard = () => {
 
           <MenuSection>
             <SectionTitle>Account</SectionTitle>
-            <MenuItem>
+            <MenuItem onClick={() => navigate('/profile')}>
+              <User size={18} />
+              Profile
+            </MenuItem>
+            <MenuItem onClick={() => navigate('/settings')}>
               <Settings size={18} />
               Settings
             </MenuItem>

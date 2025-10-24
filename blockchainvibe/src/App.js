@@ -14,6 +14,10 @@ import NewsFeed from './components/NewsFeed';
 import NewsDetail from './components/NewsDetail';
 import UserProfile from './components/UserProfile';
 import SearchResults from './components/SearchResults';
+import Analytics from './components/Analytics';
+import SavedArticles from './components/SavedArticles';
+import LikedArticles from './components/LikedArticles';
+import Settings from './components/Settings';
 import NotFound from './components/NotFound';
 
 // Context
@@ -112,6 +116,10 @@ const AppContent = () => {
             <Route path="/news/:id" element={<NewsDetail />} />
             <Route path="/search" element={<SearchResults />} />
             <Route path="/profile" element={<UserProfile />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/saved" element={<SavedArticles />} />
+            <Route path="/liked" element={<LikedArticles />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppContainer>
