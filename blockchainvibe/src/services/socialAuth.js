@@ -9,9 +9,9 @@ class SocialAuthService {
     
     // Set redirect URI based on environment
     if (process.env.NODE_ENV === 'production') {
-      // Use the actual deployed URL for OAuth redirects
-      this.redirectUri = window.location.origin + '/auth/callback';
-      this.apiUrl = 'https://blockchainvibe-api.nico-chikuji.workers.dev';
+      // Use the custom domain for OAuth redirects in production
+      this.redirectUri = process.env.REACT_APP_REDIRECT_URI || 'https://blockchainvibe.news/auth/callback';
+      this.apiUrl = process.env.REACT_APP_API_URL || 'https://blockchainvibe-api.nico-chikuji.workers.dev';
     } else {
       this.redirectUri = process.env.REACT_APP_REDIRECT_URI || 'http://localhost:3000/auth/callback';
       this.apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
