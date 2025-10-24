@@ -4,6 +4,7 @@ class SocialAuthService {
     this.googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
     this.githubClientId = process.env.REACT_APP_GITHUB_CLIENT_ID;
     this.twitterClientId = process.env.REACT_APP_TWITTER_CLIENT_ID;
+    this.discordClientId = process.env.REACT_APP_DISCORD_CLIENT_ID;
     
     // Set redirect URI based on environment
     if (process.env.NODE_ENV === 'production') {
@@ -90,6 +91,32 @@ class SocialAuthService {
     }
   }
 
+  // Discord OAuth
+  async signInWithDiscord() {
+    try {
+      // Check if we're in demo mode (no client ID configured)
+      if (!this.discordClientId || this.discordClientId === 'your_discord_client_id_here' || this.discordClientId.trim() === '') {
+        this.handleDemoAuth('Discord');
+        return;
+      }
+      
+      // Store provider in localStorage for callback detection
+      localStorage.setItem('oauth_provider', 'discord');
+      
+      const discordAuthUrl = `https://discord.com/api/oauth2/authorize?` +
+        `client_id=${this.discordClientId}&` +
+        `redirect_uri=${encodeURIComponent(this.redirectUri)}&` +
+        `response_type=code&` +
+        `scope=identify%20email&` +
+        `state=discord`;
+
+      // Redirect to Discord OAuth
+      window.location.href = discordAuthUrl;
+    } catch (error) {
+      throw new Error('Failed to sign in with Discord');
+    }
+  }
+
   // X (Twitter) OAuth
   async signInWithX() {
     try {
@@ -149,6 +176,8 @@ class SocialAuthService {
         await this.handleGitHubCallback(code);
       } else if (provider === 'twitter') {
         await this.handleTwitterCallback(code);
+      } else if (provider === 'discord') {
+        await this.handleDiscordCallback(code);
       } else {
         throw new Error('Unknown OAuth provider');
       }
@@ -241,6 +270,45 @@ class SocialAuthService {
         window.location.href = '/dashboard';
       } else {
         throw new Error(data.message || data.error || 'GitHub authentication failed');
+      }
+    } catch (error) {
+      throw error; // Re-throw to be handled by the calling function
+    }
+  }
+
+  async handleDiscordCallback(code) {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/callback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code: code,
+          redirect_uri: this.redirectUri,
+          provider: 'discord'
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Store authentication data
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('refresh_token', data.refresh_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Clear any stored OAuth provider info
+        localStorage.removeItem('oauth_provider');
+        // Redirect to dashboard
+        window.location.href = '/dashboard';
+      } else {
+        throw new Error(data.message || data.error || 'Discord authentication failed');
       }
     } catch (error) {
       throw error; // Re-throw to be handled by the calling function

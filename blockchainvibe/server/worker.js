@@ -548,6 +548,9 @@ async function handleGoogleOAuth(code, redirect_uri, env) {
 }
 
 async function handleGitHubOAuth(code, redirect_uri, env) {
+  console.log('GitHub OAuth: Starting token exchange');
+  console.log('GitHub OAuth: Redirect URI:', redirect_uri);
+  console.log('GitHub OAuth: Client ID:', env.GITHUB_CLIENT_ID);
   
   const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
@@ -563,13 +566,17 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
     })
   });
   
+  console.log('GitHub OAuth: Token response status:', tokenResponse.status);
+  console.log('GitHub OAuth: Token response headers:', Object.fromEntries(tokenResponse.headers.entries()));
   
   if (!tokenResponse.ok) {
     const errorText = await tokenResponse.text();
+    console.log('GitHub OAuth: Token error response:', errorText);
     throw new Error(`GitHub token request failed: ${tokenResponse.status} ${tokenResponse.statusText} - ${errorText}`);
   }
   
   const tokenData = await tokenResponse.json();
+  console.log('GitHub OAuth: Token response data:', tokenData);
   
   if (tokenData.error) {
     throw new Error(`GitHub token error: ${tokenData.error_description || tokenData.error}`);
@@ -580,6 +587,7 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
   }
   
   // Get user info
+  console.log('GitHub OAuth: Fetching user info with token:', tokenData.access_token.substring(0, 10) + '...');
   const userResponse = await fetch('https://api.github.com/user', {
     headers: { 
       'Authorization': `Bearer ${tokenData.access_token}`,
@@ -587,8 +595,13 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
     }
   });
   
+  console.log('GitHub OAuth: User response status:', userResponse.status);
+  console.log('GitHub OAuth: User response headers:', Object.fromEntries(userResponse.headers.entries()));
+  
   if (!userResponse.ok) {
-    throw new Error(`GitHub API error: ${userResponse.status} ${userResponse.statusText}`);
+    const errorText = await userResponse.text();
+    console.log('GitHub OAuth: User API error response:', errorText);
+    throw new Error(`GitHub API error: ${userResponse.status} ${userResponse.statusText} - ${errorText}`);
   }
   
   const userInfo = await userResponse.json();
@@ -624,6 +637,65 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
       name: userInfo.name || userInfo.login,
       picture: userInfo.avatar_url || '',
       provider: 'github'
+    }
+  };
+}
+
+async function handleDiscordOAuth(code, redirect_uri, env) {
+  console.log('Discord OAuth: Starting token exchange');
+  console.log('Discord OAuth: Redirect URI:', redirect_uri);
+  
+  const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: new URLSearchParams({
+      client_id: env.DISCORD_CLIENT_ID,
+      client_secret: env.DISCORD_CLIENT_SECRET,
+      code: code,
+      grant_type: 'authorization_code',
+      redirect_uri: redirect_uri
+    })
+  });
+  
+  if (!tokenResponse.ok) {
+    const errorText = await tokenResponse.text();
+    throw new Error(`Discord token request failed: ${tokenResponse.status} ${tokenResponse.statusText} - ${errorText}`);
+  }
+  
+  const tokenData = await tokenResponse.json();
+  
+  if (tokenData.error) {
+    throw new Error(`Discord token error: ${tokenData.error_description || tokenData.error}`);
+  }
+  
+  if (!tokenData.access_token) {
+    throw new Error('Discord token error: No access token received');
+  }
+  
+  // Get user info
+  const userResponse = await fetch('https://discord.com/api/users/@me', {
+    headers: { 
+      'Authorization': `Bearer ${tokenData.access_token}`,
+      'Accept': 'application/json'
+    }
+  });
+  
+  if (!userResponse.ok) {
+    throw new Error(`Discord API error: ${userResponse.status} ${userResponse.statusText}`);
+  }
+  
+  const userInfo = await userResponse.json();
+  
+  return {
+    access_token: tokenData.access_token,
+    user: {
+      id: userInfo.id,
+      email: userInfo.email || `${userInfo.username}@discord.local`,
+      name: userInfo.global_name || userInfo.username,
+      picture: userInfo.avatar ? `https://cdn.discordapp.com/avatars/${userInfo.id}/${userInfo.avatar}.png` : '',
+      provider: 'discord'
     }
   };
 }
@@ -724,6 +796,10 @@ async function handleOAuthCallback(request, env) {
         accessToken = result.access_token;
       } else if (provider === 'twitter') {
         const result = await handleTwitterOAuth(code, redirect_uri, code_verifier, env);
+        userData = result.user;
+        accessToken = result.access_token;
+      } else if (provider === 'discord') {
+        const result = await handleDiscordOAuth(code, redirect_uri, env);
         userData = result.user;
         accessToken = result.access_token;
       } else {
