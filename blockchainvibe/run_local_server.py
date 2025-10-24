@@ -13,6 +13,7 @@ def main():
     os.environ["GOOGLE_CLIENT_SECRET"] = "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"
     os.environ["GITHUB_CLIENT_SECRET"] = "7567121f79e7ba2520d5d8cce22a4f90e90ff3c8"
     os.environ["TWITTER_CLIENT_SECRET"] = "Qw8ImtckPxdNs9YljLMigQwtmJqtjrPE5pLb0VfqKDxlCQDQme"
+    os.environ["DISCORD_CLIENT_SECRET"] = "d3QI-oClsHiCTFPumMkQ8OWwAaJ5O8us"
     
     print("Starting BlockchainVibe Local Development Server...")
     print("Make sure to update OAuth secrets in this script!")

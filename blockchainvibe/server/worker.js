@@ -551,6 +551,8 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
   console.log('GitHub OAuth: Starting token exchange');
   console.log('GitHub OAuth: Redirect URI:', redirect_uri);
   console.log('GitHub OAuth: Client ID:', env.GITHUB_CLIENT_ID);
+  console.log('GitHub OAuth: Client Secret exists:', !!env.GITHUB_CLIENT_SECRET);
+  console.log('GitHub OAuth: Code length:', code ? code.length : 'undefined');
   
   const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',

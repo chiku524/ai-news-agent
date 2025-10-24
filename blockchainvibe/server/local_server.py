@@ -33,6 +33,8 @@ GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID", "Ov23lisuJwAjEECYLj0y")
 GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET", "7567121f79e7ba2520d5d8cce22a4f90e90ff3c8")
 TWITTER_CLIENT_ID = os.getenv("TWITTER_CLIENT_ID", "QmVxRHdKal81ZW9QU1pfWFhpWWQ6MTpjaQ")
 TWITTER_CLIENT_SECRET = os.getenv("TWITTER_CLIENT_SECRET", "Qw8ImtckPxdNs9YljLMigQwtmJqtjrPE5pLb0VfqKDxlCQDQme")
+DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID", "1431187449215717457")
+DISCORD_CLIENT_SECRET = os.getenv("DISCORD_CLIENT_SECRET", "d3QI-oClsHiCTFPumMkQ8OWwAaJ5O8us")
 
 @app.get("/api/health")
 async def health_check():
@@ -61,6 +63,8 @@ async def oauth_callback(request: Request):
             user_data, access_token = await handle_github_oauth(code, redirect_uri)
         elif provider == "twitter":
             user_data, access_token = await handle_twitter_oauth(code, redirect_uri, code_verifier)
+        elif provider == "discord":
+            user_data, access_token = await handle_discord_oauth(code, redirect_uri)
         else:
             raise HTTPException(status_code=400, detail="Unsupported OAuth provider")
         
@@ -215,11 +219,50 @@ async def handle_twitter_oauth(code, redirect_uri, code_verifier):
             "picture": profile_image
         }, token_result["access_token"]
 
+async def handle_discord_oauth(code, redirect_uri):
+    """Handle Discord OAuth"""
+    async with aiohttp.ClientSession() as session:
+        # Exchange code for token
+        token_data = {
+            "client_id": DISCORD_CLIENT_ID,
+            "client_secret": DISCORD_CLIENT_SECRET,
+            "code": code,
+            "grant_type": "authorization_code",
+            "redirect_uri": redirect_uri
+        }
+        
+        async with session.post(
+            "https://discord.com/api/oauth2/token",
+            data=token_data,
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+        ) as response:
+            token_result = await response.json()
+            
+        if "error" in token_result:
+            raise Exception(f"Discord token error: {token_result.get('error_description', token_result['error'])}")
+        
+        # Get user info
+        async with session.get(
+            "https://discord.com/api/users/@me",
+            headers={"Authorization": f"Bearer {token_result['access_token']}"}
+        ) as response:
+            user_info = await response.json()
+            
+        return {
+            "id": user_info["id"],
+            "email": user_info.get("email") or f"{user_info['username']}@discord.local",
+            "name": user_info.get("global_name") or user_info["username"],
+            "picture": f"https://cdn.discordapp.com/avatars/{user_info['id']}/{user_info['avatar']}.png" if user_info.get("avatar") else ""
+        }, token_result["access_token"]
+
 if __name__ == "__main__":
     print("Starting BlockchainVibe Local API Server...")
     print("Make sure to set your OAuth client secrets in environment variables:")
     print("- GOOGLE_CLIENT_SECRET")
     print("- GITHUB_CLIENT_SECRET") 
     print("- TWITTER_CLIENT_SECRET")
+    print("- DISCORD_CLIENT_SECRET")
     print("\nServer will run on http://localhost:8000")
     uvicorn.run(app, host="0.0.0.0", port=8000)
