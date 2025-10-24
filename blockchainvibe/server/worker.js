@@ -647,9 +647,16 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
 async function handleDiscordOAuth(code, redirect_uri, env) {
   console.log('Discord OAuth: Starting token exchange');
   console.log('Discord OAuth: Redirect URI:', redirect_uri);
-  console.log('Discord OAuth: Client ID:', env.DISCORD_CLIENT_ID);
+  console.log('Discord OAuth: Client ID from env:', env.DISCORD_CLIENT_ID);
   console.log('Discord OAuth: Client Secret exists:', !!env.DISCORD_CLIENT_SECRET);
   console.log('Discord OAuth: Code length:', code ? code.length : 'undefined');
+  
+  // Use fallback client ID if env var is not set or empty
+  const discordClientId = env.DISCORD_CLIENT_ID || '1431187449215717457';
+  const discordClientSecret = env.DISCORD_CLIENT_SECRET || 'd3QI-oClsHiCTFPumMkQ8OWwAaJ5O8us';
+  
+  console.log('Discord OAuth: Using Client ID:', discordClientId);
+  console.log('Discord OAuth: Using Client Secret exists:', !!discordClientSecret);
   
   const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
     method: 'POST',
@@ -657,8 +664,8 @@ async function handleDiscordOAuth(code, redirect_uri, env) {
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     body: new URLSearchParams({
-      client_id: env.DISCORD_CLIENT_ID,
-      client_secret: env.DISCORD_CLIENT_SECRET,
+      client_id: discordClientId,
+      client_secret: discordClientSecret,
       code: code,
       grant_type: 'authorization_code',
       redirect_uri: redirect_uri
