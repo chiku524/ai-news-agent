@@ -75,7 +75,11 @@ export const userAPI = {
     // Get user from localStorage or use demo user as fallback
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const userId = user?.user_id || user?.id || 'demo_user';
+    console.log('getProfile - user from localStorage:', user);
+    console.log('getProfile - userId:', userId);
+    console.log('getProfile - API call:', `/user/profile?userId=${userId}`);
     const response = await api.get(`/user/profile?userId=${userId}`);
+    console.log('getProfile - API response:', response.data);
     return response.data;
   },
 
