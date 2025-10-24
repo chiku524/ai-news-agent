@@ -26,12 +26,18 @@ class SocialAuthService {
     // Log environment info for debugging
     console.log('SocialAuth initialized:', {
       environment: process.env.NODE_ENV,
+      hostname: window.location.hostname,
+      isProduction: isProduction,
       redirectUri: this.redirectUri,
       apiUrl: this.apiUrl,
       hasGoogleClientId: !!this.googleClientId,
       hasGithubClientId: !!this.githubClientId,
       hasTwitterClientId: !!this.twitterClientId,
-      hasDiscordClientId: !!this.discordClientId
+      hasDiscordClientId: !!this.discordClientId,
+      googleClientId: this.googleClientId,
+      githubClientId: this.githubClientId,
+      twitterClientId: this.twitterClientId,
+      discordClientId: this.discordClientId
     });
   }
 
