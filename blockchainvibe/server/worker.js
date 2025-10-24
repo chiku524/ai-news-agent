@@ -593,7 +593,8 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
   const userResponse = await fetch('https://api.github.com/user', {
     headers: { 
       'Authorization': `Bearer ${tokenData.access_token}`,
-      'Accept': 'application/vnd.github.v3+json'
+      'Accept': 'application/vnd.github.v3+json',
+      'User-Agent': 'BlockchainVibe/1.0.0'
     }
   });
   
@@ -646,6 +647,9 @@ async function handleGitHubOAuth(code, redirect_uri, env) {
 async function handleDiscordOAuth(code, redirect_uri, env) {
   console.log('Discord OAuth: Starting token exchange');
   console.log('Discord OAuth: Redirect URI:', redirect_uri);
+  console.log('Discord OAuth: Client ID:', env.DISCORD_CLIENT_ID);
+  console.log('Discord OAuth: Client Secret exists:', !!env.DISCORD_CLIENT_SECRET);
+  console.log('Discord OAuth: Code length:', code ? code.length : 'undefined');
   
   const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
     method: 'POST',
@@ -661,12 +665,17 @@ async function handleDiscordOAuth(code, redirect_uri, env) {
     })
   });
   
+  console.log('Discord OAuth: Token response status:', tokenResponse.status);
+  console.log('Discord OAuth: Token response headers:', Object.fromEntries(tokenResponse.headers.entries()));
+  
   if (!tokenResponse.ok) {
     const errorText = await tokenResponse.text();
+    console.log('Discord OAuth: Token error response:', errorText);
     throw new Error(`Discord token request failed: ${tokenResponse.status} ${tokenResponse.statusText} - ${errorText}`);
   }
   
   const tokenData = await tokenResponse.json();
+  console.log('Discord OAuth: Token response data:', tokenData);
   
   if (tokenData.error) {
     throw new Error(`Discord token error: ${tokenData.error_description || tokenData.error}`);
