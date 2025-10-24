@@ -227,30 +227,6 @@ const HiddenFileInput = styled.input`
   display: none;
 `;
 
-const ImageUploadButton = styled.label`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  border: 2px dashed ${props => props.theme.colors.border};
-  border-radius: ${props => props.theme.borderRadius.md};
-  background: ${props => props.theme.colors.background};
-  color: ${props => props.theme.colors.textSecondary};
-  cursor: pointer;
-  transition: all ${props => props.theme.transitions.fast};
-  min-height: 120px;
-  
-  &:hover {
-    border-color: ${props => props.theme.colors.primary};
-    color: ${props => props.theme.colors.primary};
-    background: ${props => props.theme.colors.primary}10;
-  }
-  
-  input {
-    display: none;
-  }
-`;
 
 const ButtonGroup = styled.div`
   display: flex;
@@ -341,7 +317,7 @@ const ProfileCompletionModal = ({
     }));
   };
 
-  const handleImageUpload = (e, type) => {
+  const handleImageUpload = async (e, type) => {
     const file = e.target.files[0];
     if (file) {
       // Validate file type
@@ -355,19 +331,53 @@ const ProfileCompletionModal = ({
         toast.error('Image size must be less than 5MB');
         return;
       }
-      
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (type === 'profile') {
-          setFormData(prev => ({ ...prev, profilePicture: event.target.result }));
-          setProfileImagePreview(event.target.result);
-        } else {
-          setFormData(prev => ({ ...prev, bannerImage: event.target.result }));
-          setBannerImagePreview(event.target.result);
+
+      try {
+        // Show loading state
+        toast.loading(`Uploading ${type === 'profile' ? 'profile picture' : 'banner image'}...`);
+
+        // Get user ID
+        const userId = userData?.user_id || userData?.id;
+        if (!userId) {
+          throw new Error('User ID not found');
         }
-        toast.success(`${type === 'profile' ? 'Profile picture' : 'Banner image'} updated successfully!`);
-      };
-      reader.readAsDataURL(file);
+
+        // Create FormData for upload
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', type);
+        formData.append('userId', userId);
+
+        // Upload to R2 storage
+        const apiUrl = process.env.REACT_APP_API_URL || 'https://blockchainvibe-api.nico-chikuji.workers.dev';
+        const response = await fetch(`${apiUrl}/api/upload`, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Upload failed');
+        }
+
+        const result = await response.json();
+        
+        // Update form data with the public URL
+        if (type === 'profile') {
+          setFormData(prev => ({ ...prev, profilePicture: result.url }));
+          setProfileImagePreview(result.url);
+        } else {
+          setFormData(prev => ({ ...prev, bannerImage: result.url }));
+          setBannerImagePreview(result.url);
+        }
+
+        toast.dismiss();
+        toast.success(`${type === 'profile' ? 'Profile picture' : 'Banner image'} uploaded successfully!`);
+      } catch (error) {
+        toast.dismiss();
+        console.error('Image upload error:', error);
+        toast.error(`Failed to upload image: ${error.message}`);
+      }
     }
   };
 
@@ -490,7 +500,7 @@ const ProfileCompletionModal = ({
                             <ImagePlaceholder>
                               <User size={32} />
                               <span style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>
-                                No image
+                                Click to upload
                               </span>
                             </ImagePlaceholder>
                           )}
@@ -507,15 +517,6 @@ const ProfileCompletionModal = ({
                             onChange={(e) => handleImageUpload(e, 'profile')}
                           />
                         </ImagePreviewItem>
-                        <ImageUploadButton>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleImageUpload(e, 'profile')}
-                          />
-                          <Camera size={24} />
-                          <span>Upload Profile Picture</span>
-                        </ImageUploadButton>
                       </ImagePreview>
                     </FormGroup>
 
@@ -532,7 +533,7 @@ const ProfileCompletionModal = ({
                             <ImagePlaceholder>
                               <ImageIcon size={24} />
                               <span style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
-                                No banner
+                                Click to upload
                               </span>
                             </ImagePlaceholder>
                           )}
@@ -549,15 +550,6 @@ const ProfileCompletionModal = ({
                             onChange={(e) => handleImageUpload(e, 'banner')}
                           />
                         </ImagePreviewItem>
-                        <ImageUploadButton>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleImageUpload(e, 'banner')}
-                          />
-                          <ImageIcon size={24} />
-                          <span>Upload Banner Image</span>
-                        </ImageUploadButton>
                       </ImagePreview>
                     </FormGroup>
                   </ImageUploadContainer>

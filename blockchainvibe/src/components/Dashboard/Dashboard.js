@@ -523,12 +523,13 @@ const Dashboard = () => {
       console.log('Current user data:', user);
 
       // Convert form data to backend format
+      // Images are now stored as URLs from R2, not base64
       const backendProfileData = {
         name: profileData.name,
         email: profileData.email,
         bio: profileData.bio,
-        profile_picture: profileData.profilePicture,
-        banner_image: profileData.bannerImage,
+        profile_picture: profileData.profilePicture, // This is now a URL
+        banner_image: profileData.bannerImage, // This is now a URL
         location: profileData.location,
         website: profileData.website,
         twitter: profileData.twitter,
