@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Navigation from './Navigation';
+import Sidebar from './Sidebar';
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -19,10 +19,10 @@ const MainContent = styled.main`
   }
 `;
 
-const Layout = ({ children, showNavigation = true }) => {
+const Layout = ({ children, showSidebar = true }) => {
   return (
     <LayoutContainer>
-      {showNavigation && <Navigation />}
+      {showSidebar && <Sidebar />}
       <MainContent>
         {children}
       </MainContent>
