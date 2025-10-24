@@ -19,7 +19,8 @@ import {
   Zap,
   Sun,
   Moon,
-  Newspaper
+  Newspaper,
+  User
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
