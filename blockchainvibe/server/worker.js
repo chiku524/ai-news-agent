@@ -871,10 +871,10 @@ async function handleTwitterOAuth(code, redirect_uri, codeVerifier, env) {
     return {
       access_token: tokenData.access_token,
       user: {
-        id: userInfo.data.id,
+        id: userInfo.data.id || '',
         email: userInfo.data.email || '',
-        name: userInfo.data.name,
-        picture: profileImage,
+        name: userInfo.data.name || '',
+        picture: profileImage || '',
         provider: 'twitter'
       }
     };
@@ -944,10 +944,10 @@ async function handleOAuthCallback(request, env) {
     // Save user to database
     const db = new DatabaseService(env.DB);
     const dbResult = await db.createUser({
-      id: userData.id,
-      email: userData.email,
-      name: userData.name,
-      picture: userData.picture || userData.avatar_url,
+      id: userData.id || '',
+      email: userData.email || '',
+      name: userData.name || '',
+      picture: userData.picture || userData.avatar_url || '',
       provider: provider
     });
 

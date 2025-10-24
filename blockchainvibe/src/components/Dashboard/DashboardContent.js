@@ -277,10 +277,15 @@ const DashboardContent = () => {
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('user') || '{}');
     const profileCompleted = localStorage.getItem('profileCompleted');
+    const pendingProfileData = localStorage.getItem('pendingProfileData');
     
     setUser(userData);
     
-    if (userData && !profileCompleted) {
+    // Check URL parameters for profile modal
+    const urlParams = new URLSearchParams(window.location.search);
+    const showModal = urlParams.get('showProfileModal') === 'true';
+    
+    if ((userData && !profileCompleted) || showModal || pendingProfileData) {
       setShowProfileModal(true);
     }
   }, []);
