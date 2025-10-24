@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
@@ -9,19 +9,23 @@ import LandingPage from './components/LandingPage';
 import SignIn from './components/Auth/SignIn';
 import Register from './components/Auth/Register';
 import OAuthCallback from './components/Auth/OAuthCallback';
-import Dashboard from './components/Dashboard/Dashboard';
-import NewsFeed from './components/NewsFeed';
-import NewsDetail from './components/NewsDetail';
-import UserProfile from './components/UserProfile';
-import SearchResults from './components/SearchResults';
-import Analytics from './components/Analytics';
-import SavedArticles from './components/SavedArticles';
-import LikedArticles from './components/LikedArticles';
-import Settings from './components/Settings';
-import NotFound from './components/NotFound';
+import Layout from './components/Layout';
+import LoadingSpinner from './components/LoadingSpinner';
 
 // Context
 import { ThemeProvider as CustomThemeProvider, useTheme } from './contexts/ThemeContext';
+
+// Lazy load components for better performance
+const Dashboard = lazy(() => import('./components/Dashboard/Dashboard'));
+const NewsFeed = lazy(() => import('./components/NewsFeed'));
+const NewsDetail = lazy(() => import('./components/NewsDetail'));
+const UserProfile = lazy(() => import('./components/UserProfile'));
+const SearchResults = lazy(() => import('./components/SearchResults'));
+const Analytics = lazy(() => import('./components/Analytics'));
+const SavedArticles = lazy(() => import('./components/SavedArticles'));
+const LikedArticles = lazy(() => import('./components/LikedArticles'));
+const Settings = lazy(() => import('./components/Settings'));
+const NotFound = lazy(() => import('./components/NotFound'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -111,16 +115,76 @@ const AppContent = () => {
             <Route path="/signin" element={<SignIn />} />
             <Route path="/register" element={<Register />} />
             <Route path="/auth/callback" element={<OAuthCallback />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/news" element={<NewsFeed />} />
-            <Route path="/news/:id" element={<NewsDetail />} />
-            <Route path="/search" element={<SearchResults />} />
-            <Route path="/profile" element={<UserProfile />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/saved" element={<SavedArticles />} />
-            <Route path="/liked" element={<LikedArticles />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="/dashboard" element={
+              <Layout>
+                <Suspense fallback={<LoadingSpinner message="Loading dashboard..." />}>
+                  <Dashboard />
+                </Suspense>
+              </Layout>
+            } />
+            <Route path="/news" element={
+              <Layout>
+                <Suspense fallback={<LoadingSpinner message="Loading news..." />}>
+                  <NewsFeed />
+                </Suspense>
+              </Layout>
+            } />
+            <Route path="/news/:id" element={
+              <Layout>
+                <Suspense fallback={<LoadingSpinner message="Loading article..." />}>
+                  <NewsDetail />
+                </Suspense>
+              </Layout>
+            } />
+            <Route path="/search" element={
+              <Layout>
+                <Suspense fallback={<LoadingSpinner message="Loading search..." />}>
+                  <SearchResults />
+                </Suspense>
+              </Layout>
+            } />
+            <Route path="/profile" element={
+              <Layout>
+                <Suspense fallback={<LoadingSpinner message="Loading profile..." />}>
+                  <UserProfile />
+                </Suspense>
+              </Layout>
+            } />
+            <Route path="/analytics" element={
+              <Layout>
+                <Suspense fallback={<LoadingSpinner message="Loading analytics..." />}>
+                  <Analytics />
+                </Suspense>
+              </Layout>
+            } />
+            <Route path="/saved" element={
+              <Layout>
+                <Suspense fallback={<LoadingSpinner message="Loading saved articles..." />}>
+                  <SavedArticles />
+                </Suspense>
+              </Layout>
+            } />
+            <Route path="/liked" element={
+              <Layout>
+                <Suspense fallback={<LoadingSpinner message="Loading liked articles..." />}>
+                  <LikedArticles />
+                </Suspense>
+              </Layout>
+            } />
+            <Route path="/settings" element={
+              <Layout>
+                <Suspense fallback={<LoadingSpinner message="Loading settings..." />}>
+                  <Settings />
+                </Suspense>
+              </Layout>
+            } />
+            <Route path="*" element={
+              <Layout>
+                <Suspense fallback={<LoadingSpinner message="Loading..." />}>
+                  <NotFound />
+                </Suspense>
+              </Layout>
+            } />
           </Routes>
         </AppContainer>
         

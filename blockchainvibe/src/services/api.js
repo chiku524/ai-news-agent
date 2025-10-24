@@ -72,7 +72,10 @@ export const newsAPI = {
 
 export const userAPI = {
   getProfile: async () => {
-    const response = await api.get('/user/profile/demo_user');
+    // Get user from localStorage or use demo user as fallback
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user?.user_id || user?.id || 'demo_user';
+    const response = await api.get(`/user/profile/${userId}`);
     return response.data;
   },
 
@@ -85,16 +88,20 @@ export const userAPI = {
   },
 
   updatePreferences: async (preferences) => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user?.user_id || user?.id || 'demo_user';
     const response = await api.post('/user/preferences', {
-      user_id: 'demo_user',
+      user_id: userId,
       preferences
     });
     return response.data;
   },
 
   trackActivity: async (activityData) => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user?.user_id || user?.id || 'demo_user';
     const response = await api.post('/user/activity', {
-      user_id: 'demo_user',
+      user_id: userId,
       ...activityData,
       timestamp: new Date().toISOString()
     });

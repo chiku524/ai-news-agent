@@ -214,7 +214,7 @@ const SaveButton = styled.button`
 `;
 
 const UserProfile = () => {
-  const { userProfile, isLoading, updatePreferences, isUpdatingPreferences } = useUser();
+  const { userProfile, isLoading, error, updatePreferences, isUpdatingPreferences } = useUser();
   const [activeTab, setActiveTab] = useState('preferences');
   const [preferences, setPreferences] = useState({
     categories: [],
@@ -280,23 +280,45 @@ const UserProfile = () => {
     );
   }
 
+  if (error) {
+    return (
+      <ProfileContainer>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          <h2>Error loading profile</h2>
+          <p>{error.message || 'Failed to load profile data'}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      </ProfileContainer>
+    );
+  }
+
+  // Fallback data if userProfile is null
+  const profileData = userProfile || {
+    user_id: 'Demo User',
+    profile_picture: null,
+    banner_image: null,
+    preferences: {},
+    activity_history: [],
+    interests: []
+  };
+
   return (
     <ProfileContainer>
       <ProfileHeader>
-        <Avatar imageUrl={userProfile?.profile_picture}>
-          {!userProfile?.profile_picture && 'U'}
+        <Avatar imageUrl={profileData?.profile_picture}>
+          {!profileData?.profile_picture && 'U'}
         </Avatar>
-        <UserName>{userProfile?.user_id || 'Demo User'}</UserName>
+        <UserName>{profileData?.user_id || 'Demo User'}</UserName>
         <UserEmail>demo@ainewsagent.com</UserEmail>
       </ProfileHeader>
 
       <StatsContainer>
         <StatCard>
-          <StatValue>{userProfile?.activity_history?.length || 0}</StatValue>
+          <StatValue>{profileData?.activity_history?.length || 0}</StatValue>
           <StatLabel>Articles Read</StatLabel>
         </StatCard>
         <StatCard>
-          <StatValue>{userProfile?.interests?.length || 0}</StatValue>
+          <StatValue>{profileData?.interests?.length || 0}</StatValue>
           <StatLabel>Interests</StatLabel>
         </StatCard>
         <StatCard>
