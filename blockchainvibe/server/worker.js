@@ -33,6 +33,12 @@ class DatabaseService {
           provider TEXT NOT NULL,
           profile_picture TEXT,
           banner_image TEXT,
+          bio TEXT,
+          location TEXT,
+          website TEXT,
+          twitter TEXT,
+          linkedin TEXT,
+          profile_completed BOOLEAN DEFAULT 0,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           last_login DATETIME DEFAULT CURRENT_TIMESTAMP,
           is_active BOOLEAN DEFAULT 1
@@ -53,12 +59,31 @@ class DatabaseService {
       // Initialize database if needed
       await this.initDatabase();
       
-      await this.db.prepare(`
-        INSERT OR REPLACE INTO users (user_id, email, name, picture, provider, created_at, last_login, is_active)
-        VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'), 1)
-      `).bind(id, email, name, picture, provider).run();
+      // Check if user already exists
+      const existingUser = await this.db.prepare(
+        'SELECT user_id, profile_completed FROM users WHERE user_id = ?'
+      ).bind(id).first();
       
-      return { success: true };
+      if (existingUser) {
+        // Update last login
+        await this.db.prepare(
+          'UPDATE users SET last_login = datetime("now") WHERE user_id = ?'
+        ).bind(id).run();
+        
+        return { 
+          success: true, 
+          isNewUser: false, 
+          profileCompleted: existingUser.profile_completed 
+        };
+      }
+      
+      // Create new user
+      await this.db.prepare(`
+        INSERT INTO users (user_id, email, name, picture, provider, profile_picture, created_at, last_login, is_active)
+        VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'), 1)
+      `).bind(id, email, name, picture, provider, picture).run();
+      
+      return { success: true, isNewUser: true, profileCompleted: false };
     } catch (error) {
       console.error('Database error:', error);
       return { success: false, error: error.message };
@@ -74,6 +99,62 @@ class DatabaseService {
       return { success: true };
     } catch (error) {
       console.error('Database update error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async updateUserProfile(userId, profileData) {
+    try {
+      const {
+        name,
+        email,
+        bio,
+        profile_picture,
+        banner_image,
+        location,
+        website,
+        twitter,
+        linkedin
+      } = profileData;
+
+      await this.db.prepare(`
+        UPDATE users SET 
+          name = COALESCE(?, name),
+          email = COALESCE(?, email),
+          bio = COALESCE(?, bio),
+          profile_picture = COALESCE(?, profile_picture),
+          banner_image = COALESCE(?, banner_image),
+          location = COALESCE(?, location),
+          website = COALESCE(?, website),
+          twitter = COALESCE(?, twitter),
+          linkedin = COALESCE(?, linkedin),
+          profile_completed = 1
+        WHERE user_id = ?
+      `).bind(
+        name, email, bio, profile_picture, banner_image,
+        location, website, twitter, linkedin, userId
+      ).run();
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Database error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getUserProfile(userId) {
+    try {
+      const user = await this.db.prepare(`
+        SELECT * FROM users WHERE user_id = ?
+      `).bind(userId).first();
+      
+      if (!user) {
+        return { success: false, error: 'User not found' };
+      }
+      
+      return { success: true, user };
+    } catch (error) {
+      console.error('Database error:', error);
       return { success: false, error: error.message };
     }
   }
@@ -851,10 +932,23 @@ async function handleOAuthCallback(request, env) {
       provider: provider
     });
 
+    if (!dbResult.success) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: 'Failed to save user data',
+        error: dbResult.error
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+
     return new Response(JSON.stringify({
       success: true,
       access_token: accessToken,
-      user: userData
+      user: userData,
+      isNewUser: dbResult.isNewUser,
+      profileCompleted: dbResult.profileCompleted
     }), {
       headers: { 'Content-Type': 'application/json', ...corsHeaders }
     });
@@ -909,6 +1003,14 @@ export default {
         return await handleNews(request, env);
       }
 
+      if (path === '/api/user/profile' && method === 'GET') {
+        return await handleGetUserProfile(request, env);
+      }
+
+      if (path === '/api/user/profile' && method === 'PUT') {
+        return await handleUpdateUserProfile(request, env);
+      }
+
       // Default response
       return new Response(JSON.stringify({
         message: 'BlockchainVibe API',
@@ -936,3 +1038,99 @@ export default {
     }
   }
 };
+
+// Profile API handlers
+async function handleGetUserProfile(request, env) {
+  try {
+    const url = new URL(request.url);
+    const userId = url.searchParams.get('userId');
+    
+    if (!userId) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: 'User ID is required'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    
+    const db = new DatabaseService(env.DB);
+    const result = await db.getUserProfile(userId);
+    
+    if (!result.success) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: result.error
+      }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    
+    return new Response(JSON.stringify({
+      success: true,
+      user: result.user
+    }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+    
+  } catch (error) {
+    console.error('Get user profile error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      message: 'Failed to get user profile',
+      error: error.message
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
+async function handleUpdateUserProfile(request, env) {
+  try {
+    const { userId, profileData } = await request.json();
+    
+    if (!userId || !profileData) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: 'User ID and profile data are required'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    
+    const db = new DatabaseService(env.DB);
+    const result = await db.updateUserProfile(userId, profileData);
+    
+    if (!result.success) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: result.error
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'Profile updated successfully'
+    }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+    
+  } catch (error) {
+    console.error('Update user profile error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      message: 'Failed to update user profile',
+      error: error.message
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
