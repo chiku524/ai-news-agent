@@ -519,6 +519,9 @@ const Dashboard = () => {
 
   const handleProfileComplete = async (profileData) => {
     try {
+      console.log('Profile completion started with data:', profileData);
+      console.log('Current user data:', user);
+
       // Convert form data to backend format
       const backendProfileData = {
         name: profileData.name,
@@ -535,12 +538,17 @@ const Dashboard = () => {
       // Get user ID from stored user data
       const userId = user?.user_id || user?.id;
       
+      console.log('User ID found:', userId);
+      
       if (!userId) {
-        throw new Error('User ID not found');
+        throw new Error('User ID not found. Please try logging in again.');
       }
 
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://blockchainvibe-api.nico-chikuji.workers.dev';
+      console.log('Calling API:', `${apiUrl}/api/user/profile`);
+
       // Call API to update profile
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://blockchainvibe-api.nico-chikuji.workers.dev'}/api/user/profile`, {
+      const response = await fetch(`${apiUrl}/api/user/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -552,10 +560,16 @@ const Dashboard = () => {
         })
       });
 
+      console.log('API response status:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('API error response:', errorData);
         throw new Error(errorData.message || 'Failed to update profile');
       }
+
+      const result = await response.json();
+      console.log('API success response:', result);
 
       // Update local storage
       const updatedUser = { ...user, ...profileData };
