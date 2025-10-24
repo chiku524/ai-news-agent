@@ -11,7 +11,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useTheme } from '../../contexts/ThemeContext';
+// import { useTheme } from '../../contexts/ThemeContext';
 
 const ModalOverlay = styled(motion.div)`
   position: fixed;
@@ -175,6 +175,13 @@ const ImagePreviewItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+  
+  &:hover {
+    border-color: ${props => props.theme.colors.primary};
+    transform: scale(1.02);
+  }
 `;
 
 const ImagePreviewImg = styled.img`
@@ -193,6 +200,31 @@ const ImagePlaceholder = styled.div`
   color: ${props => props.theme.colors.textMuted};
   text-align: center;
   padding: 1rem;
+`;
+
+const ImageUploadOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  opacity: 0;
+  transition: opacity ${props => props.theme.transitions.fast};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  
+  ${ImagePreviewItem}:hover & {
+    opacity: 1;
+  }
+`;
+
+const HiddenFileInput = styled.input`
+  display: none;
 `;
 
 const ImageUploadButton = styled.label`
@@ -312,6 +344,18 @@ const ProfileCompletionModal = ({
   const handleImageUpload = (e, type) => {
     const file = e.target.files[0];
     if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select a valid image file');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size must be less than 5MB');
+        return;
+      }
+      
       const reader = new FileReader();
       reader.onload = (event) => {
         if (type === 'profile') {
@@ -321,8 +365,16 @@ const ProfileCompletionModal = ({
           setFormData(prev => ({ ...prev, bannerImage: event.target.result }));
           setBannerImagePreview(event.target.result);
         }
+        toast.success(`${type === 'profile' ? 'Profile picture' : 'Banner image'} updated successfully!`);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageClick = (type) => {
+    const input = document.getElementById(`${type}-file-input`);
+    if (input) {
+      input.click();
     }
   };
 
@@ -431,7 +483,7 @@ const ProfileCompletionModal = ({
                     <FormGroup>
                       <Label>Profile Picture</Label>
                       <ImagePreview>
-                        <ImagePreviewItem>
+                        <ImagePreviewItem onClick={() => handleImageClick('profile')}>
                           {profileImagePreview ? (
                             <ImagePreviewImg src={profileImagePreview} alt="Profile preview" />
                           ) : (
@@ -442,6 +494,18 @@ const ProfileCompletionModal = ({
                               </span>
                             </ImagePlaceholder>
                           )}
+                          <ImageUploadOverlay>
+                            <Camera size={24} />
+                            <span style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                              Click to upload
+                            </span>
+                          </ImageUploadOverlay>
+                          <HiddenFileInput
+                            id="profile-file-input"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleImageUpload(e, 'profile')}
+                          />
                         </ImagePreviewItem>
                         <ImageUploadButton>
                           <input
@@ -458,7 +522,10 @@ const ProfileCompletionModal = ({
                     <FormGroup>
                       <Label>Banner Image</Label>
                       <ImagePreview>
-                        <ImagePreviewItem style={{ width: '200px', height: '80px' }}>
+                        <ImagePreviewItem 
+                          style={{ width: '200px', height: '80px' }}
+                          onClick={() => handleImageClick('banner')}
+                        >
                           {bannerImagePreview ? (
                             <ImagePreviewImg src={bannerImagePreview} alt="Banner preview" />
                           ) : (
@@ -469,6 +536,18 @@ const ProfileCompletionModal = ({
                               </span>
                             </ImagePlaceholder>
                           )}
+                          <ImageUploadOverlay>
+                            <ImageIcon size={20} />
+                            <span style={{ fontSize: '0.7rem', marginTop: '0.25rem' }}>
+                              Click to upload
+                            </span>
+                          </ImageUploadOverlay>
+                          <HiddenFileInput
+                            id="banner-file-input"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleImageUpload(e, 'banner')}
+                          />
                         </ImagePreviewItem>
                         <ImageUploadButton>
                           <input
