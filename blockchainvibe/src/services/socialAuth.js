@@ -248,11 +248,20 @@ class SocialAuthService {
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('refresh_token', data.refresh_token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('isNewUser', data.isNewUser || false);
+        localStorage.setItem('profileCompleted', data.profileCompleted || false);
         
         // Clear any stored OAuth provider info
         localStorage.removeItem('oauth_provider');
-        // Redirect to dashboard
-        window.location.href = '/dashboard';
+        
+        // Check if profile needs completion
+        if (data.isNewUser && !data.profileCompleted) {
+          // Store user data for profile completion modal
+          localStorage.setItem('pendingProfileData', JSON.stringify(data.user));
+          window.location.href = '/dashboard?showProfileModal=true';
+        } else {
+          window.location.href = '/dashboard';
+        }
       } else {
         throw new Error(data.message || data.error || 'Google authentication failed');
       }
@@ -289,11 +298,20 @@ class SocialAuthService {
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('refresh_token', data.refresh_token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('isNewUser', data.isNewUser || false);
+        localStorage.setItem('profileCompleted', data.profileCompleted || false);
         
         // Clear any stored OAuth provider info
         localStorage.removeItem('oauth_provider');
-        // Redirect to dashboard
-        window.location.href = '/dashboard';
+        
+        // Check if profile needs completion
+        if (data.isNewUser && !data.profileCompleted) {
+          // Store user data for profile completion modal
+          localStorage.setItem('pendingProfileData', JSON.stringify(data.user));
+          window.location.href = '/dashboard?showProfileModal=true';
+        } else {
+          window.location.href = '/dashboard';
+        }
       } else {
         throw new Error(data.message || data.error || 'GitHub authentication failed');
       }
@@ -328,11 +346,20 @@ class SocialAuthService {
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('refresh_token', data.refresh_token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('isNewUser', data.isNewUser || false);
+        localStorage.setItem('profileCompleted', data.profileCompleted || false);
         
         // Clear any stored OAuth provider info
         localStorage.removeItem('oauth_provider');
-        // Redirect to dashboard
-        window.location.href = '/dashboard';
+        
+        // Check if profile needs completion
+        if (data.isNewUser && !data.profileCompleted) {
+          // Store user data for profile completion modal
+          localStorage.setItem('pendingProfileData', JSON.stringify(data.user));
+          window.location.href = '/dashboard?showProfileModal=true';
+        } else {
+          window.location.href = '/dashboard';
+        }
       } else {
         throw new Error(data.message || data.error || 'Discord authentication failed');
       }
@@ -372,12 +399,21 @@ class SocialAuthService {
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('refresh_token', data.refresh_token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('isNewUser', data.isNewUser || false);
+        localStorage.setItem('profileCompleted', data.profileCompleted || false);
         
         // Clear any stored OAuth provider info
         localStorage.removeItem('oauth_provider');
         localStorage.removeItem('twitter_code_verifier');
-        // Redirect to dashboard
-        window.location.href = '/dashboard';
+        
+        // Check if profile needs completion
+        if (data.isNewUser && !data.profileCompleted) {
+          // Store user data for profile completion modal
+          localStorage.setItem('pendingProfileData', JSON.stringify(data.user));
+          window.location.href = '/dashboard?showProfileModal=true';
+        } else {
+          window.location.href = '/dashboard';
+        }
       } else {
         throw new Error(data.message || data.error || 'Twitter authentication failed');
       }

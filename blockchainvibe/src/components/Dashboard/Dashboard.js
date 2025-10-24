@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { 
@@ -26,6 +26,7 @@ import toast from 'react-hot-toast';
 
 import NewsCard from '../NewsCard';
 import LoadingSpinner from '../LoadingSpinner';
+import ProfileCompletionModal from '../Auth/ProfileCompletionModal';
 import { newsAPI } from '../../services/api';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -463,6 +464,32 @@ const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [user, setUser] = useState(null);
+  const [pendingProfileData, setPendingProfileData] = useState(null);
+
+  // Load user data and check for profile completion
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    const isNewUser = localStorage.getItem('isNewUser') === 'true';
+    const profileCompleted = localStorage.getItem('profileCompleted') === 'true';
+    const pendingData = localStorage.getItem('pendingProfileData');
+    const urlParams = new URLSearchParams(window.location.search);
+    const showModal = urlParams.get('showProfileModal') === 'true';
+
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+
+    if (pendingData) {
+      setPendingProfileData(JSON.parse(pendingData));
+    }
+
+    // Show profile modal if needed
+    if ((isNewUser && !profileCompleted) || showModal) {
+      setShowProfileModal(true);
+    }
+  }, []);
 
   const { data: newsData, isLoading, refetch } = useQuery(
     ['news', { category: activeFilter, timeframe: '24h' }],
@@ -478,8 +505,41 @@ const Dashboard = () => {
   );
 
   const handleLogout = () => {
+    // Clear all user data
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('isNewUser');
+    localStorage.removeItem('profileCompleted');
+    localStorage.removeItem('pendingProfileData');
+    
     toast.success('Logged out successfully');
     navigate('/');
+  };
+
+  const handleProfileComplete = async (profileData) => {
+    try {
+      // Here you would typically send the profile data to your API
+      // For now, we'll just update local storage
+      const updatedUser = { ...user, ...profileData };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      localStorage.setItem('profileCompleted', 'true');
+      localStorage.removeItem('pendingProfileData');
+      
+      setUser(updatedUser);
+      setShowProfileModal(false);
+      toast.success('Profile completed successfully!');
+    } catch (error) {
+      toast.error('Failed to complete profile. Please try again.');
+    }
+  };
+
+  const handleProfileModalClose = () => {
+    setShowProfileModal(false);
+    // Clean up URL parameters
+    const url = new URL(window.location);
+    url.searchParams.delete('showProfileModal');
+    window.history.replaceState({}, '', url);
   };
 
   const handleNewsInteraction = async (newsId, action) => {
@@ -554,10 +614,12 @@ const Dashboard = () => {
         <SidebarHeader>
           <Logo>BlockchainVibe</Logo>
           <UserInfo>
-            <UserAvatar>JD</UserAvatar>
+            <UserAvatar>
+              {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+            </UserAvatar>
             <UserDetails>
-              <h4>John Doe</h4>
-              <p>john@example.com</p>
+              <h4>{user?.name || 'User'}</h4>
+              <p>{user?.email || 'user@example.com'}</p>
             </UserDetails>
           </UserInfo>
         </SidebarHeader>
@@ -743,6 +805,14 @@ const Dashboard = () => {
           </SidebarContent>
         </ContentGrid>
       </MainContent>
+
+      {/* Profile Completion Modal */}
+      <ProfileCompletionModal
+        isOpen={showProfileModal}
+        onClose={handleProfileModalClose}
+        userData={pendingProfileData || user}
+        onComplete={handleProfileComplete}
+      />
     </DashboardContainer>
   );
 };

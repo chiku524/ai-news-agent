@@ -40,25 +40,27 @@ const OAuthCallback = () => {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // Add debugging
-        
         setStatus('Processing OAuth callback...');
-        setError(null); // Clear any previous errors
+        setError(null);
         
         // Handle the OAuth callback
         await socialAuthService.handleOAuthCallback();
         
         setStatus('Authentication successful! Redirecting...');
-        setError(null); // Ensure no error is set on success
+        setError(null);
         
-        // Add a small delay to show success message before redirect
-        setTimeout(() => {
-          setStatus('Redirecting to dashboard...');
-        }, 1000);
+        // The redirect will be handled by the individual callback methods
+        // No need to add additional redirect logic here
         
       } catch (error) {
+        console.error('OAuth callback error:', error);
         setError(error.message);
         setStatus('Authentication failed');
+        
+        // Redirect to sign in page on error
+        setTimeout(() => {
+          window.location.href = '/signin';
+        }, 3000);
       }
     };
 
