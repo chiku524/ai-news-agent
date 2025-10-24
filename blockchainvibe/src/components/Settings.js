@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
 import { 
   Settings as SettingsIcon, 
   User, 
   Bell, 
   Shield, 
   Palette,
-  Globe,
-  Database,
   Zap,
   Save,
-  Eye,
-  EyeOff,
   Trash2
 } from 'lucide-react';
 import toast from 'react-hot-toast';

@@ -1,18 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
-  Clock, 
   RefreshCw, 
-  Bell, 
   Search,
-  Bookmark,
-  Heart,
-  Share2,
   ChevronRight,
-  Plus,
-  BarChart3,
   Activity,
   Zap
 } from 'lucide-react';

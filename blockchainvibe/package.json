@@ -25,9 +25,7 @@
     "build": "react-scripts build",
     "build:production": "REACT_APP_ENV=production react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "dev": "concurrently \"npm start\" \"python run_local_server.py\"",
-    "server": "python run_local_server.py"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -48,7 +46,5 @@
     ]
   },
   "homepage": "https://blockchainvibe.news",
-  "devDependencies": {
-    "concurrently": "^9.2.1"
-  }
+  "devDependencies": {}
 }

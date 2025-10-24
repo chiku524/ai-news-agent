@@ -7,7 +7,6 @@ import {
   TrendingDown,
   Eye,
   Heart,
-  Bookmark,
   Clock,
   Target,
   Brain,

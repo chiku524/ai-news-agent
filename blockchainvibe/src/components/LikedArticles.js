@@ -4,9 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Heart, 
   Search, 
-  Filter,
-  Trash2,
-  Share2,
   Calendar,
   Tag,
   ThumbsUp
