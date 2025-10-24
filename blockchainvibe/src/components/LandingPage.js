@@ -318,6 +318,281 @@ const FooterContainer = styled.div`
   margin-bottom: 2rem;
 `;
 
+// Pricing Section Styles
+const PricingSection = styled.section`
+  padding: 6rem 0;
+  background: ${props => props.theme.colors.background};
+`;
+
+const PricingContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  text-align: center;
+`;
+
+const PricingGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 4rem;
+`;
+
+const PricingCard = styled.div`
+  background: ${props => props.theme.colors.surface};
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: ${props => props.theme.borderRadius.xl};
+  padding: 2rem;
+  position: relative;
+  transition: all ${props => props.theme.transitions.normal};
+  
+  ${props => props.featured && `
+    border-color: ${props.theme.colors.primary};
+    transform: scale(1.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  `}
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const PricingBadge = styled.div`
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: ${props => props.theme.colors.primary};
+  color: ${props => props.theme.colors.textInverse};
+  padding: 0.5rem 1rem;
+  border-radius: ${props => props.theme.borderRadius.full};
+  font-size: ${props => props.theme.fontSize.sm};
+  font-weight: ${props => props.theme.fontWeight.medium};
+`;
+
+const PricingHeader = styled.div`
+  margin-bottom: 2rem;
+`;
+
+const PricingTitle = styled.h3`
+  font-size: ${props => props.theme.fontSize.xl};
+  font-weight: ${props => props.theme.fontWeight.bold};
+  color: ${props => props.theme.colors.text};
+  margin-bottom: 1rem;
+`;
+
+const PricingPrice = styled.div`
+  font-size: ${props => props.theme.fontSize['4xl']};
+  font-weight: ${props => props.theme.fontWeight.bold};
+  color: ${props => props.theme.colors.primary};
+  
+  span {
+    font-size: ${props => props.theme.fontSize.lg};
+    color: ${props => props.theme.colors.textSecondary};
+  }
+`;
+
+const PricingFeatures = styled.div`
+  margin-bottom: 2rem;
+`;
+
+const PricingFeature = styled.div`
+  padding: 0.5rem 0;
+  color: ${props => props.theme.colors.text};
+  font-size: ${props => props.theme.fontSize.md};
+`;
+
+const PricingButton = styled.button`
+  width: 100%;
+  padding: 1rem 2rem;
+  border-radius: ${props => props.theme.borderRadius.lg};
+  font-weight: ${props => props.theme.fontWeight.medium};
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+  border: none;
+  
+  ${props => props.variant === 'primary' && `
+    background: ${props.theme.colors.primary};
+    color: ${props.theme.colors.textInverse};
+    
+    &:hover {
+      background: ${props.theme.colors.primaryHover};
+    }
+  `}
+  
+  ${props => props.variant === 'secondary' && `
+    background: transparent;
+    color: ${props.theme.colors.text};
+    border: 1px solid ${props.theme.colors.border};
+    
+    &:hover {
+      background: ${props.theme.colors.surfaceHover};
+    }
+  `}
+`;
+
+// About Section Styles
+const AboutSection = styled.section`
+  padding: 6rem 0;
+  background: ${props => props.theme.colors.surface};
+`;
+
+const AboutContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+`;
+
+const AboutContent = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+`;
+
+const AboutText = styled.div`
+  text-align: left;
+`;
+
+const AboutDescription = styled.p`
+  font-size: ${props => props.theme.fontSize.lg};
+  line-height: 1.7;
+  color: ${props => props.theme.colors.textSecondary};
+  margin-top: 1.5rem;
+`;
+
+const AboutStats = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const AboutStat = styled.div`
+  text-align: center;
+  
+  h3 {
+    font-size: ${props => props.theme.fontSize['3xl']};
+    font-weight: ${props => props.theme.fontWeight.bold};
+    color: ${props => props.theme.colors.primary};
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    color: ${props => props.theme.colors.textSecondary};
+    font-size: ${props => props.theme.fontSize.md};
+  }
+`;
+
+// Contact Section Styles
+const ContactSection = styled.section`
+  padding: 6rem 0;
+  background: ${props => props.theme.colors.background};
+`;
+
+const ContactContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  text-align: center;
+`;
+
+const ContactContent = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  margin-top: 4rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+`;
+
+const ContactInfo = styled.div`
+  text-align: left;
+`;
+
+const ContactItem = styled.div`
+  margin-bottom: 2rem;
+  
+  h4 {
+    font-size: ${props => props.theme.fontSize.lg};
+    font-weight: ${props => props.theme.fontWeight.semibold};
+    color: ${props => props.theme.colors.text};
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    color: ${props => props.theme.colors.textSecondary};
+    font-size: ${props => props.theme.fontSize.md};
+  }
+`;
+
+const ContactForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const FormInput = styled.input`
+  padding: 1rem;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  background: ${props => props.theme.colors.surface};
+  color: ${props => props.theme.colors.text};
+  font-size: ${props => props.theme.fontSize.md};
+  
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.primary};
+  }
+`;
+
+const FormTextarea = styled.textarea`
+  padding: 1rem;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  background: ${props => props.theme.colors.surface};
+  color: ${props => props.theme.colors.text};
+  font-size: ${props => props.theme.fontSize.md};
+  resize: vertical;
+  
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.primary};
+  }
+`;
+
+const FormButton = styled.button`
+  padding: 1rem 2rem;
+  background: ${props => props.theme.colors.primary};
+  color: ${props => props.theme.colors.textInverse};
+  border: none;
+  border-radius: ${props => props.theme.borderRadius.lg};
+  font-weight: ${props => props.theme.fontWeight.medium};
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+  
+  &:hover {
+    background: ${props => props.theme.colors.primaryHover};
+  }
+`;
+
 const FooterSection = styled.div`
   & h4 {
     font-size: ${props => props.theme.fontSize.lg};
@@ -476,7 +751,7 @@ const LandingPage = ({ theme, onThemeChange }) => {
         </HeroContent>
       </HeroSection>
 
-      <FeaturesSection>
+      <FeaturesSection id="features">
         <FeaturesContainer>
           <SectionTitle>Why Choose BlockchainVibe?</SectionTitle>
           <SectionSubtitle>
@@ -502,6 +777,131 @@ const LandingPage = ({ theme, onThemeChange }) => {
           </FeaturesGrid>
         </FeaturesContainer>
       </FeaturesSection>
+
+      <PricingSection id="pricing">
+        <PricingContainer>
+          <SectionTitle>Simple, Transparent Pricing</SectionTitle>
+          <SectionSubtitle>
+            Choose the plan that fits your needs. No hidden fees, no surprises.
+          </SectionSubtitle>
+          
+          <PricingGrid>
+            <PricingCard>
+              <PricingHeader>
+                <PricingTitle>Free</PricingTitle>
+                <PricingPrice>$0<span>/month</span></PricingPrice>
+              </PricingHeader>
+              <PricingFeatures>
+                <PricingFeature>✓ 10 articles per day</PricingFeature>
+                <PricingFeature>✓ Basic AI filtering</PricingFeature>
+                <PricingFeature>✓ Email support</PricingFeature>
+              </PricingFeatures>
+              <PricingButton variant="secondary">Get Started</PricingButton>
+            </PricingCard>
+            
+            <PricingCard featured>
+              <PricingBadge>Most Popular</PricingBadge>
+              <PricingHeader>
+                <PricingTitle>Pro</PricingTitle>
+                <PricingPrice>$29<span>/month</span></PricingPrice>
+              </PricingHeader>
+              <PricingFeatures>
+                <PricingFeature>✓ Unlimited articles</PricingFeature>
+                <PricingFeature>✓ Advanced AI personalization</PricingFeature>
+                <PricingFeature>✓ Priority support</PricingFeature>
+                <PricingFeature>✓ Custom feeds</PricingFeature>
+              </PricingFeatures>
+              <PricingButton variant="primary">Start Free Trial</PricingButton>
+            </PricingCard>
+            
+            <PricingCard>
+              <PricingHeader>
+                <PricingTitle>Enterprise</PricingTitle>
+                <PricingPrice>Custom</PricingPrice>
+              </PricingHeader>
+              <PricingFeatures>
+                <PricingFeature>✓ Everything in Pro</PricingFeature>
+                <PricingFeature>✓ White-label solution</PricingFeature>
+                <PricingFeature>✓ Dedicated support</PricingFeature>
+                <PricingFeature>✓ Custom integrations</PricingFeature>
+              </PricingFeatures>
+              <PricingButton variant="secondary">Contact Sales</PricingButton>
+            </PricingCard>
+          </PricingGrid>
+        </PricingContainer>
+      </PricingSection>
+
+      <AboutSection id="about">
+        <AboutContainer>
+          <AboutContent>
+            <AboutText>
+              <SectionTitle>About BlockchainVibe</SectionTitle>
+              <SectionSubtitle>
+                We're revolutionizing how the blockchain community consumes news through 
+                cutting-edge AI technology and intelligent automation.
+              </SectionSubtitle>
+              <AboutDescription>
+                Founded by blockchain enthusiasts and AI researchers, BlockchainVibe combines 
+                the power of Fetch.ai's uAgents framework with SingularityNET's MeTTa knowledge 
+                graph to deliver personalized, relevant, and timely blockchain news.
+              </AboutDescription>
+            </AboutText>
+            <AboutStats>
+              <AboutStat>
+                <h3>50+</h3>
+                <p>News Sources</p>
+              </AboutStat>
+              <AboutStat>
+                <h3>24/7</h3>
+                <p>AI Monitoring</p>
+              </AboutStat>
+              <AboutStat>
+                <h3>99.9%</h3>
+                <p>Accuracy Rate</p>
+              </AboutStat>
+            </AboutStats>
+          </AboutContent>
+        </AboutContainer>
+      </AboutSection>
+
+      <ContactSection id="contact">
+        <ContactContainer>
+          <SectionTitle>Get in Touch</SectionTitle>
+          <SectionSubtitle>
+            Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+          </SectionSubtitle>
+          
+          <ContactContent>
+            <ContactInfo>
+              <ContactItem>
+                <h4>Email</h4>
+                <p>hello@blockchainvibe.news</p>
+              </ContactItem>
+              <ContactItem>
+                <h4>Discord</h4>
+                <p>Join our community</p>
+              </ContactItem>
+              <ContactItem>
+                <h4>Twitter</h4>
+                <p>@BlockchainVibe</p>
+              </ContactItem>
+            </ContactInfo>
+            
+            <ContactForm>
+              <FormGroup>
+                <FormInput type="text" placeholder="Your Name" />
+              </FormGroup>
+              <FormGroup>
+                <FormInput type="email" placeholder="Your Email" />
+              </FormGroup>
+              <FormGroup>
+                <FormTextarea placeholder="Your Message" rows="5" />
+              </FormGroup>
+              <FormButton>Send Message</FormButton>
+            </ContactForm>
+          </ContactContent>
+        </ContactContainer>
+      </ContactSection>
 
       <StatsSection>
         <StatsContainer>

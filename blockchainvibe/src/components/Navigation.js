@@ -224,6 +224,17 @@ const Navigation = ({ theme, onThemeChange }) => {
     { href: '#contact', label: 'Contact' }
   ];
 
+  const handleNavClick = (e, href) => {
+    e.preventDefault();
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   return (
     <>
       <NavContainer scrolled={scrolled}>
@@ -234,7 +245,7 @@ const Navigation = ({ theme, onThemeChange }) => {
 
           <NavLinks>
             {navLinks.map((link, index) => (
-              <NavLink key={index} href={link.href}>
+              <NavLink key={index} href={link.href} onClick={(e) => handleNavClick(e, link.href)}>
                 {link.label}
               </NavLink>
             ))}
@@ -278,7 +289,10 @@ const Navigation = ({ theme, onThemeChange }) => {
 
           <MobileMenuLinks>
             {navLinks.map((link, index) => (
-              <MobileMenuLink key={index} href={link.href}>
+              <MobileMenuLink key={index} href={link.href} onClick={(e) => {
+                handleNavClick(e, link.href);
+                setMobileMenuOpen(false);
+              }}>
                 {link.label}
               </MobileMenuLink>
             ))}
