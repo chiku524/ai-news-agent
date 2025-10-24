@@ -67,11 +67,27 @@ const OAuthStatus = ({ environment = 'development' }) => {
     return { status: 'available', icon: CheckCircle, color: '#10b981' };
   };
 
+  // Check if environment variables are available (with fallbacks)
+  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '579208613672-c4pvdarqdnckdai6re7n9nei5svk72st.apps.googleusercontent.com';
+  const discordClientId = process.env.REACT_APP_DISCORD_CLIENT_ID || '1431187449215717457';
+  const twitterClientId = process.env.REACT_APP_TWITTER_CLIENT_ID || 'QmVxRHdKal81ZW9QU1pfWFhpWWQ6MTpjaQ';
+  const githubClientId = process.env.REACT_APP_GITHUB_CLIENT_ID || 'Ov23lisuJwAjEECYLj0y';
+
+  console.log('OAuth Status - Environment variables:', {
+    google: !!googleClientId,
+    discord: !!discordClientId,
+    twitter: !!twitterClientId,
+    github: !!githubClientId,
+    nodeEnv: process.env.NODE_ENV,
+    reactAppEnv: process.env.REACT_APP_ENV,
+    allEnvVars: Object.keys(process.env).filter(key => key.startsWith('REACT_APP_'))
+  });
+
   const providers = [
-    { name: 'Google', hasClientId: !!process.env.REACT_APP_GOOGLE_CLIENT_ID, worksInDev: true },
-    { name: 'Discord', hasClientId: !!process.env.REACT_APP_DISCORD_CLIENT_ID, worksInDev: true },
-    { name: 'X (Twitter)', hasClientId: !!process.env.REACT_APP_TWITTER_CLIENT_ID, worksInDev: true },
-    { name: 'GitHub', hasClientId: !!process.env.REACT_APP_GITHUB_CLIENT_ID, worksInDev: false },
+    { name: 'Google', hasClientId: !!googleClientId, worksInDev: true },
+    { name: 'Discord', hasClientId: !!discordClientId, worksInDev: true },
+    { name: 'X (Twitter)', hasClientId: !!twitterClientId, worksInDev: true },
+    { name: 'GitHub', hasClientId: !!githubClientId, worksInDev: false },
   ];
 
   return (

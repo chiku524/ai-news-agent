@@ -1,10 +1,11 @@
 // Social Authentication Service
 class SocialAuthService {
   constructor() {
-    this.googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-    this.githubClientId = process.env.REACT_APP_GITHUB_CLIENT_ID;
-    this.twitterClientId = process.env.REACT_APP_TWITTER_CLIENT_ID;
-    this.discordClientId = process.env.REACT_APP_DISCORD_CLIENT_ID;
+    // OAuth Client IDs with fallbacks for production
+    this.googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '579208613672-c4pvdarqdnckdai6re7n9nei5svk72st.apps.googleusercontent.com';
+    this.githubClientId = process.env.REACT_APP_GITHUB_CLIENT_ID || 'Ov23lisuJwAjEECYLj0y';
+    this.twitterClientId = process.env.REACT_APP_TWITTER_CLIENT_ID || 'QmVxRHdKal81ZW9QU1pfWFhpWWQ6MTpjaQ';
+    this.discordClientId = process.env.REACT_APP_DISCORD_CLIENT_ID || '1431187449215717457';
     
     // Set redirect URI based on environment
     if (process.env.NODE_ENV === 'production') {
