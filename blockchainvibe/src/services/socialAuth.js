@@ -9,7 +9,8 @@ class SocialAuthService {
     
     // Set redirect URI based on environment
     if (process.env.NODE_ENV === 'production') {
-      this.redirectUri = 'https://blockchainvibe.news/auth/callback';
+      // Use the actual deployed URL for OAuth redirects
+      this.redirectUri = window.location.origin + '/auth/callback';
       this.apiUrl = 'https://blockchainvibe-api.nico-chikuji.workers.dev';
     } else {
       this.redirectUri = process.env.REACT_APP_REDIRECT_URI || 'http://localhost:3000/auth/callback';
@@ -222,6 +223,11 @@ class SocialAuthService {
 
   async handleGoogleCallback(code) {
     try {
+      console.log('Google OAuth callback:', {
+        code: code ? code.substring(0, 10) + '...' : 'undefined',
+        redirectUri: this.redirectUri,
+        apiUrl: this.apiUrl
+      });
       
       const response = await fetch(`${this.apiUrl}/api/auth/callback`, {
         method: 'POST',
@@ -235,9 +241,15 @@ class SocialAuthService {
         })
       });
 
+      console.log('Google OAuth response:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
       
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('Google OAuth error response:', errorText);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
       
@@ -272,6 +284,11 @@ class SocialAuthService {
 
   async handleGitHubCallback(code) {
     try {
+      console.log('GitHub OAuth callback:', {
+        code: code ? code.substring(0, 10) + '...' : 'undefined',
+        redirectUri: this.redirectUri,
+        apiUrl: this.apiUrl
+      });
       
       const response = await fetch(`${this.apiUrl}/api/auth/callback`, {
         method: 'POST',
@@ -285,9 +302,15 @@ class SocialAuthService {
         })
       });
 
+      console.log('GitHub OAuth response:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
       
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('GitHub OAuth error response:', errorText);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
       

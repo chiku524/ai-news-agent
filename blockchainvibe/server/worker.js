@@ -384,7 +384,8 @@ async function handleNews(request, env) {
     }
     
     return new Response(JSON.stringify({
-      news: newsItems,
+      articles: newsItems,
+      news: newsItems, // Keep both for compatibility
       total_count: newsItems.length,
       user_relevance_score: userRelevanceScore,
       last_updated: new Date().toISOString(),
