@@ -13,8 +13,12 @@ class SocialAuthService {
                         window.location.hostname.includes('blockchainvibe.pages.dev') ||
                         process.env.NODE_ENV === 'production';
     
-    if (isProduction) {
-      // Use the custom domain for OAuth redirects in production
+    // Force production URLs if we're on the production domain
+    if (window.location.hostname === 'blockchainvibe.news' || window.location.hostname.includes('blockchainvibe.pages.dev')) {
+      this.redirectUri = 'https://blockchainvibe.news/auth/callback';
+      this.apiUrl = 'https://blockchainvibe-api.nico-chikuji.workers.dev';
+    } else if (isProduction) {
+      // Use environment variables if available, otherwise fallback to production URLs
       this.redirectUri = process.env.REACT_APP_REDIRECT_URI || 'https://blockchainvibe.news/auth/callback';
       this.apiUrl = process.env.REACT_APP_API_URL || 'https://blockchainvibe-api.nico-chikuji.workers.dev';
     } else {
