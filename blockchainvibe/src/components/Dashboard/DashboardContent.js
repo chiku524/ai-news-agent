@@ -323,10 +323,9 @@ const DashboardContent = () => {
         throw new Error('User ID not found. Please try logging in again.');
       }
 
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://blockchainvibe-api.nico-chikuji.workers.dev';
-      console.log('Calling API:', `${apiUrl}/api/user/profile`);
+      console.log('Calling API: /api/user/profile');
 
-      const response = await fetch(`${apiUrl}/api/user/profile`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://blockchainvibe-api.nico-chikuji.workers.dev'}/api/user/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
