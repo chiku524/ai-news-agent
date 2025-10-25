@@ -285,7 +285,7 @@ const DashboardContent = () => {
     }
   }, []);
 
-  const { data: newsData, isLoading: newsLoading, refetch: refetchNews } = useQuery(
+  const { data: newsData, isLoading: newsLoading, error: newsError, refetch: refetchNews } = useQuery(
     ['news', 'trending'],
     () => newsAPI.getTrendingNews({ limit: 6 }),
     {
@@ -293,6 +293,13 @@ const DashboardContent = () => {
       cacheTime: 10 * 60 * 1000, // 10 minutes
     }
   );
+
+  // Debug logging
+  useEffect(() => {
+    console.log('News data:', newsData);
+    console.log('News loading:', newsLoading);
+    console.log('News error:', newsError);
+  }, [newsData, newsLoading, newsError]);
 
   const handleProfileComplete = async (profileData) => {
     try {
@@ -454,15 +461,26 @@ const DashboardContent = () => {
           </SectionHeader>
           
           <NewsGrid>
-            {newsData?.articles?.slice(0, 6).map((article, index) => (
-              <NewsCard
-                key={article.id || index}
-                article={article}
-                onBookmark={() => {}}
-                onLike={() => {}}
-                onShare={() => {}}
-              />
-            ))}
+            {newsData?.articles?.length > 0 ? (
+              newsData.articles.slice(0, 6).map((article, index) => (
+                <NewsCard
+                  key={article.id || index}
+                  article={article}
+                  onBookmark={() => {}}
+                  onLike={() => {}}
+                  onShare={() => {}}
+                />
+              ))
+            ) : (
+              <div style={{ 
+                gridColumn: '1 / -1', 
+                textAlign: 'center', 
+                padding: '2rem',
+                color: '#666'
+              }}>
+                {newsError ? 'Error loading news. Please try again.' : 'No news articles available.'}
+              </div>
+            )}
           </NewsGrid>
         </NewsSection>
 

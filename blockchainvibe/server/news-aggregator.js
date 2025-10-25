@@ -76,6 +76,7 @@ export class NewsAggregator {
   // Parse individual RSS feed
   async parseRSSFeed(feed) {
     try {
+      console.log(`Fetching RSS feed: ${feed.name} from ${feed.url}`);
       const response = await fetch(feed.url, {
         headers: {
           'User-Agent': 'BlockchainVibe/1.0 (News Aggregator)'
@@ -83,11 +84,15 @@ export class NewsAggregator {
       });
       
       if (!response.ok) {
+        console.error(`RSS feed ${feed.name} returned ${response.status}`);
         throw new Error(`RSS feed ${feed.name} returned ${response.status}`);
       }
       
       const xmlText = await response.text();
-      return this.parseRSSXML(xmlText, feed);
+      console.log(`RSS feed ${feed.name} response length:`, xmlText.length);
+      const articles = this.parseRSSXML(xmlText, feed);
+      console.log(`RSS feed ${feed.name} parsed ${articles.length} articles`);
+      return articles;
     } catch (error) {
       console.error(`Error parsing RSS feed ${feed.name}:`, error);
       return [];
@@ -97,21 +102,33 @@ export class NewsAggregator {
   // Parse RSS XML content
   parseRSSXML(xmlText, feed) {
     try {
+      console.log(`Parsing XML for ${feed.name}, length: ${xmlText.length}`);
+      
       // Enhanced XML parsing for 2025 RSS feeds
       const items = xmlText.match(/<item>[\s\S]*?<\/item>/g) || [];
+      console.log(`Found ${items.length} items in ${feed.name}`);
       
-      return items.map((item, index) => {
+      const articles = items.map((item, index) => {
         const title = this.extractXMLContent(item, 'title');
         const link = this.extractXMLContent(item, 'link');
         const description = this.extractXMLContent(item, 'description');
         const pubDate = this.extractXMLContent(item, 'pubDate');
         const guid = this.extractXMLContent(item, 'guid');
-        const author = this.extractXMLContent(item, 'author') || this.extractXMLContent(item, 'dc:creator') || feed.name;
+        const author = this.extractXMLContent(item, 'author') || 
+                      this.extractXMLContent(item, 'dc:creator') || 
+                      this.extractXMLContent(item, 'creator') || 
+                      feed.name;
         
-        if (!title || !link) return null;
+        console.log(`Item ${index}: title="${title}", link="${link}"`);
+        
+        if (!title || !link) {
+          console.log(`Skipping item ${index} - missing title or link`);
+          return null;
+        }
         
         // Enhanced content extraction for 2025
         const content = this.extractXMLContent(item, 'content:encoded') || 
+                       this.extractXMLContent(item, 'content') ||
                        this.extractXMLContent(item, 'description') || 
                        this.extractXMLContent(item, 'summary');
         
@@ -123,7 +140,7 @@ export class NewsAggregator {
                         this.extractXMLContent(item, 'media:thumbnail') ||
                         this.extractXMLContent(item, 'enclosure');
         
-        return {
+        const article = {
           id: guid || `${feed.name}-${index}-${Date.now()}`,
           title: this.cleanText(title),
           url: link,
@@ -144,7 +161,13 @@ export class NewsAggregator {
           },
           processing_timestamp: new Date().toISOString()
         };
+        
+        console.log(`Created article: ${article.title}`);
+        return article;
       }).filter(Boolean);
+      
+      console.log(`Successfully parsed ${articles.length} articles from ${feed.name}`);
+      return articles;
     } catch (error) {
       console.error(`Error parsing XML for ${feed.name}:`, error);
       return [];
