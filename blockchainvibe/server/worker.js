@@ -532,23 +532,66 @@ async function handleNews(request, env) {
   }
 }
 
-// Real news fetching using RSS feeds and APIs
+// Real news fetching using RSS feeds, APIs, uAgents, and knowledge graph
 async function fetchBlockchainNews(limit, options = {}) {
   try {
     // Import the news aggregator
     const { NewsAggregator } = await import('./news-aggregator.js');
     const aggregator = new NewsAggregator();
     
+    // Import uAgents integration
+    const { UAgentsIntegration } = await import('./uagents-integration.js');
+    const uAgents = new UAgentsIntegration();
+    
+    // Import knowledge graph
+    const { BlockchainKnowledgeGraph } = await import('./knowledge-graph.js');
+    const knowledgeGraph = new BlockchainKnowledgeGraph();
+    
     // Fetch real news from RSS feeds and APIs
-    const news = await aggregator.fetchNews({
-      limit,
+    const rawNews = await aggregator.fetchNews({
+      limit: limit * 2, // Fetch more to account for filtering
       category: options.category || 'all',
       timeFilter: options.timeFilter || '24h',
       sortBy: options.sortBy || 'relevance',
       userProfile: options.userProfile
     });
     
-    return news;
+    // Process news with uAgents (if available)
+    let processedNews = rawNews;
+    try {
+      await uAgents.initializeAgents();
+      processedNews = await uAgents.processNewsWithAgents(rawNews, options.userProfile);
+    } catch (error) {
+      console.warn('uAgents not available, using fallback processing:', error.message);
+    }
+    
+    // Enhance with knowledge graph
+    const enhancedNews = processedNews.map(article => {
+      const articleText = (article.title + ' ' + article.summary).toLowerCase();
+      
+      // Extract entities using knowledge graph
+      const entities = knowledgeGraph.extractEntities(articleText);
+      
+      // Categorize using knowledge graph
+      const categories = knowledgeGraph.categorizeContent(articleText);
+      
+      // Calculate relevance using knowledge graph
+      const relevanceScore = knowledgeGraph.calculateRelevanceScore(article, options.userProfile);
+      
+      return {
+        ...article,
+        entities,
+        categories: categories.length > 0 ? categories : article.categories || ['general'],
+        relevance_score: relevanceScore,
+        knowledge_graph_enhanced: true,
+        processing_timestamp: new Date().toISOString()
+      };
+    });
+    
+    // Sort by relevance score
+    enhancedNews.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
+    
+    return enhancedNews.slice(0, limit);
   } catch (error) {
     console.error('Error fetching real news:', error);
     // Fallback to mock data if real news fails

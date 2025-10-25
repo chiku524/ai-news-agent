@@ -1,0 +1,18 @@
+# Fetch.ai uAgents Requirements
+uagents>=0.4.0
+httpx>=0.24.0
+pydantic>=2.0.0
+asyncio-mqtt>=0.13.0
+python-multipart>=0.0.6
+
+# Additional dependencies for news processing
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+python-dateutil>=2.8.0
+textblob>=0.17.0
+nltk>=3.8.0
+
+# Optional: For advanced NLP processing
+# spacy>=3.6.0
+# transformers>=4.30.0
