@@ -349,7 +349,7 @@ const ProfileCompletionModal = ({
         formData.append('userId', userId);
 
         // Upload to R2 storage
-        const apiUrl = process.env.REACT_APP_API_URL || 'https://blockchainvibe-api.nico-chikuji.workers.dev';
+        const apiUrl = 'https://blockchainvibe-api.nico-chikuji.workers.dev';
         const response = await fetch(`${apiUrl}/api/upload`, {
           method: 'POST',
           body: formData

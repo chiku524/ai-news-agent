@@ -325,7 +325,7 @@ const DashboardContent = () => {
 
       console.log('Calling API: /api/user/profile');
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://blockchainvibe-api.nico-chikuji.workers.dev'}/api/user/profile`, {
+      const response = await fetch(`https://blockchainvibe-api.nico-chikuji.workers.dev/api/user/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

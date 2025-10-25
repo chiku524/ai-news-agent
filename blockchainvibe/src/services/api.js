@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://blockchainvibe-api.nico-chikuji.workers.dev';
+// Force production URL since environment variables aren't working correctly
+const API_BASE_URL = 'https://blockchainvibe-api.nico-chikuji.workers.dev';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
