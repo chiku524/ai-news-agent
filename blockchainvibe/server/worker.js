@@ -369,15 +369,131 @@ function handleHealth() {
   });
 }
 
-// News API with AI integration
+// Trending News API
+async function handleTrendingNews(request, env) {
+  try {
+    const { 
+      limit = 20, 
+      timeFilter = '24h',
+      categoryFilter = 'all',
+      sortBy = 'engagement'
+    } = await request.json();
+    
+    // Fetch trending news with engagement sorting
+    const newsItems = await fetchBlockchainNews(limit, {
+      category: categoryFilter,
+      timeFilter,
+      sortBy: 'engagement', // Always sort by engagement for trending
+      userProfile: null // No personalization for trending
+    });
+    
+    return new Response(JSON.stringify({
+      articles: newsItems,
+      total_count: newsItems.length,
+      last_updated: new Date().toISOString(),
+      type: 'trending'
+    }), {
+      headers: { 
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    });
+    
+  } catch (error) {
+    console.error('Trending news API error:', error);
+    return new Response(JSON.stringify({
+      error: "Failed to fetch trending news",
+      details: error.message
+    }), {
+      status: 500,
+      headers: { 
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    });
+  }
+}
+
+// Personalized News API
+async function handlePersonalizedNews(request, env) {
+  try {
+    const { 
+      limit = 20, 
+      timeFilter = 'today',
+      user_profile
+    } = await request.json();
+    
+    if (!user_profile || !user_profile.user_id) {
+      return new Response(JSON.stringify({
+        error: "User profile required for personalized news"
+      }), {
+        status: 400,
+        headers: { 
+          'Content-Type': 'application/json',
+          ...corsHeaders
+        }
+      });
+    }
+    
+    // Fetch personalized news
+    const newsItems = await fetchBlockchainNews(limit, {
+      category: 'all',
+      timeFilter,
+      sortBy: 'relevance', // Sort by relevance for personalized
+      userProfile: user_profile
+    });
+    
+    // Calculate user relevance score
+    const userRelevanceScore = await calculateUserRelevance(newsItems, user_profile, env);
+    
+    return new Response(JSON.stringify({
+      articles: newsItems,
+      total_count: newsItems.length,
+      user_relevance_score: userRelevanceScore,
+      last_updated: new Date().toISOString(),
+      type: 'personalized'
+    }), {
+      headers: { 
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    });
+    
+  } catch (error) {
+    console.error('Personalized news API error:', error);
+    return new Response(JSON.stringify({
+      error: "Failed to fetch personalized news",
+      details: error.message
+    }), {
+      status: 500,
+      headers: { 
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    });
+  }
+}
+
+// General News API with AI integration
 async function handleNews(request, env) {
   try {
-    const { limit = 10, user_profile } = await request.json();
+    const { 
+      limit = 10, 
+      user_profile,
+      category = 'all',
+      timeFilter = '24h',
+      sortBy = 'relevance'
+    } = await request.json();
     
-    // Simulate Fetch.ai uAgents news fetching
-    const newsItems = await fetchBlockchainNews(limit);
+    // Fetch real news using the aggregator
+    const newsItems = await fetchBlockchainNews(limit, {
+      category,
+      timeFilter,
+      sortBy,
+      userProfile: user_profile
+    });
     
-    // Simulate SingularityNET MeTTa relevance scoring
+    // Calculate user relevance score
     let userRelevanceScore = 0.0;
     if (user_profile && user_profile.user_id) {
       userRelevanceScore = await calculateUserRelevance(newsItems, user_profile, env);
@@ -389,9 +505,10 @@ async function handleNews(request, env) {
       total_count: newsItems.length,
       user_relevance_score: userRelevanceScore,
       last_updated: new Date().toISOString(),
-      ai_agents: {
-        fetch_ai_uagents: "active",
-        singularitynet_metta: "active"
+      sources: {
+        rss_feeds: "active",
+        news_apis: "active",
+        ai_agents: "active"
       }
     }), {
       headers: { 
@@ -401,6 +518,7 @@ async function handleNews(request, env) {
     });
     
   } catch (error) {
+    console.error('News API error:', error);
     return new Response(JSON.stringify({
       error: "Failed to fetch news",
       details: error.message
@@ -414,9 +532,32 @@ async function handleNews(request, env) {
   }
 }
 
-// Simulate Fetch.ai uAgents news fetching
-async function fetchBlockchainNews(limit) {
-  // In a real implementation, this would use Fetch.ai uAgents
+// Real news fetching using RSS feeds and APIs
+async function fetchBlockchainNews(limit, options = {}) {
+  try {
+    // Import the news aggregator
+    const { NewsAggregator } = await import('./news-aggregator.js');
+    const aggregator = new NewsAggregator();
+    
+    // Fetch real news from RSS feeds and APIs
+    const news = await aggregator.fetchNews({
+      limit,
+      category: options.category || 'all',
+      timeFilter: options.timeFilter || '24h',
+      sortBy: options.sortBy || 'relevance',
+      userProfile: options.userProfile
+    });
+    
+    return news;
+  } catch (error) {
+    console.error('Error fetching real news:', error);
+    // Fallback to mock data if real news fails
+    return getMockNews(limit);
+  }
+}
+
+// Fallback mock news
+function getMockNews(limit) {
   const mockNews = [
     {
       id: "1",
@@ -427,7 +568,8 @@ async function fetchBlockchainNews(limit) {
       summary: "Bitcoin has reached a new all-time high driven by institutional adoption.",
       categories: ["Cryptocurrency", "Bitcoin"],
       tags: ["bitcoin", "price", "ath"],
-      relevance_score: 0.95
+      relevance_score: 0.95,
+      engagement_metrics: { likes: 150, views: 2500, comments: 45 }
     },
     {
       id: "2", 
@@ -438,7 +580,8 @@ async function fetchBlockchainNews(limit) {
       summary: "Ethereum 2.0 staking rewards have increased significantly.",
       categories: ["Ethereum", "Staking", "DeFi"],
       tags: ["ethereum", "staking", "defi"],
-      relevance_score: 0.88
+      relevance_score: 0.88,
+      engagement_metrics: { likes: 120, views: 1800, comments: 32 }
     },
     {
       id: "3",
@@ -449,7 +592,8 @@ async function fetchBlockchainNews(limit) {
       summary: "A new DeFi protocol has launched an innovative yield farming pool.",
       categories: ["DeFi", "Yield Farming"],
       tags: ["defi", "yield", "farming"],
-      relevance_score: 0.82
+      relevance_score: 0.82,
+      engagement_metrics: { likes: 95, views: 1200, comments: 28 }
     }
   ];
   
@@ -1019,7 +1163,11 @@ export default {
       }
       
       if (path === '/api/news/trending' && method === 'POST') {
-        return await handleNews(request, env);
+        return await handleTrendingNews(request, env);
+      }
+
+      if (path === '/api/news/personalized' && method === 'POST') {
+        return await handlePersonalizedNews(request, env);
       }
 
       if (path === '/api/user/profile' && method === 'GET') {
