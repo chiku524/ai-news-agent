@@ -6,12 +6,20 @@ import {
   Bell, 
   Shield, 
   Palette,
-  Zap,
   Save,
-  Trash2
+  Camera,
+  MapPin,
+  Globe,
+  Twitter,
+  Linkedin,
+  Mail,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTheme } from '../contexts/ThemeContext';
+import { useUser } from '../hooks/useUser';
+import ProfileCompletionModal from './Auth/ProfileCompletionModal';
 
 const SettingsContainer = styled.div`
   max-width: 1000px;
@@ -52,7 +60,7 @@ const SettingsGrid = styled.div`
   }
 `;
 
-const SettingsNav = styled.div`
+const SettingsSidebar = styled.div`
   background: ${props => props.theme.colors.surface};
   border: 1px solid ${props => props.theme.colors.border};
   border-radius: ${props => props.theme.borderRadius.lg};
@@ -60,25 +68,37 @@ const SettingsNav = styled.div`
   height: fit-content;
 `;
 
-const NavItem = styled.button`
+const SidebarTitle = styled.h3`
+  font-size: ${props => props.theme.fontSize.lg};
+  font-weight: ${props => props.theme.fontWeight.semibold};
+  color: ${props => props.theme.colors.text};
+  margin-bottom: 1rem;
+`;
+
+const SidebarItem = styled.button`
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   width: 100%;
-  padding: 1rem;
+  padding: 0.75rem 1rem;
+  background: none;
   border: none;
-  background: ${props => props.active ? props.theme.colors.primary + '20' : 'transparent'};
-  color: ${props => props.active ? props.theme.colors.primary : props.theme.colors.text};
   border-radius: ${props => props.theme.borderRadius.md};
-  font-size: ${props => props.theme.fontSize.sm};
-  font-weight: ${props => props.theme.fontWeight.medium};
+  color: ${props => props.theme.colors.textSecondary};
+  font-size: ${props => props.theme.fontSize.base};
+  text-align: left;
   cursor: pointer;
   transition: all ${props => props.theme.transitions.fast};
-  text-align: left;
   margin-bottom: 0.5rem;
   
   &:hover {
-    background: ${props => props.theme.colors.surfaceHover};
+    background: ${props => props.theme.colors.hover};
+    color: ${props => props.theme.colors.text};
+  }
+  
+  &.active {
+    background: ${props => props.theme.colors.primary}20;
+    color: ${props => props.theme.colors.primary};
   }
 `;
 
@@ -91,21 +111,21 @@ const SettingsContent = styled.div`
 
 const SectionTitle = styled.h2`
   font-size: ${props => props.theme.fontSize.xl};
-  font-weight: ${props => props.theme.fontWeight.semibold};
+  font-weight: ${props => props.theme.fontWeight.bold};
   color: ${props => props.theme.colors.text};
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 `;
 
 const Label = styled.label`
   display: block;
-  font-size: ${props => props.theme.fontSize.sm};
+  font-size: ${props => props.theme.fontSize.base};
   font-weight: ${props => props.theme.fontWeight.medium};
   color: ${props => props.theme.colors.text};
   margin-bottom: 0.5rem;
@@ -113,541 +133,262 @@ const Label = styled.label`
 
 const Input = styled.input`
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem;
   border: 1px solid ${props => props.theme.colors.border};
   border-radius: ${props => props.theme.borderRadius.md};
   background: ${props => props.theme.colors.background};
   color: ${props => props.theme.colors.text};
-  font-size: ${props => props.theme.fontSize.sm};
-  transition: all ${props => props.theme.transitions.fast};
+  font-size: ${props => props.theme.fontSize.base};
   
   &:focus {
     outline: none;
     border-color: ${props => props.theme.colors.primary};
-    box-shadow: 0 0 0 3px ${props => props.theme.colors.primary}20;
-  }
-  
-  &::placeholder {
-    color: ${props => props.theme.colors.textMuted};
   }
 `;
 
 const TextArea = styled.textarea`
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem;
   border: 1px solid ${props => props.theme.colors.border};
   border-radius: ${props => props.theme.borderRadius.md};
   background: ${props => props.theme.colors.background};
   color: ${props => props.theme.colors.text};
-  font-size: ${props => props.theme.fontSize.sm};
+  font-size: ${props => props.theme.fontSize.base};
   min-height: 100px;
   resize: vertical;
-  font-family: inherit;
-  transition: all ${props => props.theme.transitions.fast};
   
   &:focus {
     outline: none;
     border-color: ${props => props.theme.colors.primary};
-    box-shadow: 0 0 0 3px ${props => props.theme.colors.primary}20;
+  }
+`;
+
+const ImageUploadContainer = styled.div`
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+`;
+
+const ImagePreview = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: ${props => props.imageUrl ? `url(${props.imageUrl})` : props.theme.gradients.primary};
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${props => props.theme.colors.textInverse};
+  font-size: 1.5rem;
+  font-weight: ${props => props.theme.fontWeight.bold};
+  border: 2px solid ${props => props.theme.colors.border};
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+`;
+
+const ImageUploadButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: ${props => props.theme.colors.primary};
+  color: ${props => props.theme.colors.textInverse};
+  border: none;
+  border-radius: ${props => props.theme.borderRadius.md};
+  font-size: ${props => props.theme.fontSize.sm};
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+  
+  &:hover {
+    background: ${props => props.theme.colors.primaryHover};
+  }
+`;
+
+const CheckboxGroup = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+`;
+
+const CheckboxItem = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: ${props => props.theme.borderRadius.md};
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.fast};
+  
+  &:hover {
+    background: ${props => props.theme.colors.hover};
+    border-color: ${props => props.theme.colors.primary};
   }
   
-  &::placeholder {
-    color: ${props => props.theme.colors.textMuted};
+  input[type="checkbox"] {
+    margin: 0;
   }
 `;
 
 const Select = styled.select`
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem;
   border: 1px solid ${props => props.theme.colors.border};
   border-radius: ${props => props.theme.borderRadius.md};
   background: ${props => props.theme.colors.background};
   color: ${props => props.theme.colors.text};
-  font-size: ${props => props.theme.fontSize.sm};
-  cursor: pointer;
-  transition: all ${props => props.theme.transitions.fast};
+  font-size: ${props => props.theme.fontSize.base};
   
   &:focus {
     outline: none;
     border-color: ${props => props.theme.colors.primary};
-    box-shadow: 0 0 0 3px ${props => props.theme.colors.primary}20;
   }
 `;
 
-const ToggleContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  background: ${props => props.theme.colors.background};
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: ${props => props.theme.borderRadius.md};
-  margin-bottom: 1rem;
-`;
-
-const ToggleLabel = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-`;
-
-const ToggleTitle = styled.div`
-  font-weight: ${props => props.theme.fontWeight.medium};
-  color: ${props => props.theme.colors.text};
-`;
-
-const ToggleDescription = styled.div`
-  font-size: ${props => props.theme.fontSize.sm};
-  color: ${props => props.theme.colors.textSecondary};
-`;
-
-const Toggle = styled.button`
-  position: relative;
-  width: 48px;
-  height: 24px;
-  border: none;
-  border-radius: 12px;
-  background: ${props => props.active ? props.theme.colors.primary : props.theme.colors.border};
-  cursor: pointer;
-  transition: all ${props => props.theme.transitions.fast};
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: ${props => props.active ? '26px' : '2px'};
-    width: 20px;
-    height: 20px;
-    background: white;
-    border-radius: 50%;
-    transition: all ${props => props.theme.transitions.fast};
-  }
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-`;
-
-const Button = styled.button`
+const SaveButton = styled.button`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 2rem;
+  background: ${props => props.theme.colors.primary};
+  color: ${props => props.theme.colors.textInverse};
   border: none;
   border-radius: ${props => props.theme.borderRadius.md};
-  font-size: ${props => props.theme.fontSize.sm};
+  font-size: ${props => props.theme.fontSize.base};
   font-weight: ${props => props.theme.fontWeight.medium};
   cursor: pointer;
   transition: all ${props => props.theme.transitions.fast};
   
-  ${props => props.primary ? `
-    background: ${props.theme.colors.primary};
-    color: ${props.theme.colors.textInverse};
-    
-    &:hover {
-      background: ${props.theme.colors.primaryHover};
-    }
-  ` : `
-    background: ${props.theme.colors.background};
-    color: ${props.theme.colors.text};
-    border: 1px solid ${props.theme.colors.border};
-    
-    &:hover {
-      background: ${props.theme.colors.surfaceHover};
-    }
-  `}
+  &:hover {
+    background: ${props => props.theme.colors.primaryHover};
+    transform: translateY(-1px);
+  }
   
-  &.danger {
-    background: #ef4444;
-    color: white;
-    
-    &:hover {
-      background: #dc2626;
-    }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
   }
 `;
 
-const DangerZone = styled.div`
-  margin-top: 3rem;
-  padding: 2rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: ${props => props.theme.borderRadius.lg};
-`;
-
-const DangerTitle = styled.h3`
-  color: #dc2626;
-  font-size: ${props => props.theme.fontSize.lg};
-  font-weight: ${props => props.theme.fontWeight.semibold};
-  margin-bottom: 1rem;
-`;
-
-const DangerDescription = styled.p`
-  color: #991b1b;
-  font-size: ${props => props.theme.fontSize.sm};
-  margin-bottom: 1.5rem;
-`;
-
 const Settings = () => {
-  const { theme, setTheme } = useTheme();
+  const { currentTheme, toggleTheme } = useTheme();
+  const { userProfile } = useUser();
   const [activeSection, setActiveSection] = useState('profile');
-  const [settings, setSettings] = useState({
-    profile: {
-      name: '',
-      email: '',
-      bio: '',
-      location: '',
-      website: '',
-      twitter: '',
-      linkedin: ''
-    },
-    notifications: {
-      emailNews: true,
-      pushNotifications: true,
-      weeklyDigest: true,
-      breakingNews: true,
-      priceAlerts: false,
-      newFeatures: true
-    },
-    privacy: {
-      profileVisibility: 'public',
-      showReadingHistory: true,
-      allowDataCollection: true,
-      shareAnalytics: false
-    },
-    appearance: {
-      theme: theme,
-      fontSize: 'medium',
-      compactMode: false
-    },
-    ai: {
-      enablePersonalization: true,
-      enableRelevanceScoring: true,
-      enableRecommendations: true,
-      shareDataForTraining: false
-    }
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  const [profileData, setProfileData] = useState({
+    name: '',
+    email: '',
+    bio: '',
+    location: '',
+    website: '',
+    twitter: '',
+    linkedin: ''
+  });
+
+  const [preferences, setPreferences] = useState({
+    topics: ['DeFi', 'NFTs', 'Layer 2', 'Web3'],
+    sources: ['CoinDesk', 'Decrypt', 'The Block'],
+    frequency: 'daily',
+    notifications: true,
+    darkMode: currentTheme === 'dark'
   });
 
   useEffect(() => {
-    // Load user settings from localStorage
-    const savedSettings = localStorage.getItem('userSettings');
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
+    if (userProfile) {
+      setProfileData({
+        name: userProfile.name || '',
+        email: userProfile.email || '',
+        bio: userProfile.bio || '',
+        location: userProfile.location || '',
+        website: userProfile.website || '',
+        twitter: userProfile.twitter || '',
+        linkedin: userProfile.linkedin || ''
+      });
     }
-  }, []);
+  }, [userProfile]);
 
-  const handleSettingChange = (section, key, value) => {
-    setSettings(prev => ({
+  const handleProfileChange = (field, value) => {
+    setProfileData(prev => ({
       ...prev,
-      [section]: {
-        ...prev[section],
-        [key]: value
-      }
+      [field]: value
     }));
   };
 
-  const handleSaveSettings = () => {
-    localStorage.setItem('userSettings', JSON.stringify(settings));
-    toast.success('Settings saved successfully!');
-  };
-
-  const handleThemeChange = (newTheme) => {
-    setTheme(newTheme);
-    handleSettingChange('appearance', 'theme', newTheme);
-  };
-
-  const handleDeleteAccount = () => {
-    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      // Implement account deletion
-      toast.success('Account deletion requested. You will receive an email confirmation.');
+  const handlePreferenceChange = (category, key, value) => {
+    if (category === 'topics' || category === 'sources') {
+      setPreferences(prev => ({
+        ...prev,
+        [category]: prev[category].includes(value) 
+          ? prev[category].filter(item => item !== value)
+          : [...prev[category], value]
+      }));
+    } else {
+      setPreferences(prev => ({
+        ...prev,
+        [key]: value
+      }));
     }
   };
 
-  const renderProfileSettings = () => (
-    <>
-      <SectionTitle>
-        <User size={20} />
-        Profile Information
-      </SectionTitle>
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // Save profile data
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const userId = user?.user_id || user?.id;
       
-      <FormGroup>
-        <Label htmlFor="name">Full Name</Label>
-        <Input
-          id="name"
-          type="text"
-          value={settings.profile.name}
-          onChange={(e) => handleSettingChange('profile', 'name', e.target.value)}
-          placeholder="Enter your full name"
-        />
-      </FormGroup>
+      if (!userId) {
+        throw new Error('User ID not found');
+      }
 
-      <FormGroup>
-        <Label htmlFor="email">Email Address</Label>
-        <Input
-          id="email"
-          type="email"
-          value={settings.profile.email}
-          onChange={(e) => handleSettingChange('profile', 'email', e.target.value)}
-          placeholder="Enter your email address"
-        />
-      </FormGroup>
+      const response = await fetch('https://blockchainvibe-api.nico-chikuji.workers.dev/api/user/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify({
+          userId,
+          profileData
+        })
+      });
 
-      <FormGroup>
-        <Label htmlFor="bio">Bio</Label>
-        <TextArea
-          id="bio"
-          value={settings.profile.bio}
-          onChange={(e) => handleSettingChange('profile', 'bio', e.target.value)}
-          placeholder="Tell us about yourself..."
-        />
-      </FormGroup>
+      if (!response.ok) {
+        throw new Error('Failed to save profile');
+      }
 
-      <FormGroup>
-        <Label htmlFor="location">Location</Label>
-        <Input
-          id="location"
-          type="text"
-          value={settings.profile.location}
-          onChange={(e) => handleSettingChange('profile', 'location', e.target.value)}
-          placeholder="City, Country"
-        />
-      </FormGroup>
+      // Update local storage
+      const updatedUser = { ...user, ...profileData };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
 
-      <FormGroup>
-        <Label htmlFor="website">Website</Label>
-        <Input
-          id="website"
-          type="url"
-          value={settings.profile.website}
-          onChange={(e) => handleSettingChange('profile', 'website', e.target.value)}
-          placeholder="https://yourwebsite.com"
-        />
-      </FormGroup>
-    </>
-  );
+      toast.success('Settings saved successfully!');
+    } catch (error) {
+      console.error('Save error:', error);
+      toast.error(`Failed to save settings: ${error.message}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
-  const renderNotificationSettings = () => (
-    <>
-      <SectionTitle>
-        <Bell size={20} />
-        Notifications
-      </SectionTitle>
-      
-      <ToggleContainer>
-        <ToggleLabel>
-          <ToggleTitle>Email News Updates</ToggleTitle>
-          <ToggleDescription>Receive daily news summaries via email</ToggleDescription>
-        </ToggleLabel>
-        <Toggle
-          active={settings.notifications.emailNews}
-          onClick={() => handleSettingChange('notifications', 'emailNews', !settings.notifications.emailNews)}
-        />
-      </ToggleContainer>
+  const handleImageUpload = (type) => {
+    setShowProfileModal(true);
+  };
 
-      <ToggleContainer>
-        <ToggleLabel>
-          <ToggleTitle>Push Notifications</ToggleTitle>
-          <ToggleDescription>Get notified about breaking news and updates</ToggleDescription>
-        </ToggleLabel>
-        <Toggle
-          active={settings.notifications.pushNotifications}
-          onClick={() => handleSettingChange('notifications', 'pushNotifications', !settings.notifications.pushNotifications)}
-        />
-      </ToggleContainer>
-
-      <ToggleContainer>
-        <ToggleLabel>
-          <ToggleTitle>Weekly Digest</ToggleTitle>
-          <ToggleDescription>Receive a weekly summary of top stories</ToggleDescription>
-        </ToggleLabel>
-        <Toggle
-          active={settings.notifications.weeklyDigest}
-          onClick={() => handleSettingChange('notifications', 'weeklyDigest', !settings.notifications.weeklyDigest)}
-        />
-      </ToggleContainer>
-
-      <ToggleContainer>
-        <ToggleLabel>
-          <ToggleTitle>Breaking News Alerts</ToggleTitle>
-          <ToggleDescription>Immediate notifications for major blockchain events</ToggleDescription>
-        </ToggleLabel>
-        <Toggle
-          active={settings.notifications.breakingNews}
-          onClick={() => handleSettingChange('notifications', 'breakingNews', !settings.notifications.breakingNews)}
-        />
-      </ToggleContainer>
-    </>
-  );
-
-  const renderAISettings = () => (
-    <>
-      <SectionTitle>
-        <Zap size={20} />
-        AI & Personalization
-      </SectionTitle>
-      
-      <ToggleContainer>
-        <ToggleLabel>
-          <ToggleTitle>Enable Personalization</ToggleTitle>
-          <ToggleDescription>Use AI to personalize your news feed based on your interests</ToggleDescription>
-        </ToggleLabel>
-        <Toggle
-          active={settings.ai.enablePersonalization}
-          onClick={() => handleSettingChange('ai', 'enablePersonalization', !settings.ai.enablePersonalization)}
-        />
-      </ToggleContainer>
-
-      <ToggleContainer>
-        <ToggleLabel>
-          <ToggleTitle>Relevance Scoring</ToggleTitle>
-          <ToggleDescription>Use MeTTa knowledge graph to score article relevance</ToggleDescription>
-        </ToggleLabel>
-        <Toggle
-          active={settings.ai.enableRelevanceScoring}
-          onClick={() => handleSettingChange('ai', 'enableRelevanceScoring', !settings.ai.enableRelevanceScoring)}
-        />
-      </ToggleContainer>
-
-      <ToggleContainer>
-        <ToggleLabel>
-          <ToggleTitle>Smart Recommendations</ToggleTitle>
-          <ToggleDescription>Get AI-powered article recommendations using Fetch.ai uAgents</ToggleDescription>
-        </ToggleLabel>
-        <Toggle
-          active={settings.ai.enableRecommendations}
-          onClick={() => handleSettingChange('ai', 'enableRecommendations', !settings.ai.enableRecommendations)}
-        />
-      </ToggleContainer>
-
-      <ToggleContainer>
-        <ToggleLabel>
-          <ToggleTitle>Share Data for Training</ToggleTitle>
-          <ToggleDescription>Help improve AI models by sharing anonymized usage data</ToggleDescription>
-        </ToggleLabel>
-        <Toggle
-          active={settings.ai.shareDataForTraining}
-          onClick={() => handleSettingChange('ai', 'shareDataForTraining', !settings.ai.shareDataForTraining)}
-        />
-      </ToggleContainer>
-    </>
-  );
-
-  const renderAppearanceSettings = () => (
-    <>
-      <SectionTitle>
-        <Palette size={20} />
-        Appearance
-      </SectionTitle>
-      
-      <FormGroup>
-        <Label htmlFor="theme">Theme</Label>
-        <Select
-          id="theme"
-          value={settings.appearance.theme}
-          onChange={(e) => handleThemeChange(e.target.value)}
-        >
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-          <option value="auto">Auto</option>
-        </Select>
-      </FormGroup>
-
-      <FormGroup>
-        <Label htmlFor="fontSize">Font Size</Label>
-        <Select
-          id="fontSize"
-          value={settings.appearance.fontSize}
-          onChange={(e) => handleSettingChange('appearance', 'fontSize', e.target.value)}
-        >
-          <option value="small">Small</option>
-          <option value="medium">Medium</option>
-          <option value="large">Large</option>
-        </Select>
-      </FormGroup>
-
-      <ToggleContainer>
-        <ToggleLabel>
-          <ToggleTitle>Compact Mode</ToggleTitle>
-          <ToggleDescription>Use a more compact layout for better space utilization</ToggleDescription>
-        </ToggleLabel>
-        <Toggle
-          active={settings.appearance.compactMode}
-          onClick={() => handleSettingChange('appearance', 'compactMode', !settings.appearance.compactMode)}
-        />
-      </ToggleContainer>
-    </>
-  );
-
-  const renderPrivacySettings = () => (
-    <>
-      <SectionTitle>
-        <Shield size={20} />
-        Privacy & Security
-      </SectionTitle>
-      
-      <FormGroup>
-        <Label htmlFor="profileVisibility">Profile Visibility</Label>
-        <Select
-          id="profileVisibility"
-          value={settings.privacy.profileVisibility}
-          onChange={(e) => handleSettingChange('privacy', 'profileVisibility', e.target.value)}
-        >
-          <option value="public">Public</option>
-          <option value="private">Private</option>
-          <option value="friends">Friends Only</option>
-        </Select>
-      </FormGroup>
-
-      <ToggleContainer>
-        <ToggleLabel>
-          <ToggleTitle>Show Reading History</ToggleTitle>
-          <ToggleDescription>Allow others to see your reading activity</ToggleDescription>
-        </ToggleLabel>
-        <Toggle
-          active={settings.privacy.showReadingHistory}
-          onClick={() => handleSettingChange('privacy', 'showReadingHistory', !settings.privacy.showReadingHistory)}
-        />
-      </ToggleContainer>
-
-      <ToggleContainer>
-        <ToggleLabel>
-          <ToggleTitle>Allow Data Collection</ToggleTitle>
-          <ToggleDescription>Help improve the service by sharing usage analytics</ToggleDescription>
-        </ToggleLabel>
-        <Toggle
-          active={settings.privacy.allowDataCollection}
-          onClick={() => handleSettingChange('privacy', 'allowDataCollection', !settings.privacy.allowDataCollection)}
-        />
-      </ToggleContainer>
-    </>
-  );
-
-  const sections = [
-    { id: 'profile', label: 'Profile', icon: User },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'ai', label: 'AI & Personalization', icon: Zap },
-    { id: 'appearance', label: 'Appearance', icon: Palette },
-    { id: 'privacy', label: 'Privacy', icon: Shield }
+  const sidebarItems = [
+    { id: 'profile', label: 'Profile', icon: <User size={18} /> },
+    { id: 'preferences', label: 'Preferences', icon: <SettingsIcon size={18} /> },
+    { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },
+    { id: 'privacy', label: 'Privacy', icon: <Shield size={18} /> },
+    { id: 'appearance', label: 'Appearance', icon: <Palette size={18} /> }
   ];
-
-  const renderContent = () => {
-    switch (activeSection) {
-      case 'profile':
-        return renderProfileSettings();
-      case 'notifications':
-        return renderNotificationSettings();
-      case 'ai':
-        return renderAISettings();
-      case 'appearance':
-        return renderAppearanceSettings();
-      case 'privacy':
-        return renderPrivacySettings();
-      default:
-        return renderProfileSettings();
-    }
-  };
 
   return (
     <SettingsContainer>
@@ -657,51 +398,249 @@ const Settings = () => {
           Settings
         </SettingsTitle>
         <SettingsSubtitle>
-          Customize your BlockchainVibe experience
+          Manage your account settings and preferences
         </SettingsSubtitle>
       </SettingsHeader>
 
       <SettingsGrid>
-        <SettingsNav>
-          {sections.map((section) => (
-            <NavItem
-              key={section.id}
-              active={activeSection === section.id}
-              onClick={() => setActiveSection(section.id)}
+        <SettingsSidebar>
+          <SidebarTitle>Settings</SidebarTitle>
+          {sidebarItems.map(item => (
+            <SidebarItem
+              key={item.id}
+              className={activeSection === item.id ? 'active' : ''}
+              onClick={() => setActiveSection(item.id)}
             >
-              <section.icon size={18} />
-              {section.label}
-            </NavItem>
+              {item.icon}
+              {item.label}
+            </SidebarItem>
           ))}
-        </SettingsNav>
+        </SettingsSidebar>
 
         <SettingsContent>
-          {renderContent()}
+          {activeSection === 'profile' && (
+            <>
+              <SectionTitle>
+                <User size={24} />
+                Profile Information
+              </SectionTitle>
+              
+              <FormGroup>
+                <Label>Profile Picture</Label>
+                <ImageUploadContainer>
+                  <ImagePreview imageUrl={userProfile?.profile_picture}>
+                    {!userProfile?.profile_picture && profileData.name?.charAt(0)?.toUpperCase()}
+                  </ImagePreview>
+                  <ImageUploadButton onClick={() => handleImageUpload('profile')}>
+                    <Camera size={16} />
+                    Change Photo
+                  </ImageUploadButton>
+                </ImageUploadContainer>
+              </FormGroup>
 
-          <ButtonGroup>
-            <Button primary onClick={handleSaveSettings}>
-              <Save size={18} />
-              Save Changes
-            </Button>
-            <Button onClick={() => window.location.reload()}>
-              Cancel
-            </Button>
-          </ButtonGroup>
+              <FormGroup>
+                <Label>Banner Image</Label>
+                <ImageUploadContainer>
+                  <ImagePreview imageUrl={userProfile?.banner_image} style={{ borderRadius: '8px' }}>
+                    {!userProfile?.banner_image && 'Banner'}
+                  </ImagePreview>
+                  <ImageUploadButton onClick={() => handleImageUpload('banner')}>
+                    <Camera size={16} />
+                    Change Banner
+                  </ImageUploadButton>
+                </ImageUploadContainer>
+              </FormGroup>
 
-          {activeSection === 'privacy' && (
-            <DangerZone>
-              <DangerTitle>Danger Zone</DangerTitle>
-              <DangerDescription>
-                Once you delete your account, there is no going back. Please be certain.
-              </DangerDescription>
-              <Button className="danger" onClick={handleDeleteAccount}>
-                <Trash2 size={18} />
-                Delete Account
-              </Button>
-            </DangerZone>
+              <FormGroup>
+                <Label>Name</Label>
+                <Input
+                  type="text"
+                  value={profileData.name}
+                  onChange={(e) => handleProfileChange('name', e.target.value)}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Email</Label>
+                <Input
+                  type="email"
+                  value={profileData.email}
+                  onChange={(e) => handleProfileChange('email', e.target.value)}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Bio</Label>
+                <TextArea
+                  value={profileData.bio}
+                  onChange={(e) => handleProfileChange('bio', e.target.value)}
+                  placeholder="Tell us about yourself..."
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Location</Label>
+                <Input
+                  type="text"
+                  value={profileData.location}
+                  onChange={(e) => handleProfileChange('location', e.target.value)}
+                  placeholder="City, Country"
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Website</Label>
+                <Input
+                  type="url"
+                  value={profileData.website}
+                  onChange={(e) => handleProfileChange('website', e.target.value)}
+                  placeholder="https://yourwebsite.com"
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Twitter</Label>
+                <Input
+                  type="text"
+                  value={profileData.twitter}
+                  onChange={(e) => handleProfileChange('twitter', e.target.value)}
+                  placeholder="@username"
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label>LinkedIn</Label>
+                <Input
+                  type="text"
+                  value={profileData.linkedin}
+                  onChange={(e) => handleProfileChange('linkedin', e.target.value)}
+                  placeholder="linkedin.com/in/username"
+                />
+              </FormGroup>
+            </>
           )}
+
+          {activeSection === 'preferences' && (
+            <>
+              <SectionTitle>
+                <SettingsIcon size={24} />
+                News Preferences
+              </SectionTitle>
+              
+              <FormGroup>
+                <Label>Topics of Interest</Label>
+                <CheckboxGroup>
+                  {['DeFi', 'NFTs', 'Layer 2', 'Web3', 'Gaming', 'CBDC', 'Regulation', 'Mining'].map(topic => (
+                    <CheckboxItem key={topic}>
+                      <input
+                        type="checkbox"
+                        checked={preferences.topics.includes(topic)}
+                        onChange={() => handlePreferenceChange('topics', 'topics', topic)}
+                      />
+                      {topic}
+                    </CheckboxItem>
+                  ))}
+                </CheckboxGroup>
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Preferred Sources</Label>
+                <CheckboxGroup>
+                  {['CoinDesk', 'Decrypt', 'The Block', 'CoinTelegraph', 'CryptoSlate'].map(source => (
+                    <CheckboxItem key={source}>
+                      <input
+                        type="checkbox"
+                        checked={preferences.sources.includes(source)}
+                        onChange={() => handlePreferenceChange('sources', 'sources', source)}
+                      />
+                      {source}
+                    </CheckboxItem>
+                  ))}
+                </CheckboxGroup>
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Update Frequency</Label>
+                <Select 
+                  value={preferences.frequency}
+                  onChange={(e) => handlePreferenceChange('preferences', 'frequency', e.target.value)}
+                >
+                  <option value="realtime">Real-time</option>
+                  <option value="hourly">Hourly</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                </Select>
+              </FormGroup>
+            </>
+          )}
+
+          {activeSection === 'notifications' && (
+            <>
+              <SectionTitle>
+                <Bell size={24} />
+                Notification Settings
+              </SectionTitle>
+              
+              <FormGroup>
+                <CheckboxItem>
+                  <input
+                    type="checkbox"
+                    checked={preferences.notifications}
+                    onChange={(e) => handlePreferenceChange('preferences', 'notifications', e.target.checked)}
+                  />
+                  Enable push notifications
+                </CheckboxItem>
+              </FormGroup>
+            </>
+          )}
+
+          {activeSection === 'appearance' && (
+            <>
+              <SectionTitle>
+                <Palette size={24} />
+                Appearance
+              </SectionTitle>
+              
+              <FormGroup>
+                <CheckboxItem>
+                  <input
+                    type="checkbox"
+                    checked={preferences.darkMode}
+                    onChange={(e) => {
+                      handlePreferenceChange('preferences', 'darkMode', e.target.checked);
+                      if (e.target.checked !== (currentTheme === 'dark')) {
+                        toggleTheme();
+                      }
+                    }}
+                  />
+                  Dark mode
+                </CheckboxItem>
+              </FormGroup>
+            </>
+          )}
+
+          <SaveButton onClick={handleSave} disabled={isSaving}>
+            <Save size={16} />
+            {isSaving ? 'Saving...' : 'Save Changes'}
+          </SaveButton>
         </SettingsContent>
       </SettingsGrid>
+
+      {showProfileModal && (
+        <ProfileCompletionModal
+          isOpen={showProfileModal}
+          onClose={() => setShowProfileModal(false)}
+          onComplete={(data) => {
+            setProfileData(prev => ({
+              ...prev,
+              ...data
+            }));
+            setShowProfileModal(false);
+            toast.success('Profile updated successfully!');
+          }}
+          userData={profileData}
+        />
+      )}
     </SettingsContainer>
   );
 };

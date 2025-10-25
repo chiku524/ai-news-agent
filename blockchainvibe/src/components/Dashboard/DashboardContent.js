@@ -38,10 +38,53 @@ const Title = styled.h1`
   margin: 0;
 `;
 
+const Subtitle = styled.p`
+  font-size: ${props => props.theme.fontSize.lg};
+  color: ${props => props.theme.colors.textSecondary};
+  margin: 0.5rem 0 0 0;
+`;
+
 const HeaderActions = styled.div`
   display: flex;
   gap: 1rem;
   align-items: center;
+`;
+
+const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+`;
+
+const StatCard = styled.div`
+  background: ${props => props.theme.colors.surface};
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  padding: 1.5rem;
+  text-align: center;
+`;
+
+const StatValue = styled.div`
+  font-size: ${props => props.theme.fontSize['2xl']};
+  font-weight: ${props => props.theme.fontWeight.bold};
+  color: ${props => props.theme.colors.primary};
+  margin-bottom: 0.5rem;
+`;
+
+const StatLabel = styled.div`
+  font-size: ${props => props.theme.fontSize.sm};
+  color: ${props => props.theme.colors.textSecondary};
+`;
+
+const SectionTitle = styled.h2`
+  font-size: ${props => props.theme.fontSize.xl};
+  font-weight: ${props => props.theme.fontWeight.semibold};
+  color: ${props => props.theme.colors.text};
+  margin: 2rem 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 const SearchContainer = styled.div`
@@ -104,49 +147,7 @@ const RefreshButton = styled.button`
   }
 `;
 
-const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-`;
 
-const StatCard = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: ${props => props.theme.borderRadius.lg};
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const StatIcon = styled.div`
-  width: 3rem;
-  height: 3rem;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  background: ${props => props.gradient || props.theme.gradients.primary};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${props => props.theme.colors.textInverse};
-`;
-
-const StatContent = styled.div`
-  flex: 1;
-`;
-
-const StatValue = styled.div`
-  font-size: ${props => props.theme.fontSize['2xl']};
-  font-weight: ${props => props.theme.fontWeight.bold};
-  color: ${props => props.theme.colors.text};
-  margin-bottom: 0.25rem;
-`;
-
-const StatLabel = styled.div`
-  font-size: ${props => props.theme.fontSize.sm};
-  color: ${props => props.theme.colors.textSecondary};
-`;
 
 const ContentGrid = styled.div`
   display: grid;
@@ -172,12 +173,6 @@ const SectionHeader = styled.div`
   margin-bottom: 1.5rem;
 `;
 
-const SectionTitle = styled.h2`
-  font-size: ${props => props.theme.fontSize.xl};
-  font-weight: ${props => props.theme.fontWeight.semibold};
-  color: ${props => props.theme.colors.text};
-  margin: 0;
-`;
 
 const ViewAllButton = styled.button`
   display: flex;
@@ -398,7 +393,10 @@ const DashboardContent = () => {
   return (
     <DashboardContainer>
       <Header>
-        <Title>Welcome back, {user?.name || 'User'}!</Title>
+        <div>
+          <Title>Welcome back, {user?.name || 'User'}!</Title>
+          <Subtitle>Here's your personalized blockchain news feed</Subtitle>
+        </div>
         <HeaderActions>
           <SearchContainer>
             <SearchIcon size={20} />
@@ -420,35 +418,30 @@ const DashboardContent = () => {
 
       <StatsGrid>
         <StatCard>
-          <StatIcon gradient={currentTheme.gradients.primary}>
-            <TrendingUp size={20} />
-          </StatIcon>
-          <StatContent>
-            <StatValue>{newsData?.articles?.length || 0}</StatValue>
-            <StatLabel>Latest Articles</StatLabel>
-          </StatContent>
+          <StatValue>{newsData?.articles?.length || 0}</StatValue>
+          <StatLabel>Articles Read Today</StatLabel>
         </StatCard>
         
         <StatCard>
-          <StatIcon gradient={currentTheme.gradients.secondary}>
-            <Activity size={20} />
-          </StatIcon>
-          <StatContent>
-            <StatValue>95%</StatValue>
-            <StatLabel>Relevance Score</StatLabel>
-          </StatContent>
+          <StatValue>12</StatValue>
+          <StatLabel>Saved Articles</StatLabel>
         </StatCard>
         
         <StatCard>
-          <StatIcon gradient={currentTheme.gradients.accent}>
-            <Zap size={20} />
-          </StatIcon>
-          <StatContent>
-            <StatValue>24h</StatValue>
-            <StatLabel>Update Frequency</StatLabel>
-          </StatContent>
+          <StatValue>8</StatValue>
+          <StatLabel>Liked Articles</StatLabel>
+        </StatCard>
+        
+        <StatCard>
+          <StatValue>95%</StatValue>
+          <StatLabel>Relevance Score</StatLabel>
         </StatCard>
       </StatsGrid>
+
+      <SectionTitle>
+        <TrendingUp size={24} />
+        Personalized News Feed
+      </SectionTitle>
 
       <ContentGrid>
         <NewsSection>
@@ -461,7 +454,7 @@ const DashboardContent = () => {
           </SectionHeader>
           
           <NewsGrid>
-            {newsData?.articles?.slice(0, 4).map((article, index) => (
+            {newsData?.articles?.slice(0, 6).map((article, index) => (
               <NewsCard
                 key={article.id || index}
                 article={article}
@@ -484,6 +477,24 @@ const DashboardContent = () => {
                 </TrendingItem>
               ))}
             </TrendingList>
+          </SidebarCard>
+
+          <SidebarCard>
+            <SidebarTitle>Quick Analytics</SidebarTitle>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Reading Streak</span>
+                <span style={{ color: '#10b981', fontWeight: 'bold' }}>7 days</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Favorite Topic</span>
+                <span style={{ color: '#3b82f6' }}>DeFi</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Time Spent</span>
+                <span style={{ color: '#8b5cf6' }}>2.5h today</span>
+              </div>
+            </div>
           </SidebarCard>
         </Sidebar>
       </ContentGrid>
