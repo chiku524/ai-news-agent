@@ -8,7 +8,8 @@ import {
   BarChart3, 
   User, 
   Settings,
-  LogOut
+  LogOut,
+  Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -118,6 +119,14 @@ const Sidebar = () => {
           >
             <TrendingUp size={18} />
             Dashboard
+          </MenuItem>
+          <MenuItem onClick={() => navigate('/trending')}>
+            <TrendingUp size={18} />
+            Trending
+          </MenuItem>
+          <MenuItem onClick={() => navigate('/for-you')}>
+            <Sparkles size={18} />
+            For You
           </MenuItem>
           <MenuItem onClick={() => navigate('/news')}>
             <Newspaper size={18} />

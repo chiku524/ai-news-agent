@@ -47,6 +47,11 @@ export const newsAPI = {
     return response.data;
   },
 
+  getPersonalizedNews: async (params = {}) => {
+    const response = await api.post('/news/personalized', params);
+    return response.data;
+  },
+
   searchNews: async (query, limit = 10) => {
     const response = await api.post('/news/search', {
       query,

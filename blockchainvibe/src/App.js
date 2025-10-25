@@ -17,6 +17,8 @@ import { ThemeProvider as CustomThemeProvider, useTheme } from './contexts/Theme
 
 // Lazy load components for better performance
 const Dashboard = lazy(() => import('./components/Dashboard/Dashboard'));
+const Trending = lazy(() => import('./components/Trending'));
+const ForYou = lazy(() => import('./components/ForYou'));
 const NewsFeed = lazy(() => import('./components/NewsFeed'));
 const NewsDetail = lazy(() => import('./components/NewsDetail'));
 const UserProfile = lazy(() => import('./components/UserProfile'));
@@ -119,6 +121,20 @@ const AppContent = () => {
               <Layout>
                 <Suspense fallback={<LoadingSpinner message="Loading dashboard..." />}>
                   <Dashboard />
+                </Suspense>
+              </Layout>
+            } />
+            <Route path="/trending" element={
+              <Layout>
+                <Suspense fallback={<LoadingSpinner message="Loading trending..." />}>
+                  <Trending />
+                </Suspense>
+              </Layout>
+            } />
+            <Route path="/for-you" element={
+              <Layout>
+                <Suspense fallback={<LoadingSpinner message="Personalizing your feed..." />}>
+                  <ForYou />
                 </Suspense>
               </Layout>
             } />

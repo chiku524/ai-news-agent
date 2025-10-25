@@ -8,7 +8,8 @@ import {
   Bookmark, 
   TrendingUp,
   MessageCircle,
-  ChevronRight
+  ChevronRight,
+  Eye
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -103,6 +104,23 @@ const RelevanceScore = styled.div`
   display: flex;
   align-items: center;
   gap: 0.25rem;
+`;
+
+const RankBadge = styled.div`
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: ${props => props.theme.colors.accent};
+  color: ${props => props.theme.colors.textInverse};
+  padding: 0.25rem 0.5rem;
+  border-radius: ${props => props.theme.borderRadius.full};
+  font-size: ${props => props.theme.fontSize.xs};
+  font-weight: ${props => props.theme.fontWeight.bold};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 1.5rem;
 `;
 
 const ContentContainer = styled.div`
@@ -238,7 +256,37 @@ const ReadMoreButton = styled.button`
   }
 `;
 
-const NewsCard = ({ news, featured = false, onInteraction }) => {
+const NewsCard = ({ 
+  news, 
+  featured = false, 
+  onInteraction,
+  showEngagement = false,
+  showRelevance = false,
+  relevanceScore = null,
+  rank = null,
+  // Legacy support
+  article = null,
+  onBookmark = null,
+  onLike = null,
+  onShare = null
+}) => {
+  // Support both old and new prop names
+  const articleData = article || news;
+  const handleInteraction = onInteraction || ((id, action) => {
+    switch (action) {
+      case 'bookmark':
+        onBookmark?.();
+        break;
+      case 'like':
+        onLike?.();
+        break;
+      case 'share':
+        onShare?.();
+        break;
+      default:
+        break;
+    }
+  });
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isShared, setIsShared] = useState(false);
@@ -247,15 +295,15 @@ const NewsCard = ({ news, featured = false, onInteraction }) => {
     switch (action) {
       case 'like':
         setIsLiked(!isLiked);
-        onInteraction?.(news.id, isLiked ? 'unlike' : 'like');
+        handleInteraction(articleData.id, isLiked ? 'unlike' : 'like');
         break;
       case 'bookmark':
         setIsBookmarked(!isBookmarked);
-        onInteraction?.(news.id, isBookmarked ? 'unbookmark' : 'bookmark');
+        handleInteraction(articleData.id, isBookmarked ? 'unbookmark' : 'bookmark');
         break;
       case 'share':
         setIsShared(true);
-        onInteraction?.(news.id, 'share');
+        handleInteraction(articleData.id, 'share');
         // Reset after a short delay
         setTimeout(() => setIsShared(false), 2000);
         break;
@@ -265,8 +313,8 @@ const NewsCard = ({ news, featured = false, onInteraction }) => {
   };
 
   const handleReadMore = () => {
-    onInteraction?.(news.id, 'read');
-    window.open(news.url, '_blank');
+    handleInteraction(articleData.id, 'read');
+    window.open(articleData.url, '_blank');
   };
 
   const formatTimeAgo = (dateString) => {
@@ -285,24 +333,37 @@ const NewsCard = ({ news, featured = false, onInteraction }) => {
       whileTap={{ scale: 0.98 }}
     >
       <ImageContainer featured={featured}>
-        {news.image_url ? (
-          <NewsImage src={news.image_url} alt={news.title} />
+        {articleData.image_url ? (
+          <NewsImage src={articleData.image_url} alt={articleData.title} />
         ) : (
           <ImagePlaceholder>
             📰
           </ImagePlaceholder>
         )}
         
-        {news.categories && news.categories.length > 0 && (
+        {rank && (
+          <RankBadge>
+            #{rank}
+          </RankBadge>
+        )}
+        
+        {articleData.categories && articleData.categories.length > 0 && (
           <CategoryBadge>
-            {news.categories[0]}
+            {articleData.categories[0]}
           </CategoryBadge>
         )}
         
-        {news.relevance_score && (
+        {(showRelevance && relevanceScore) && (
           <RelevanceScore>
             <TrendingUp size={12} />
-            {Math.round(news.relevance_score * 100)}%
+            {relevanceScore}%
+          </RelevanceScore>
+        )}
+        
+        {articleData.relevance_score && !showRelevance && (
+          <RelevanceScore>
+            <TrendingUp size={12} />
+            {Math.round(articleData.relevance_score * 100)}%
           </RelevanceScore>
         )}
       </ImageContainer>
@@ -310,40 +371,40 @@ const NewsCard = ({ news, featured = false, onInteraction }) => {
       <ContentContainer featured={featured}>
         <NewsHeader>
           <NewsTitle featured={featured}>
-            {news.title}
+            {articleData.title}
           </NewsTitle>
           
           <NewsExcerpt featured={featured}>
-            {news.content || news.excerpt || 'No description available.'}
+            {articleData.content || articleData.excerpt || 'No description available.'}
           </NewsExcerpt>
         </NewsHeader>
 
         <NewsMeta>
           <MetaItem>
             <Clock size={14} />
-            {formatTimeAgo(news.published_at)}
+            {formatTimeAgo(articleData.published_at)}
           </MetaItem>
           
           <MetaItem>
-            <SourceName>{news.source}</SourceName>
+            <SourceName>{articleData.source}</SourceName>
           </MetaItem>
           
-          {news.author && (
+          {articleData.author && (
             <MetaItem>
-              by {news.author}
+              by {articleData.author}
             </MetaItem>
           )}
         </NewsMeta>
 
-        {news.tags && news.tags.length > 0 && (
+        {articleData.tags && articleData.tags.length > 0 && (
           <TagsContainer>
-            {news.tags.slice(0, 3).map((tag, index) => (
+            {articleData.tags.slice(0, 3).map((tag, index) => (
               <Tag key={index}>
                 {tag}
               </Tag>
             ))}
-            {news.tags.length > 3 && (
-              <Tag>+{news.tags.length - 3} more</Tag>
+            {articleData.tags.length > 3 && (
+              <Tag>+{articleData.tags.length - 3} more</Tag>
             )}
           </TagsContainer>
         )}
@@ -355,7 +416,7 @@ const NewsCard = ({ news, featured = false, onInteraction }) => {
               onClick={() => handleAction('like')}
             >
               <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
-              {news.engagement_metrics?.likes || 0}
+              {showEngagement ? (articleData.engagement_metrics?.likes || 0) : (articleData.likes || 0)}
             </ActionButton>
             
             <ActionButton
@@ -372,10 +433,19 @@ const NewsCard = ({ news, featured = false, onInteraction }) => {
               <Share2 size={16} />
             </ActionButton>
             
-            <ActionButton>
-              <MessageCircle size={16} />
-              {news.engagement_metrics?.comments || 0}
-            </ActionButton>
+            {showEngagement && (
+              <ActionButton>
+                <MessageCircle size={16} />
+                {articleData.engagement_metrics?.comments || 0}
+              </ActionButton>
+            )}
+            
+            {showEngagement && (
+              <ActionButton>
+                <Eye size={16} />
+                {articleData.engagement_metrics?.views || 0}
+              </ActionButton>
+            )}
           </ActionButtons>
 
           <ReadMoreButton onClick={handleReadMore}>
