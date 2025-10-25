@@ -1,15 +1,23 @@
 // Fetch.ai uAgents Integration for BlockchainVibe
-// This module integrates uAgents for intelligent news processing
+// This module integrates uAgents for intelligent news processing with MeTTa knowledge graph
+
+import { MeTTaIntegration } from './metta-integration.js';
+import { ChatProtocolIntegration } from './chat-protocol.js';
 
 export class UAgentsIntegration {
   constructor() {
     this.agents = new Map();
     this.agentEndpoints = new Map();
+    this.mettaIntegration = new MeTTaIntegration();
+    this.chatProtocol = new ChatProtocolIntegration();
   }
 
   // Initialize uAgents for news processing
   async initializeAgents() {
     try {
+      // Initialize MeTTa knowledge graph
+      await this.mettaIntegration.initialize();
+      
       // News Fetcher Agent
       await this.createNewsFetcherAgent();
       
@@ -19,7 +27,10 @@ export class UAgentsIntegration {
       // Relevance Scorer Agent
       await this.createRelevanceScorerAgent();
       
-      console.log('uAgents initialized successfully');
+      // Register agents with Chat Protocol
+      await this.registerAgentsWithChatProtocol();
+      
+      console.log('uAgents initialized successfully with MeTTa integration');
       return true;
     } catch (error) {
       console.error('Failed to initialize uAgents:', error);
@@ -299,6 +310,88 @@ export class UAgentsIntegration {
     }));
   }
 
+  // Register agents with Chat Protocol for ASI:One discovery
+  async registerAgentsWithChatProtocol() {
+    try {
+      // Register News Fetcher Agent
+      await this.chatProtocol.registerAgent({
+        id: 'blockchainvibe-news-fetcher',
+        name: 'BlockchainVibe News Fetcher',
+        description: 'Fetches and processes blockchain news from various sources',
+        capabilities: ['news_fetching', 'content_processing', 'quality_scoring'],
+        endpoint: 'http://localhost:8001/submit',
+        category: 'news',
+        tags: ['blockchain', 'news', 'rss', 'aggregation']
+      });
+
+      // Register Relevance Scorer Agent
+      await this.chatProtocol.registerAgent({
+        id: 'blockchainvibe-relevance-scorer',
+        name: 'BlockchainVibe Relevance Scorer',
+        description: 'Calculates personalized relevance scores for news articles',
+        capabilities: ['relevance_scoring', 'personalization', 'user_profiling'],
+        endpoint: 'http://localhost:8003/submit',
+        category: 'ai',
+        tags: ['blockchain', 'ai', 'personalization', 'scoring']
+      });
+
+      console.log('Agents registered with Chat Protocol for ASI:One discovery');
+    } catch (error) {
+      console.error('Failed to register agents with Chat Protocol:', error);
+    }
+  }
+
+  // Enhanced news processing with MeTTa knowledge graph
+  async processNewsWithMeTTa(newsItems, userProfile = null) {
+    try {
+      const enhancedNews = [];
+
+      for (const item of newsItems) {
+        // Extract entities using MeTTa
+        const entities = await this.mettaIntegration.extractEntitiesWithMeTTa(
+          item.title + ' ' + item.summary
+        );
+
+        // Categorize using MeTTa
+        const categories = await this.mettaIntegration.categorizeWithMeTTa(
+          item.title + ' ' + item.summary
+        );
+
+        // Calculate relevance using MeTTa
+        const relevanceResult = await this.mettaIntegration.calculateRelevanceWithMeTTa(
+          item, userProfile
+        );
+
+        enhancedNews.push({
+          ...item,
+          entities: entities,
+          categories: categories.map(c => c.category),
+          relevance_score: relevanceResult.relevance_score,
+          metta_enhanced: true,
+          reasoning: relevanceResult.reasoning,
+          matched_concepts: relevanceResult.matched_concepts,
+          processing_timestamp: new Date().toISOString()
+        });
+      }
+
+      return enhancedNews;
+    } catch (error) {
+      console.error('MeTTa processing error:', error);
+      // Fallback to basic processing
+      return this.fallbackProcessing(newsItems, userProfile);
+    }
+  }
+
+  // Handle Chat Protocol messages
+  async handleChatMessage(message) {
+    return await this.chatProtocol.handleChatMessage(message);
+  }
+
+  // Get available agents for discovery
+  getAvailableAgents() {
+    return this.chatProtocol.getAvailableAgents();
+  }
+
   // Get agent status
   getAgentStatus() {
     const status = {};
@@ -310,5 +403,18 @@ export class UAgentsIntegration {
       };
     });
     return status;
+  }
+
+  // Get MeTTa integration status
+  getMeTTaStatus() {
+    return {
+      available: this.mettaIntegration.isMeTTaAvailable(),
+      stats: this.mettaIntegration.getMeTTaStats()
+    };
+  }
+
+  // Get Chat Protocol statistics
+  getChatProtocolStats() {
+    return this.chatProtocol.getStats();
   }
 }

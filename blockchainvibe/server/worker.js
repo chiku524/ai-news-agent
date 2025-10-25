@@ -474,6 +474,113 @@ async function handlePersonalizedNews(request, env) {
   }
 }
 
+// Chat Protocol API
+async function handleChatMessage(request, env) {
+  try {
+    const message = await request.json();
+    
+    // Import uAgents integration
+    const { UAgentsIntegration } = await import('./uagents-integration.js');
+    const uAgents = new UAgentsIntegration();
+    
+    // Handle chat message
+    const response = await uAgents.handleChatMessage(message);
+    
+    return new Response(JSON.stringify(response), {
+      headers: { 
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    });
+    
+  } catch (error) {
+    console.error('Chat message error:', error);
+    return new Response(JSON.stringify({
+      error: "Failed to process chat message",
+      details: error.message
+    }), {
+      status: 500,
+      headers: { 
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    });
+  }
+}
+
+// Get available agents
+async function handleGetAgents(request, env) {
+  try {
+    // Import uAgents integration
+    const { UAgentsIntegration } = await import('./uagents-integration.js');
+    const uAgents = new UAgentsIntegration();
+    
+    // Get available agents
+    const agents = uAgents.getAvailableAgents();
+    
+    return new Response(JSON.stringify({
+      agents: agents,
+      total: agents.length,
+      timestamp: new Date().toISOString()
+    }), {
+      headers: { 
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get agents error:', error);
+    return new Response(JSON.stringify({
+      error: "Failed to get agents",
+      details: error.message
+    }), {
+      status: 500,
+      headers: { 
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    });
+  }
+}
+
+// Get MeTTa status
+async function handleMeTTaStatus(request, env) {
+  try {
+    // Import uAgents integration
+    const { UAgentsIntegration } = await import('./uagents-integration.js');
+    const uAgents = new UAgentsIntegration();
+    
+    // Get MeTTa status
+    const mettaStatus = uAgents.getMeTTaStatus();
+    const chatStats = uAgents.getChatProtocolStats();
+    
+    return new Response(JSON.stringify({
+      metta: mettaStatus,
+      chat_protocol: chatStats,
+      timestamp: new Date().toISOString()
+    }), {
+      headers: { 
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    });
+    
+  } catch (error) {
+    console.error('MeTTa status error:', error);
+    return new Response(JSON.stringify({
+      error: "Failed to get MeTTa status",
+      details: error.message
+    }), {
+      status: 500,
+      headers: { 
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    });
+  }
+}
+
 // General News API with AI integration
 async function handleNews(request, env) {
   try {
@@ -556,13 +663,18 @@ async function fetchBlockchainNews(limit, options = {}) {
       userProfile: options.userProfile
     });
     
-    // Process news with uAgents (if available)
+    // Process news with uAgents and MeTTa (if available)
     let processedNews = rawNews;
     try {
       await uAgents.initializeAgents();
-      processedNews = await uAgents.processNewsWithAgents(rawNews, options.userProfile);
+      // Use MeTTa-enhanced processing if available
+      if (uAgents.mettaIntegration.isMeTTaAvailable()) {
+        processedNews = await uAgents.processNewsWithMeTTa(rawNews, options.userProfile);
+      } else {
+        processedNews = await uAgents.processNewsWithAgents(rawNews, options.userProfile);
+      }
     } catch (error) {
-      console.warn('uAgents not available, using fallback processing:', error.message);
+      console.warn('uAgents/MeTTa not available, using fallback processing:', error.message);
     }
     
     // Enhance with knowledge graph
@@ -1211,6 +1323,18 @@ export default {
 
       if (path === '/api/news/personalized' && method === 'POST') {
         return await handlePersonalizedNews(request, env);
+      }
+
+      if (path === '/api/chat/message' && method === 'POST') {
+        return await handleChatMessage(request, env);
+      }
+
+      if (path === '/api/agents' && method === 'GET') {
+        return await handleGetAgents(request, env);
+      }
+
+      if (path === '/api/metta/status' && method === 'GET') {
+        return await handleMeTTaStatus(request, env);
       }
 
       if (path === '/api/user/profile' && method === 'GET') {
