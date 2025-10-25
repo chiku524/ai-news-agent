@@ -382,7 +382,7 @@ export class NewsAggregator {
 
   // Calculate relevance scores based on user profile
   async calculateRelevanceScores(articles, userProfile) {
-    const userInterests = userProfile.interests || [];
+    const userInterests = userProfile.interests || userProfile.preferences?.topics || userProfile.topics || [];
     const readingHistory = userProfile.reading_history || [];
     
     return articles.map(article => {

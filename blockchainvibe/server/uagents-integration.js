@@ -254,8 +254,9 @@ export class UAgentsIntegration {
     const articleText = (article.title + ' ' + article.summary).toLowerCase();
     
     // Boost score based on user interests
-    if (userProfile.interests) {
-      userProfile.interests.forEach(interest => {
+    const userInterests = userProfile.interests || userProfile.preferences?.topics || userProfile.topics || [];
+    if (userInterests.length > 0) {
+      userInterests.forEach(interest => {
         if (articleText.includes(interest.toLowerCase())) {
           score += 0.2;
         }
@@ -285,8 +286,9 @@ export class UAgentsIntegration {
     const factors = [];
     const articleText = (article.title + ' ' + article.summary).toLowerCase();
     
-    if (userProfile.interests) {
-      userProfile.interests.forEach(interest => {
+    const userInterests = userProfile.interests || userProfile.preferences?.topics || userProfile.topics || [];
+    if (userInterests.length > 0) {
+      userInterests.forEach(interest => {
         if (articleText.includes(interest.toLowerCase())) {
           factors.push(`matches_interest:${interest}`);
         }

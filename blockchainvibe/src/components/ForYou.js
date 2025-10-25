@@ -321,11 +321,13 @@ const ForYou = () => {
     () => newsAPI.getPersonalizedNews({ 
       timeFilter, 
       page,
-      limit: 10 
+      limit: 10,
+      user_profile: null // Let backend handle default profile
     }),
     {
       staleTime: 3 * 60 * 1000, // 3 minutes
       cacheTime: 10 * 60 * 1000, // 10 minutes
+      refetchOnMount: true, // Always refetch when component mounts
     }
   );
 

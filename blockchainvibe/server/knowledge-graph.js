@@ -225,12 +225,23 @@ export class BlockchainKnowledgeGraph {
     const articleText = (article.title + ' ' + article.summary).toLowerCase();
     const articleEntities = this.extractEntities(articleText);
     
-    if (!userProfile || !userProfile.interests) {
+    if (!userProfile) {
       return 0.5;
     }
     
     let relevanceScore = 0.5;
-    const userInterests = userProfile.interests.map(interest => interest.toLowerCase());
+    
+    // Handle different user profile structures
+    const userInterests = userProfile.interests || 
+                         userProfile.preferences?.topics || 
+                         userProfile.topics || 
+                         [];
+    
+    if (userInterests.length === 0) {
+      return 0.5;
+    }
+    
+    const userInterestsLower = userInterests.map(interest => interest.toLowerCase());
     
     // Check direct interest matches
     for (const entity of articleEntities) {

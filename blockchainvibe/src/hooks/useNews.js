@@ -8,24 +8,38 @@ export const useNews = (params = {}) => {
     searchQuery = '',
     sortBy = 'relevance',
     page = 1,
-    limit = 20
+    limit = 20,
+    type = 'trending' // Default to trending, can be 'personalized' or 'trending'
   } = params;
 
+  const queryFunction = type === 'personalized' 
+    ? () => newsAPI.getPersonalizedNews({
+        category,
+        timeframe,
+        searchQuery,
+        sortBy,
+        page,
+        limit,
+        user_profile: null
+      })
+    : () => newsAPI.getTrendingNews({
+        category,
+        timeframe,
+        searchQuery,
+        sortBy,
+        page,
+        limit
+      });
+
   return useQuery(
-    ['news', { category, timeframe, searchQuery, sortBy, page, limit }],
-    () => newsAPI.getTrendingNews({
-      category,
-      timeframe,
-      searchQuery,
-      sortBy,
-      page,
-      limit
-    }),
+    ['news', { category, timeframe, searchQuery, sortBy, page, limit, type }],
+    queryFunction,
     {
       enabled: true,
       staleTime: 5 * 60 * 1000, // 5 minutes
       cacheTime: 10 * 60 * 1000, // 10 minutes
       refetchOnWindowFocus: false,
+      refetchOnMount: true,
       retry: 2,
     }
   );

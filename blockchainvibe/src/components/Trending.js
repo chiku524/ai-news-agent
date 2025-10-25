@@ -332,6 +332,8 @@ const Trending = () => {
     {
       staleTime: 2 * 60 * 1000, // 2 minutes
       cacheTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnMount: true, // Always refetch when component mounts
+      refetchOnWindowFocus: false, // Don't refetch on window focus
     }
   );
 

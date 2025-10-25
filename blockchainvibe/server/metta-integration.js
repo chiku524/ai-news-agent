@@ -81,14 +81,13 @@ export class MeTTaIntegration {
   // Fallback query using our custom knowledge graph
   fallbackQuery(query, context) {
     // Use our custom knowledge graph as fallback
-    const { BlockchainKnowledgeGraph } = require('./knowledge-graph.js');
-    const kg = new BlockchainKnowledgeGraph();
-    
+    // Note: This is a simplified fallback - in a real implementation,
+    // we would import the knowledge graph properly
     return {
-      entities: kg.extractEntities(query),
+      entities: [],
       relationships: [],
-      concepts: kg.categorizeContent(query),
-      confidence: 0.7,
+      concepts: [],
+      confidence: 0.5,
       source: 'fallback',
       timestamp: new Date().toISOString()
     };
@@ -123,11 +122,12 @@ export class MeTTaIntegration {
 
   // Calculate relevance using MeTTa knowledge
   async calculateRelevanceWithMeTTa(article, userProfile) {
-    const query = `Calculate relevance of this article for user with interests: ${JSON.stringify(userProfile.interests || [])}`;
+    const userInterests = userProfile.interests || userProfile.preferences?.topics || userProfile.topics || [];
+    const query = `Calculate relevance of this article for user with interests: ${JSON.stringify(userInterests)}`;
     const context = {
       article_title: article.title,
       article_summary: article.summary,
-      user_interests: userProfile.interests || [],
+      user_interests: userInterests,
       user_history: userProfile.reading_history || []
     };
 

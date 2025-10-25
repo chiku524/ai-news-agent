@@ -423,17 +423,22 @@ async function handlePersonalizedNews(request, env) {
       user_profile
     } = await request.json();
     
-    if (!user_profile || !user_profile.user_id) {
-      return new Response(JSON.stringify({
-        error: "User profile required for personalized news"
-      }), {
-        status: 400,
-        headers: { 
-          'Content-Type': 'application/json',
-          ...corsHeaders
-        }
-      });
-    }
+    // Create a default user profile if none provided
+    const defaultUserProfile = {
+      user_id: 'default_user',
+      preferences: {
+        topics: ['bitcoin', 'ethereum', 'defi', 'nft', 'web3'],
+        sources: ['CoinTelegraph', 'CoinDesk', 'Decrypt'],
+        frequency: 'daily'
+      },
+      activity: {
+        liked_articles: [],
+        saved_articles: [],
+        read_articles: []
+      }
+    };
+    
+    const userProfile = user_profile || defaultUserProfile;
     
     // Fetch personalized news
     const newsItems = await fetchBlockchainNews(limit, {
@@ -697,6 +702,14 @@ async function fetchBlockchainNews(limit, options = {}) {
     const { NewsAggregator } = await import('./news-aggregator.js');
     const aggregator = new NewsAggregator();
     
+    // Import uAgents integration
+    const { UAgentsIntegration } = await import('./uagents-integration.js');
+    const uAgents = new UAgentsIntegration();
+    
+    // Import knowledge graph
+    const { BlockchainKnowledgeGraph } = await import('./knowledge-graph.js');
+    const knowledgeGraph = new BlockchainKnowledgeGraph();
+    
     console.log('Fetching news with options:', {
       limit: limit * 2,
       category: options.category || 'all',
@@ -721,8 +734,30 @@ async function fetchBlockchainNews(limit, options = {}) {
       return getMockNews(limit);
     }
     
-    // Simple processing without complex uAgents/MeTTa for now
-    const processedNews = rawNews.map((article, index) => {
+    // Process news with uAgents and MeTTa (if available)
+    let processedNews = rawNews;
+    try {
+      console.log('Initializing uAgents and MeTTa...');
+      await uAgents.initializeAgents();
+      console.log('uAgents initialized successfully');
+      
+      // Use MeTTa-enhanced processing if available
+      if (uAgents.mettaIntegration.isMeTTaAvailable()) {
+        console.log('Using MeTTa-enhanced processing');
+        processedNews = await uAgents.processNewsWithMeTTa(rawNews, options.userProfile);
+      } else {
+        console.log('Using standard uAgents processing');
+        processedNews = await uAgents.processNewsWithAgents(rawNews, options.userProfile);
+      }
+      console.log('uAgents processing completed, processed articles:', processedNews.length);
+    } catch (error) {
+      console.warn('uAgents/MeTTa not available, using fallback processing:', error.message);
+      console.warn('Error details:', error);
+    }
+    
+    // Enhance with knowledge graph
+    console.log('Enhancing news with knowledge graph...');
+    const enhancedNews = processedNews.map((article, index) => {
       try {
         console.log(`Processing article ${index + 1}: ${article.title.substring(0, 50)}...`);
         
@@ -731,13 +766,27 @@ async function fetchBlockchainNews(limit, options = {}) {
         const cleanSummary = article.summary.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1');
         const cleanContent = article.content.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1');
         
+        // Extract entities using knowledge graph
+        const articleText = (article.title + ' ' + cleanSummary).toLowerCase();
+        const entities = knowledgeGraph.extractEntities(articleText);
+        
+        // Categorize using knowledge graph
+        const categories = knowledgeGraph.categorizeContent(articleText);
+        
+        // Calculate relevance using knowledge graph
+        const relevanceScore = knowledgeGraph.calculateRelevanceScore(article, options.userProfile);
+        
         return {
           ...article,
           url: cleanUrl,
           summary: cleanSummary,
           content: cleanContent,
           excerpt: cleanSummary,
-          relevance_score: article.relevance_score || 0.5,
+          entities,
+          categories: categories.length > 0 ? categories : article.categories || ['general'],
+          relevance_score: relevanceScore || article.relevance_score || 0.5,
+          knowledge_graph_enhanced: true,
+          uagents_processed: true,
           processing_timestamp: new Date().toISOString()
         };
       } catch (error) {
@@ -746,12 +795,12 @@ async function fetchBlockchainNews(limit, options = {}) {
       }
     });
     
-    console.log('News processing completed, processed articles:', processedNews.length);
+    console.log('Knowledge graph enhancement completed');
     
     // Sort by relevance score
-    processedNews.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
+    enhancedNews.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
     
-    return processedNews.slice(0, limit);
+    return enhancedNews.slice(0, limit);
   } catch (error) {
     console.error('Error fetching real news:', error);
     console.log('Falling back to mock news');
@@ -851,7 +900,7 @@ function getMockNews(limit) {
 // Simulate SingularityNET MeTTa relevance calculation
 async function calculateUserRelevance(newsItems, userProfile, env) {
   // In a real implementation, this would use SingularityNET MeTTa
-  const userInterests = userProfile.interests || [];
+  const userInterests = userProfile.interests || userProfile.preferences?.topics || userProfile.topics || [];
   const readingHistory = userProfile.reading_history || [];
   
   let totalRelevance = 0;
