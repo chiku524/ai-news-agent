@@ -60,7 +60,7 @@ export const NEWS_SOURCES = {
     {
       name: "NewsAPI",
       url: "https://newsapi.org/v2/everything",
-      apiKey: process.env.NEWSAPI_KEY,
+      apiKey: null, // Set in wrangler.toml if needed
       enabled: false, // Enable when you have API key
       rateLimit: 1000, // requests per day
       cost: "Free tier: 1000 requests/day"
@@ -68,7 +68,7 @@ export const NEWS_SOURCES = {
     {
       name: "GNews",
       url: "https://gnews.io/api/v4/search",
-      apiKey: process.env.GNEWS_API_KEY,
+      apiKey: null, // Set in wrangler.toml if needed
       enabled: false, // Enable when you have API key
       rateLimit: 100, // requests per day
       cost: "Free tier: 100 requests/day"
@@ -76,7 +76,7 @@ export const NEWS_SOURCES = {
     {
       name: "CryptoPanic",
       url: "https://cryptopanic.com/api/v1/posts/",
-      apiKey: process.env.CRYPTOPANIC_API_KEY,
+      apiKey: null, // Set in wrangler.toml if needed
       enabled: false, // Enable when you have API key
       rateLimit: 1000, // requests per day
       cost: "Free tier: 1000 requests/day"

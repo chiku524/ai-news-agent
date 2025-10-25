@@ -581,6 +581,57 @@ async function handleMeTTaStatus(request, env) {
   }
 }
 
+// Test RSS parsing
+async function handleTestRSS(request, env) {
+  try {
+    console.log('Testing RSS parsing...');
+    
+    // Import news aggregator
+    const { NewsAggregator } = await import('./news-aggregator.js');
+    const aggregator = new NewsAggregator();
+    
+    // Test RSS feeds directly
+    const rssNews = await aggregator.fetchFromRSSFeeds(5);
+    console.log('RSS news fetched:', rssNews.length);
+    
+    // Test full news fetching
+    const fullNews = await aggregator.fetchNews({
+      limit: 5,
+      category: 'all',
+      timeFilter: '24h',
+      sortBy: 'relevance'
+    });
+    console.log('Full news fetched:', fullNews.length);
+    
+    return new Response(JSON.stringify({
+      rss_news: rssNews,
+      full_news: fullNews,
+      rss_count: rssNews.length,
+      full_count: fullNews.length,
+      timestamp: new Date().toISOString()
+    }), {
+      headers: { 
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    });
+    
+  } catch (error) {
+    console.error('RSS test error:', error);
+    return new Response(JSON.stringify({
+      error: "Failed to test RSS parsing",
+      details: error.message,
+      stack: error.stack
+    }), {
+      status: 500,
+      headers: { 
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    });
+  }
+}
+
 // General News API with AI integration
 async function handleNews(request, env) {
   try {
@@ -646,15 +697,6 @@ async function fetchBlockchainNews(limit, options = {}) {
     const { NewsAggregator } = await import('./news-aggregator.js');
     const aggregator = new NewsAggregator();
     
-    // Import uAgents integration
-    const { UAgentsIntegration } = await import('./uagents-integration.js');
-    const uAgents = new UAgentsIntegration();
-    
-    // Import knowledge graph
-    const { BlockchainKnowledgeGraph } = await import('./knowledge-graph.js');
-    const knowledgeGraph = new BlockchainKnowledgeGraph();
-    
-    // Fetch real news from RSS feeds and APIs
     console.log('Fetching news with options:', {
       limit: limit * 2,
       category: options.category || 'all',
@@ -663,6 +705,7 @@ async function fetchBlockchainNews(limit, options = {}) {
       userProfile: options.userProfile
     });
     
+    // Fetch real news from RSS feeds and APIs
     const rawNews = await aggregator.fetchNews({
       limit: limit * 2, // Fetch more to account for filtering
       category: options.category || 'all',
@@ -673,47 +716,42 @@ async function fetchBlockchainNews(limit, options = {}) {
     
     console.log('Raw news fetched:', rawNews.length, 'articles');
     
-    // Process news with uAgents and MeTTa (if available)
-    let processedNews = rawNews;
-    try {
-      await uAgents.initializeAgents();
-      // Use MeTTa-enhanced processing if available
-      if (uAgents.mettaIntegration.isMeTTaAvailable()) {
-        processedNews = await uAgents.processNewsWithMeTTa(rawNews, options.userProfile);
-      } else {
-        processedNews = await uAgents.processNewsWithAgents(rawNews, options.userProfile);
-      }
-    } catch (error) {
-      console.warn('uAgents/MeTTa not available, using fallback processing:', error.message);
+    if (rawNews.length === 0) {
+      console.log('No RSS news found, falling back to mock data');
+      return getMockNews(limit);
     }
     
-    // Enhance with knowledge graph
-    const enhancedNews = processedNews.map(article => {
-      const articleText = (article.title + ' ' + article.summary).toLowerCase();
-      
-      // Extract entities using knowledge graph
-      const entities = knowledgeGraph.extractEntities(articleText);
-      
-      // Categorize using knowledge graph
-      const categories = knowledgeGraph.categorizeContent(articleText);
-      
-      // Calculate relevance using knowledge graph
-      const relevanceScore = knowledgeGraph.calculateRelevanceScore(article, options.userProfile);
-      
-      return {
-        ...article,
-        entities,
-        categories: categories.length > 0 ? categories : article.categories || ['general'],
-        relevance_score: relevanceScore,
-        knowledge_graph_enhanced: true,
-        processing_timestamp: new Date().toISOString()
-      };
+    // Simple processing without complex uAgents/MeTTa for now
+    const processedNews = rawNews.map((article, index) => {
+      try {
+        console.log(`Processing article ${index + 1}: ${article.title.substring(0, 50)}...`);
+        
+        // Clean URLs and content
+        const cleanUrl = article.url.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1');
+        const cleanSummary = article.summary.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1');
+        const cleanContent = article.content.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1');
+        
+        return {
+          ...article,
+          url: cleanUrl,
+          summary: cleanSummary,
+          content: cleanContent,
+          excerpt: cleanSummary,
+          relevance_score: article.relevance_score || 0.5,
+          processing_timestamp: new Date().toISOString()
+        };
+      } catch (error) {
+        console.error(`Error processing article ${index + 1}:`, error);
+        return article; // Return original article if processing fails
+      }
     });
     
-    // Sort by relevance score
-    enhancedNews.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
+    console.log('News processing completed, processed articles:', processedNews.length);
     
-    return enhancedNews.slice(0, limit);
+    // Sort by relevance score
+    processedNews.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
+    
+    return processedNews.slice(0, limit);
   } catch (error) {
     console.error('Error fetching real news:', error);
     console.log('Falling back to mock news');
@@ -736,7 +774,7 @@ function getMockNews(limit) {
       excerpt: "The approval of multiple Bitcoin ETFs has led to unprecedented institutional adoption and price stability.",
       categories: ["bitcoin"],
       tags: ["bitcoin", "etf", "institutional", "adoption"],
-      image_url: "https://via.placeholder.com/400x200?text=Bitcoin+ETF+2025",
+      image_url: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=400&h=200&fit=crop&crop=center",
       author: "CoinDesk Staff",
       relevance_score: 0.95,
       engagement_metrics: { likes: 250, views: 5000, comments: 85 }
@@ -752,7 +790,7 @@ function getMockNews(limit) {
       excerpt: "Ethereum's latest upgrade introduces quantum-resistant cryptography and improved scalability.",
       categories: ["ethereum"],
       tags: ["ethereum", "upgrade", "quantum-resistant", "security"],
-      image_url: "https://via.placeholder.com/400x200?text=Ethereum+3.0",
+      image_url: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=200&fit=crop&crop=center",
       author: "CoinTelegraph Staff",
       relevance_score: 0.9,
       engagement_metrics: { likes: 180, views: 3200, comments: 65 }
@@ -768,7 +806,7 @@ function getMockNews(limit) {
       excerpt: "Next-generation DeFi protocols have collectively locked over $500 billion in total value.",
       categories: ["defi"],
       tags: ["defi", "tvl", "yield-farming", "cross-chain"],
-      image_url: "https://via.placeholder.com/400x200?text=DeFi+3.0",
+      image_url: "https://images.unsplash.com/photo-1639322537228-f912b1770ae3?w=400&h=200&fit=crop&crop=center",
       author: "Decrypt Staff",
       relevance_score: 0.85,
       engagement_metrics: { likes: 150, views: 2800, comments: 45 }
@@ -784,7 +822,7 @@ function getMockNews(limit) {
       excerpt: "AI-generated NFTs are transforming the digital art market with dynamic, evolving artworks.",
       categories: ["nft"],
       tags: ["nft", "ai", "digital-art", "dynamic"],
-      image_url: "https://via.placeholder.com/400x200?text=AI+NFTs",
+      image_url: "https://images.unsplash.com/photo-1642790104077-9a7b4a0a0f5a?w=400&h=200&fit=crop&crop=center",
       author: "The Block Staff",
       relevance_score: 0.8,
       engagement_metrics: { likes: 120, views: 2200, comments: 38 }
@@ -800,7 +838,7 @@ function getMockNews(limit) {
       excerpt: "Major economies have launched their Central Bank Digital Currencies, reshaping the global financial landscape.",
       categories: ["regulation"],
       tags: ["cbdc", "central-bank", "regulation", "digital-currency"],
-      image_url: "https://via.placeholder.com/400x200?text=CBDC+2025",
+      image_url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop&crop=center",
       author: "CryptoSlate Staff",
       relevance_score: 0.75,
       engagement_metrics: { likes: 95, views: 1800, comments: 25 }
@@ -1390,6 +1428,10 @@ export default {
 
       if (path === '/api/metta/status' && method === 'GET') {
         return await handleMeTTaStatus(request, env);
+      }
+
+      if (path === '/api/test-rss' && method === 'GET') {
+        return await handleTestRSS(request, env);
       }
 
       if (path === '/api/user/profile' && method === 'GET') {

@@ -464,6 +464,7 @@ export class NewsAggregator {
     return text
       .replace(/<[^>]*>/g, '') // Remove HTML tags
       .replace(/&[^;]+;/g, ' ') // Remove HTML entities
+      .replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1') // Remove CDATA wrappers
       .replace(/\s+/g, ' ') // Normalize whitespace
       .trim();
   }
