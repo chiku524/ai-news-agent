@@ -97,7 +97,7 @@ export class NewsAggregator {
   // Parse RSS XML content
   parseRSSXML(xmlText, feed) {
     try {
-      // Simple XML parsing (in production, use a proper XML parser)
+      // Enhanced XML parsing for 2025 RSS feeds
       const items = xmlText.match(/<item>[\s\S]*?<\/item>/g) || [];
       
       return items.map((item, index) => {
@@ -106,8 +106,22 @@ export class NewsAggregator {
         const description = this.extractXMLContent(item, 'description');
         const pubDate = this.extractXMLContent(item, 'pubDate');
         const guid = this.extractXMLContent(item, 'guid');
+        const author = this.extractXMLContent(item, 'author') || this.extractXMLContent(item, 'dc:creator') || feed.name;
         
         if (!title || !link) return null;
+        
+        // Enhanced content extraction for 2025
+        const content = this.extractXMLContent(item, 'content:encoded') || 
+                       this.extractXMLContent(item, 'description') || 
+                       this.extractXMLContent(item, 'summary');
+        
+        // Extract categories from multiple possible tags
+        const categories = this.extractCategories(item, feed.category);
+        
+        // Extract media/image URLs
+        const imageUrl = this.extractImageFromDescription(description) || 
+                        this.extractXMLContent(item, 'media:thumbnail') ||
+                        this.extractXMLContent(item, 'enclosure');
         
         return {
           id: guid || `${feed.name}-${index}-${Date.now()}`,
@@ -116,18 +130,19 @@ export class NewsAggregator {
           source: feed.name,
           published_at: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString(),
           summary: this.cleanText(description),
-          content: this.cleanText(description),
+          content: this.cleanText(content),
           excerpt: this.cleanText(description),
-          categories: [feed.category],
+          categories: categories,
           tags: this.extractTags(title + ' ' + description),
-          image_url: this.extractImageFromDescription(description),
-          author: this.extractXMLContent(item, 'author') || feed.name,
+          image_url: imageUrl,
+          author: author,
           relevance_score: 0.5, // Will be calculated later
           engagement_metrics: {
             likes: Math.floor(Math.random() * 100),
             views: Math.floor(Math.random() * 1000),
             comments: Math.floor(Math.random() * 50)
-          }
+          },
+          processing_timestamp: new Date().toISOString()
         };
       }).filter(Boolean);
     } catch (error) {
@@ -370,6 +385,30 @@ export class NewsAggregator {
     const imgRegex = /<img[^>]+src="([^"]+)"/i;
     const match = description.match(imgRegex);
     return match ? match[1] : null;
+  }
+
+  // Extract categories from RSS item
+  extractCategories(item, defaultCategory) {
+    const categories = [];
+    
+    // Try different category tags
+    const categoryTags = ['category', 'dc:subject', 'subject'];
+    
+    categoryTags.forEach(tag => {
+      const categoryContent = this.extractXMLContent(item, tag);
+      if (categoryContent) {
+        // Split by common separators
+        const cats = categoryContent.split(/[,;|]/).map(cat => cat.trim()).filter(Boolean);
+        categories.push(...cats);
+      }
+    });
+    
+    // If no categories found, use default
+    if (categories.length === 0) {
+      categories.push(defaultCategory);
+    }
+    
+    return [...new Set(categories)]; // Remove duplicates
   }
 
   // Fallback news when all sources fail

@@ -655,6 +655,14 @@ async function fetchBlockchainNews(limit, options = {}) {
     const knowledgeGraph = new BlockchainKnowledgeGraph();
     
     // Fetch real news from RSS feeds and APIs
+    console.log('Fetching news with options:', {
+      limit: limit * 2,
+      category: options.category || 'all',
+      timeFilter: options.timeFilter || '24h',
+      sortBy: options.sortBy || 'relevance',
+      userProfile: options.userProfile
+    });
+    
     const rawNews = await aggregator.fetchNews({
       limit: limit * 2, // Fetch more to account for filtering
       category: options.category || 'all',
@@ -662,6 +670,8 @@ async function fetchBlockchainNews(limit, options = {}) {
       sortBy: options.sortBy || 'relevance',
       userProfile: options.userProfile
     });
+    
+    console.log('Raw news fetched:', rawNews.length, 'articles');
     
     // Process news with uAgents and MeTTa (if available)
     let processedNews = rawNews;
@@ -706,49 +716,94 @@ async function fetchBlockchainNews(limit, options = {}) {
     return enhancedNews.slice(0, limit);
   } catch (error) {
     console.error('Error fetching real news:', error);
+    console.log('Falling back to mock news');
     // Fallback to mock data if real news fails
     return getMockNews(limit);
   }
 }
 
-// Fallback mock news
+// Fallback mock news for 2025
 function getMockNews(limit) {
   const mockNews = [
     {
       id: "1",
-      title: "Bitcoin Reaches New All-Time High",
-      url: "https://example.com/bitcoin-ath",
+      title: "Bitcoin ETF Approval Drives Institutional Adoption to New Heights",
+      url: "https://example.com/bitcoin-etf-2025",
       source: "CoinDesk",
       published_at: new Date().toISOString(),
-      summary: "Bitcoin has reached a new all-time high driven by institutional adoption.",
-      categories: ["Cryptocurrency", "Bitcoin"],
-      tags: ["bitcoin", "price", "ath"],
+      summary: "The approval of multiple Bitcoin ETFs has led to unprecedented institutional adoption and price stability.",
+      content: "The approval of multiple Bitcoin ETFs has led to unprecedented institutional adoption and price stability, with major corporations adding Bitcoin to their treasury reserves.",
+      excerpt: "The approval of multiple Bitcoin ETFs has led to unprecedented institutional adoption and price stability.",
+      categories: ["bitcoin"],
+      tags: ["bitcoin", "etf", "institutional", "adoption"],
+      image_url: "https://via.placeholder.com/400x200?text=Bitcoin+ETF+2025",
+      author: "CoinDesk Staff",
       relevance_score: 0.95,
-      engagement_metrics: { likes: 150, views: 2500, comments: 45 }
+      engagement_metrics: { likes: 250, views: 5000, comments: 85 }
     },
     {
       id: "2", 
-      title: "Ethereum 2.0 Staking Rewards Increase",
-      url: "https://example.com/ethereum-staking",
-      source: "Cointelegraph",
-      published_at: new Date().toISOString(),
-      summary: "Ethereum 2.0 staking rewards have increased significantly.",
-      categories: ["Ethereum", "Staking", "DeFi"],
-      tags: ["ethereum", "staking", "defi"],
-      relevance_score: 0.88,
-      engagement_metrics: { likes: 120, views: 1800, comments: 32 }
+      title: "Ethereum 3.0 Upgrade Brings Quantum-Resistant Security",
+      url: "https://example.com/ethereum-3-0-2025",
+      source: "CoinTelegraph",
+      published_at: new Date(Date.now() - 3600000).toISOString(),
+      summary: "Ethereum's latest upgrade introduces quantum-resistant cryptography and improved scalability.",
+      content: "Ethereum's latest upgrade introduces quantum-resistant cryptography and improved scalability, making it future-proof against quantum computing threats.",
+      excerpt: "Ethereum's latest upgrade introduces quantum-resistant cryptography and improved scalability.",
+      categories: ["ethereum"],
+      tags: ["ethereum", "upgrade", "quantum-resistant", "security"],
+      image_url: "https://via.placeholder.com/400x200?text=Ethereum+3.0",
+      author: "CoinTelegraph Staff",
+      relevance_score: 0.9,
+      engagement_metrics: { likes: 180, views: 3200, comments: 65 }
     },
     {
       id: "3",
-      title: "DeFi Protocol Launches New Yield Farming Pool",
-      url: "https://example.com/defi-yield",
+      title: "DeFi 3.0 Protocols Achieve $500 Billion TVL Milestone",
+      url: "https://example.com/defi-3-0-2025",
+      source: "Decrypt",
+      published_at: new Date(Date.now() - 7200000).toISOString(),
+      summary: "Next-generation DeFi protocols have collectively locked over $500 billion in total value.",
+      content: "Next-generation DeFi protocols have collectively locked over $500 billion in total value, featuring advanced yield farming and cross-chain interoperability.",
+      excerpt: "Next-generation DeFi protocols have collectively locked over $500 billion in total value.",
+      categories: ["defi"],
+      tags: ["defi", "tvl", "yield-farming", "cross-chain"],
+      image_url: "https://via.placeholder.com/400x200?text=DeFi+3.0",
+      author: "Decrypt Staff",
+      relevance_score: 0.85,
+      engagement_metrics: { likes: 150, views: 2800, comments: 45 }
+    },
+    {
+      id: "4",
+      title: "AI-Powered NFTs Revolutionize Digital Art Market",
+      url: "https://example.com/ai-nfts-2025",
       source: "The Block",
-      published_at: new Date().toISOString(),
-      summary: "A new DeFi protocol has launched an innovative yield farming pool.",
-      categories: ["DeFi", "Yield Farming"],
-      tags: ["defi", "yield", "farming"],
-      relevance_score: 0.82,
-      engagement_metrics: { likes: 95, views: 1200, comments: 28 }
+      published_at: new Date(Date.now() - 10800000).toISOString(),
+      summary: "AI-generated NFTs are transforming the digital art market with dynamic, evolving artworks.",
+      content: "AI-generated NFTs are transforming the digital art market with dynamic, evolving artworks that change based on market conditions and user interactions.",
+      excerpt: "AI-generated NFTs are transforming the digital art market with dynamic, evolving artworks.",
+      categories: ["nft"],
+      tags: ["nft", "ai", "digital-art", "dynamic"],
+      image_url: "https://via.placeholder.com/400x200?text=AI+NFTs",
+      author: "The Block Staff",
+      relevance_score: 0.8,
+      engagement_metrics: { likes: 120, views: 2200, comments: 38 }
+    },
+    {
+      id: "5",
+      title: "Central Bank Digital Currencies (CBDCs) Launch in Major Economies",
+      url: "https://example.com/cbdc-launch-2025",
+      source: "CryptoSlate",
+      published_at: new Date(Date.now() - 14400000).toISOString(),
+      summary: "Major economies have launched their Central Bank Digital Currencies, reshaping the global financial landscape.",
+      content: "Major economies have launched their Central Bank Digital Currencies, reshaping the global financial landscape and providing new opportunities for blockchain integration.",
+      excerpt: "Major economies have launched their Central Bank Digital Currencies, reshaping the global financial landscape.",
+      categories: ["regulation"],
+      tags: ["cbdc", "central-bank", "regulation", "digital-currency"],
+      image_url: "https://via.placeholder.com/400x200?text=CBDC+2025",
+      author: "CryptoSlate Staff",
+      relevance_score: 0.75,
+      engagement_metrics: { likes: 95, views: 1800, comments: 25 }
     }
   ];
   
