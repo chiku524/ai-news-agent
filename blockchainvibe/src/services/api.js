@@ -43,17 +43,17 @@ api.interceptors.response.use(
 
 export const newsAPI = {
   getTrendingNews: async (params = {}) => {
-    const response = await api.post('/news/trending', params);
+    const response = await api.post('/api/news/trending', params);
     return response.data;
   },
 
   getPersonalizedNews: async (params = {}) => {
-    const response = await api.post('/news/personalized', params);
+    const response = await api.post('/api/news/personalized', params);
     return response.data;
   },
 
   searchNews: async (query, limit = 10) => {
-    const response = await api.post('/news/search', {
+    const response = await api.post('/api/news/search', {
       query,
       limit
     });
@@ -61,17 +61,17 @@ export const newsAPI = {
   },
 
   getNewsDetail: async (newsId) => {
-    const response = await api.get(`/news/${newsId}`);
+    const response = await api.get(`/api/news/${newsId}`);
     return response.data;
   },
 
   trackActivity: async (activityData) => {
-    const response = await api.post('/user/activity', activityData);
+    const response = await api.post('/api/user/activity', activityData);
     return response.data;
   },
 
   getCategories: async () => {
-    const response = await api.get('/categories');
+    const response = await api.get('/api/categories');
     return response.data;
   },
 };

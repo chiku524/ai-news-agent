@@ -108,6 +108,14 @@ export class NewsAggregator {
       const items = xmlText.match(/<item>[\s\S]*?<\/item>/g) || [];
       console.log(`Found ${items.length} items in ${feed.name}`);
       
+      if (items.length === 0) {
+        console.log(`No items found in ${feed.name}, trying alternative parsing`);
+        // Try alternative parsing for different RSS formats
+        const altItems = xmlText.match(/<entry>[\s\S]*?<\/entry>/g) || [];
+        console.log(`Found ${altItems.length} entries in ${feed.name}`);
+        return this.parseAtomXML(xmlText, feed);
+      }
+      
       const articles = items.map((item, index) => {
         const title = this.extractXMLContent(item, 'title');
         const link = this.extractXMLContent(item, 'link');
@@ -170,6 +178,50 @@ export class NewsAggregator {
       return articles;
     } catch (error) {
       console.error(`Error parsing XML for ${feed.name}:`, error);
+      return [];
+    }
+  }
+
+  // Parse Atom XML format
+  parseAtomXML(xmlText, feed) {
+    try {
+      const entries = xmlText.match(/<entry>[\s\S]*?<\/entry>/g) || [];
+      console.log(`Found ${entries.length} Atom entries in ${feed.name}`);
+      
+      return entries.map((entry, index) => {
+        const title = this.extractXMLContent(entry, 'title');
+        const link = this.extractXMLContent(entry, 'link');
+        const summary = this.extractXMLContent(entry, 'summary');
+        const published = this.extractXMLContent(entry, 'published');
+        const id = this.extractXMLContent(entry, 'id');
+        const author = this.extractXMLContent(entry, 'author') || feed.name;
+        
+        if (!title || !link) return null;
+        
+        return {
+          id: id || `${feed.name}-atom-${index}-${Date.now()}`,
+          title: this.cleanText(title),
+          url: link,
+          source: feed.name,
+          published_at: published ? new Date(published).toISOString() : new Date().toISOString(),
+          summary: this.cleanText(summary),
+          content: this.cleanText(summary),
+          excerpt: this.cleanText(summary),
+          categories: [feed.category],
+          tags: this.extractTags(title + ' ' + summary),
+          image_url: null,
+          author: author,
+          relevance_score: 0.5,
+          engagement_metrics: {
+            likes: Math.floor(Math.random() * 100),
+            views: Math.floor(Math.random() * 1000),
+            comments: Math.floor(Math.random() * 50)
+          },
+          processing_timestamp: new Date().toISOString()
+        };
+      }).filter(Boolean);
+    } catch (error) {
+      console.error(`Error parsing Atom XML for ${feed.name}:`, error);
       return [];
     }
   }
@@ -391,9 +443,21 @@ export class NewsAggregator {
 
   // Utility methods
   extractXMLContent(xml, tag) {
-    const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i');
-    const match = xml.match(regex);
-    return match ? match[1].trim() : '';
+    // Try multiple patterns for different XML structures
+    const patterns = [
+      new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i'),
+      new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, 'i'),
+      new RegExp(`<${tag}[^>]*\\/>`, 'i') // Self-closing tags
+    ];
+    
+    for (const pattern of patterns) {
+      const match = xml.match(pattern);
+      if (match) {
+        return match[1] ? match[1].trim() : '';
+      }
+    }
+    
+    return '';
   }
 
   cleanText(text) {
