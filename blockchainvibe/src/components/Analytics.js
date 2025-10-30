@@ -13,6 +13,8 @@ import {
   Zap
 } from 'lucide-react';
 import { useUser } from '../hooks/useUser';
+import api, { userAPI } from '../services/api';
+import InteractiveChart from './InteractiveChart';
 
 const AnalyticsContainer = styled.div`
   max-width: 1200px;
@@ -221,45 +223,57 @@ const Analytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
 
   useEffect(() => {
-    // Simulate fetching analytics data
-    const mockData = {
-      totalArticles: 127,
-      articlesRead: 89,
-      timeSpent: 1240, // minutes
-      averageRelevance: 0.87,
-      topCategories: [
-        { name: 'DeFi', count: 34, percentage: 38 },
-        { name: 'Bitcoin', count: 28, percentage: 31 },
-        { name: 'Ethereum', count: 18, percentage: 20 },
-        { name: 'NFTs', count: 9, percentage: 10 }
-      ],
-      aiInsights: [
-        {
-          text: "Your reading patterns show strong interest in DeFi protocols. Consider exploring yield farming strategies.",
-          source: "MeTTa Knowledge Graph"
-        },
-        {
-          text: "Based on your activity, you might be interested in upcoming Ethereum 2.0 developments.",
-          source: "Fetch.ai uAgents"
-        },
-        {
-          text: "Your engagement with Bitcoin news is 23% higher than average users in your region.",
-          source: "AI Analytics Engine"
+    const fetchAnalytics = async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const userId = user?.user_id || user?.id;
+        if (!userId) {
+          setAnalyticsData({
+            articlesRead: 0,
+            timeSpent: 0,
+            averageRelevance: 0,
+            topCategories: [],
+            aiInsights: [],
+            readingTrends: { thisWeek: 0, lastWeek: 0, change: 0 },
+            relevanceScore: { current: 0, previous: 0, change: 0 },
+          });
+          return;
         }
-      ],
-      readingTrends: {
-        thisWeek: 12,
-        lastWeek: 8,
-        change: 50
-      },
-      relevanceScore: {
-        current: 87,
-        previous: 82,
-        change: 5
+        const res = await api.get(`/api/analytics/summary?userId=${encodeURIComponent(userId)}`);
+        const data = res.data || {};
+        const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const trendMap = { Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0, Sun:0 };
+        (data.readingTrendsByDay || []).forEach(r => {
+          const idx = parseInt(r.dow, 10); // 0=Sun
+          const label = days[idx];
+          trendMap[label] = r.cnt;
+        });
+        const thisWeekTotal = Object.values(trendMap).reduce((a,b)=>a+b,0);
+        // We don't have lastWeek here; show change as 0 for now
+        const topCategories = (data.topSources || []).map(s => ({ name: s.source, count: s.cnt, percentage: 0 }));
+        setAnalyticsData({
+          articlesRead: data.articlesRead || 0,
+          timeSpent: data.timeSpentMinutes || 0,
+          averageRelevance: 0,
+          topCategories,
+          aiInsights: [],
+          readingTrends: { thisWeek: thisWeekTotal, lastWeek: 0, change: 0 },
+          relevanceScore: { current: 0, previous: 0, change: 0 },
+          _trendSeries: Object.entries(trendMap).map(([label, value]) => ({ label, value, category: 'reading' })),
+        });
+      } catch (e) {
+        setAnalyticsData({
+          articlesRead: 0,
+          timeSpent: 0,
+          averageRelevance: 0,
+          topCategories: [],
+          aiInsights: [],
+          readingTrends: { thisWeek: 0, lastWeek: 0, change: 0 },
+          relevanceScore: { current: 0, previous: 0, change: 0 },
+        });
       }
     };
-    
-    setAnalyticsData(mockData);
+    fetchAnalytics();
   }, []);
 
   if (isLoading) {
@@ -358,14 +372,11 @@ const Analytics = () => {
 
       <ChartsGrid>
         <ChartCard>
-          <ChartTitle>Reading Trends</ChartTitle>
-          <ChartPlaceholder>
-            <BarChart3 size={48} />
-            <div style={{ marginTop: '1rem' }}>Interactive chart coming soon</div>
-            <div style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
-              Powered by Fetch.ai uAgents
-            </div>
-          </ChartPlaceholder>
+          <InteractiveChart 
+            data={analyticsData?._trendSeries || []}
+            title="Reading Trends"
+            onDataUpdate={(data) => console.log('Chart data updated:', data)}
+          />
         </ChartCard>
 
         <ChartCard>

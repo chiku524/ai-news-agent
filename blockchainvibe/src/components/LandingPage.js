@@ -16,11 +16,14 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
+import AnimatedBackground from './AnimatedBackground';
 
 const LandingContainer = styled.div`
   min-height: 100vh;
   background: ${props => props.theme.colors.background};
   color: ${props => props.theme.colors.text};
+  position: relative;
+  z-index: 1;
 `;
 
 
@@ -33,7 +36,6 @@ const HeroSection = styled.section`
     ${props => props.theme.colors.primary}10 0%, 
     ${props => props.theme.colors.secondary}10 100%);
   position: relative;
-  overflow: hidden;
   padding-top: 80px; /* Add space for fixed navbar */
   
   &::before {
@@ -186,7 +188,7 @@ const FeaturesContainer = styled.div`
   margin: 0 auto;
 `;
 
-const SectionTitle = styled.h2`
+const SectionTitle = styled(motion.h2)`
   font-size: ${props => props.theme.fontSize['4xl']};
   font-weight: ${props => props.theme.fontWeight.bold};
   text-align: center;
@@ -266,7 +268,7 @@ const StatsContainer = styled.div`
   text-align: center;
 `;
 
-const StatItem = styled.div`
+const StatItem = styled(motion.div)`
   & h3 {
     font-size: ${props => props.theme.fontSize['3xl']};
     font-weight: ${props => props.theme.fontWeight.bold};
@@ -477,7 +479,7 @@ const AboutStats = styled.div`
   }
 `;
 
-const AboutStat = styled.div`
+const AboutStat = styled(motion.div)`
   text-align: center;
   
   h3 {
@@ -701,6 +703,7 @@ const LandingPage = ({ theme, onThemeChange }) => {
 
   return (
     <LandingContainer>
+      <AnimatedBackground />
       <Navigation theme={theme} onThemeChange={onThemeChange} />
       <HeroSection>
         <HeroContent>
@@ -753,7 +756,14 @@ const LandingPage = ({ theme, onThemeChange }) => {
 
       <FeaturesSection id="features">
         <FeaturesContainer>
-          <SectionTitle>Why Choose BlockchainVibe?</SectionTitle>
+          <SectionTitle
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: "-100px" }}
+          >
+            Why Choose BlockchainVibe?
+          </SectionTitle>
           <SectionSubtitle>
             Experience the future of blockchain news consumption with our cutting-edge AI technology
           </SectionSubtitle>
@@ -765,7 +775,7 @@ const LandingPage = ({ theme, onThemeChange }) => {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "-100px" }}
               >
                 <FeatureIcon>
                   {feature.icon}
@@ -780,7 +790,14 @@ const LandingPage = ({ theme, onThemeChange }) => {
 
       <PricingSection id="pricing">
         <PricingContainer>
-          <SectionTitle>Simple, Transparent Pricing</SectionTitle>
+          <SectionTitle
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: "-100px" }}
+          >
+            Simple, Transparent Pricing
+          </SectionTitle>
           <SectionSubtitle>
             Choose the plan that fits your needs. No hidden fees, no surprises.
           </SectionSubtitle>
@@ -835,7 +852,14 @@ const LandingPage = ({ theme, onThemeChange }) => {
         <AboutContainer>
           <AboutContent>
             <AboutText>
-              <SectionTitle>About BlockchainVibe</SectionTitle>
+              <SectionTitle
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true, margin: "-100px" }}
+              >
+                About BlockchainVibe
+              </SectionTitle>
               <SectionSubtitle>
                 We're revolutionizing how the blockchain community consumes news through 
                 cutting-edge AI technology and intelligent automation.
@@ -847,15 +871,30 @@ const LandingPage = ({ theme, onThemeChange }) => {
               </AboutDescription>
             </AboutText>
             <AboutStats>
-              <AboutStat>
+              <AboutStat
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                viewport={{ once: true, margin: "-100px" }}
+              >
                 <h3>50+</h3>
                 <p>News Sources</p>
               </AboutStat>
-              <AboutStat>
+              <AboutStat
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                viewport={{ once: true, margin: "-100px" }}
+              >
                 <h3>24/7</h3>
                 <p>AI Monitoring</p>
               </AboutStat>
-              <AboutStat>
+              <AboutStat
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                viewport={{ once: true, margin: "-100px" }}
+              >
                 <h3>99.9%</h3>
                 <p>Accuracy Rate</p>
               </AboutStat>
@@ -866,7 +905,14 @@ const LandingPage = ({ theme, onThemeChange }) => {
 
       <ContactSection id="contact">
         <ContactContainer>
-          <SectionTitle>Get in Touch</SectionTitle>
+          <SectionTitle
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: "-100px" }}
+          >
+            Get in Touch
+          </SectionTitle>
           <SectionSubtitle>
             Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
           </SectionSubtitle>
@@ -905,19 +951,39 @@ const LandingPage = ({ theme, onThemeChange }) => {
 
       <StatsSection>
         <StatsContainer>
-          <StatItem>
+          <StatItem
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            viewport={{ once: true, margin: "-100px" }}
+          >
             <h3>10K+</h3>
             <p>Active Users</p>
           </StatItem>
-          <StatItem>
+          <StatItem
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true, margin: "-100px" }}
+          >
             <h3>1M+</h3>
             <p>Articles Processed</p>
           </StatItem>
-          <StatItem>
+          <StatItem
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            viewport={{ once: true, margin: "-100px" }}
+          >
             <h3>99.9%</h3>
             <p>Uptime</p>
           </StatItem>
-          <StatItem>
+          <StatItem
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            viewport={{ once: true, margin: "-100px" }}
+          >
             <h3>24/7</h3>
             <p>Real-time Updates</p>
           </StatItem>

@@ -17,6 +17,7 @@ import toast from 'react-hot-toast';
 import { useTheme } from '../../contexts/ThemeContext';
 import socialAuthService from '../../services/socialAuth';
 import OAuthStatus from './OAuthStatus';
+import AnimatedBackground from '../AnimatedBackground';
 
 const AuthContainer = styled.div`
   min-height: 100vh;
@@ -27,6 +28,8 @@ const AuthContainer = styled.div`
     ${props => props.theme.colors.primary}10 0%, 
     ${props => props.theme.colors.secondary}10 100%);
   padding: 2rem;
+  position: relative;
+  z-index: 1;
 `;
 
 const AuthCard = styled(motion.div)`
@@ -317,13 +320,8 @@ const SignIn = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Mock successful login
-      toast.success('Welcome back!');
-      navigate('/dashboard');
-      
+      toast.error('Please sign in using a social provider below.');
+      return;
     } catch (error) {
       toast.error('Invalid credentials. Please try again.');
     } finally {
@@ -356,6 +354,7 @@ const SignIn = () => {
 
   return (
     <AuthContainer>
+      <AnimatedBackground />
       <AuthCard
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

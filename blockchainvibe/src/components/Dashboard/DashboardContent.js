@@ -20,8 +20,9 @@ import { useTheme } from '../../contexts/ThemeContext';
 
 const DashboardContainer = styled.div`
   min-height: 100vh;
-  background: ${props => props.theme.colors.background};
   padding: 2rem;
+  position: relative;
+  z-index: 2;
 `;
 
 const Header = styled.div`

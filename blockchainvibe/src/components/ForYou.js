@@ -26,6 +26,9 @@ const ForYouContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  min-height: 100vh;
+  position: relative;
+  z-index: 2;
 `;
 
 const ForYouHeader = styled.div`
@@ -357,12 +360,24 @@ const ForYou = () => {
     toast.success('For You feed refreshed!');
   };
 
-  const mockStats = {
-    relevanceScore: '94%',
-    articlesRead: 127,
-    savedArticles: 18,
-    readingStreak: 7
-  };
+  const [mockStats, setStats] = useState({ relevanceScore: '—', articlesRead: 0, savedArticles: 0, readingStreak: '—' });
+  useEffect(() => {
+    (async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const userId = user?.user_id || user?.id;
+        if (!userId) return;
+        const res = await fetch(`https://blockchainvibe-api.nico-chikuji.workers.dev/api/analytics/summary?userId=${encodeURIComponent(userId)}`);
+        const data = await res.json();
+        setStats({
+          relevanceScore: '—',
+          articlesRead: data?.articlesRead || 0,
+          savedArticles: 0,
+          readingStreak: '—'
+        });
+      } catch (_) {}
+    })();
+  }, []);
 
   const userPreferences = [
     { icon: <Target size={14} />, text: 'Favorite Topics', value: 'DeFi, NFTs, Layer 2' },

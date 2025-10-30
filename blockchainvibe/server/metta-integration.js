@@ -3,8 +3,8 @@
 
 export class MeTTaIntegration {
   constructor() {
-    this.mettaEndpoint = process.env.METTA_ENDPOINT || 'https://metta.singularitynet.io/api';
-    this.apiKey = process.env.METTA_API_KEY;
+    this.mettaEndpoint = 'https://metta.singularitynet.io/api'; // Set in wrangler.toml if needed
+    this.apiKey = null; // Set in wrangler.toml if needed
     this.isAvailable = false;
   }
 

@@ -5,8 +5,8 @@ export class ChatProtocolIntegration {
   constructor() {
     this.agents = new Map();
     this.conversations = new Map();
-    this.asiOneEndpoint = process.env.ASI_ONE_ENDPOINT || 'https://asi.one/api';
-    this.apiKey = process.env.ASI_ONE_API_KEY;
+    this.asiOneEndpoint = 'https://asi.one/api'; // Set in wrangler.toml if needed
+    this.apiKey = null; // Set in wrangler.toml if needed
   }
 
   // Register agent for discovery
@@ -19,11 +19,48 @@ export class ChatProtocolIntegration {
       endpoint: agentConfig.endpoint,
       status: 'active',
       registered_at: new Date().toISOString(),
-      metadata: {
+      // Enhanced for ASI:One compatibility
+      asione_compatible: true,
+      protocol_version: '1.0',
+      discovery_tags: [
+        'blockchain',
+        'news',
+        'ai',
+        'personalization',
+        'cryptocurrency',
+        'defi',
+        'nft',
+        'web3',
+        ...(agentConfig.tags || [])
+      ],
+      // Human integration features
+      human_integration: {
+        chat_enabled: true,
+        voice_enabled: false,
+        multimodal: false,
+        natural_language: true,
+        conversation_memory: true
+      },
+      // Discovery metadata for ASI:One
+      discovery_metadata: {
         version: agentConfig.version || '1.0.0',
         author: agentConfig.author || 'BlockchainVibe',
         category: agentConfig.category || 'news',
-        tags: agentConfig.tags || ['blockchain', 'news', 'ai']
+        subcategory: 'blockchain_news',
+        complexity: 'intermediate',
+        use_cases: [
+          'news_aggregation',
+          'content_personalization',
+          'trend_analysis',
+          'entity_extraction',
+          'relevance_scoring',
+          'user_profiling'
+        ],
+        tags: agentConfig.tags || ['blockchain', 'news', 'ai'],
+        // ASI:One specific fields
+        asione_agent_type: 'specialized',
+        discovery_priority: 'high',
+        human_readable: true
       }
     };
 
@@ -33,9 +70,12 @@ export class ChatProtocolIntegration {
     if (this.apiKey) {
       try {
         await this.registerWithASIOne(agentInfo);
+        console.log(`Agent ${agentConfig.name} registered with ASI:One for discovery`);
       } catch (error) {
         console.warn('Failed to register with ASI:One:', error.message);
       }
+    } else {
+      console.log(`Agent ${agentConfig.name} registered locally (ASI:One API key not available)`);
     }
 
     return agentInfo;

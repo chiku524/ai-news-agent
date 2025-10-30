@@ -9,6 +9,8 @@ export const lightTheme = {
     error: '#ef4444',
     
     background: '#ffffff',
+    backgroundSecondary: '#f8fafc',
+    backgroundTertiary: '#f1f5f9',
     surface: '#f8fafc',
     surfaceHover: '#f1f5f9',
     border: '#e2e8f0',
@@ -107,6 +109,8 @@ export const darkTheme = {
     error: '#f87171',
     
     background: '#0f172a',
+    backgroundSecondary: '#1e293b',
+    backgroundTertiary: '#334155',
     surface: '#1e293b',
     surfaceHover: '#334155',
     border: '#475569',

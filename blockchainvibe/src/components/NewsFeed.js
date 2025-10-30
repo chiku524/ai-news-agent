@@ -16,6 +16,10 @@ import { useUser } from '../hooks/useUser';
 const FeedContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+  position: relative;
+  z-index: 2;
 `;
 
 const FeedHeader = styled.div`

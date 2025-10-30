@@ -14,6 +14,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 
 // Context
 import { ThemeProvider as CustomThemeProvider, useTheme } from './contexts/ThemeContext';
+import { SidebarProvider } from './contexts/SidebarContext';
 
 // Lazy load components for better performance
 const Dashboard = lazy(() => import('./components/Dashboard/Dashboard'));
@@ -27,6 +28,8 @@ const Analytics = lazy(() => import('./components/Analytics'));
 const SavedArticles = lazy(() => import('./components/SavedArticles'));
 const LikedArticles = lazy(() => import('./components/LikedArticles'));
 const Settings = lazy(() => import('./components/Settings'));
+const BackgroundTest = lazy(() => import('./components/BackgroundTest'));
+const SimpleBackgroundTest = lazy(() => import('./components/SimpleBackgroundTest'));
 const NotFound = lazy(() => import('./components/NotFound'));
 
 const queryClient = new QueryClient({
@@ -110,13 +113,24 @@ const AppContent = () => {
   return (
     <ThemeProvider theme={currentTheme}>
       <GlobalStyle />
-      <Router>
-        <AppContainer>
-          <Routes>
+      <SidebarProvider>
+        <Router>
+          <AppContainer>
+            <Routes>
             <Route path="/" element={<LandingPage theme={theme} onThemeChange={setTheme} />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/register" element={<Register />} />
             <Route path="/auth/callback" element={<OAuthCallback />} />
+            <Route path="/test-background" element={
+              <Suspense fallback={<LoadingSpinner message="Loading test..." />}>
+                <BackgroundTest />
+              </Suspense>
+            } />
+            <Route path="/simple-test" element={
+              <Suspense fallback={<LoadingSpinner message="Loading simple test..." />}>
+                <SimpleBackgroundTest />
+              </Suspense>
+            } />
             <Route path="/dashboard" element={
               <Layout>
                 <Suspense fallback={<LoadingSpinner message="Loading dashboard..." />}>
@@ -202,20 +216,21 @@ const AppContent = () => {
               </Layout>
             } />
           </Routes>
-        </AppContainer>
-        
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: currentTheme.colors.surface,
-              color: currentTheme.colors.text,
-              border: `1px solid ${currentTheme.colors.border}`,
-            },
-          }}
-        />
-      </Router>
+          </AppContainer>
+          
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: currentTheme.colors.surface,
+                color: currentTheme.colors.text,
+                border: `1px solid ${currentTheme.colors.border}`,
+              },
+            }}
+          />
+        </Router>
+      </SidebarProvider>
     </ThemeProvider>
   );
 };

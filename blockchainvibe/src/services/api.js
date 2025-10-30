@@ -105,8 +105,8 @@ export const userAPI = {
 
   trackActivity: async (activityData) => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const userId = user?.user_id || user?.id || 'demo_user';
-    const response = await api.post('/user/activity', {
+    const userId = user?.user_id || user?.id;
+    const response = await api.post('/api/user/activity', {
       user_id: userId,
       ...activityData,
       timestamp: new Date().toISOString()

@@ -24,6 +24,9 @@ const TrendingContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  min-height: 100vh;
+  position: relative;
+  z-index: 2;
 `;
 
 const TrendingHeader = styled.div`

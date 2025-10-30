@@ -18,6 +18,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useTheme } from '../../contexts/ThemeContext';
 import socialAuthService from '../../services/socialAuth';
+import AnimatedBackground from '../AnimatedBackground';
 import OAuthStatus from './OAuthStatus';
 
 const AuthContainer = styled.div`
@@ -29,6 +30,8 @@ const AuthContainer = styled.div`
     ${props => props.theme.colors.primary}10 0%, 
     ${props => props.theme.colors.secondary}10 100%);
   padding: 2rem;
+  position: relative;
+  z-index: 1;
 `;
 
 const AuthCard = styled(motion.div)`
@@ -428,13 +431,8 @@ const Register = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Mock successful registration
-      toast.success('Account created successfully! Welcome to BlockchainVibe!');
-      navigate('/dashboard');
-      
+      toast.error('Please use a social provider to register.');
+      return;
     } catch (error) {
       toast.error('Registration failed. Please try again.');
     } finally {
@@ -469,6 +467,7 @@ const Register = () => {
 
   return (
     <AuthContainer>
+      <AnimatedBackground />
       <AuthCard
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

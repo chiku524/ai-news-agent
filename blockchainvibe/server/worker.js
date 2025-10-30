@@ -44,10 +44,86 @@ class DatabaseService {
           is_active BOOLEAN DEFAULT 1
         )
       `).run();
+      await this.db.prepare(`
+        CREATE TABLE IF NOT EXISTS user_activity (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id TEXT NOT NULL,
+          type TEXT NOT NULL, -- e.g. view, like, save, share, read
+          article_id TEXT,
+          article_title TEXT,
+          article_source TEXT,
+          duration_ms INTEGER DEFAULT 0,
+          metadata TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `).run();
       
       return { success: true };
     } catch (error) {
       console.error('Database initialization error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async insertUserActivity(activity) {
+    try {
+      await this.initDatabase();
+      const {
+        user_id,
+        type,
+        article_id = null,
+        article_title = null,
+        article_source = null,
+        duration_ms = 0,
+        metadata = null,
+      } = activity;
+      await this.db.prepare(`
+        INSERT INTO user_activity
+          (user_id, type, article_id, article_title, article_source, duration_ms, metadata, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+      `).bind(
+        user_id, type, article_id, article_title, article_source, duration_ms,
+        metadata ? JSON.stringify(metadata) : null
+      ).run();
+      return { success: true };
+    } catch (error) {
+      console.error('Insert activity error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getAnalyticsSummary(userId) {
+    try {
+      await this.initDatabase();
+      const totalRead = await this.db.prepare(`
+        SELECT COUNT(*) as cnt FROM user_activity WHERE user_id = ? AND type = 'read'
+      `).bind(userId).first();
+      const totalDuration = await this.db.prepare(`
+        SELECT COALESCE(SUM(duration_ms),0) as ms FROM user_activity WHERE user_id = ?
+      `).bind(userId).first();
+      const last7 = await this.db.prepare(`
+        SELECT strftime('%w', created_at) as dow, COUNT(*) as cnt
+        FROM user_activity
+        WHERE user_id = ? AND created_at >= datetime('now','-6 days')
+        GROUP BY strftime('%Y-%m-%d', created_at)
+      `).bind(userId).all();
+      const topCats = await this.db.prepare(`
+        SELECT COALESCE(article_source,'Unknown') as source, COUNT(*) as cnt
+        FROM user_activity
+        WHERE user_id = ? AND type = 'read'
+        GROUP BY article_source
+        ORDER BY cnt DESC
+        LIMIT 6
+      `).bind(userId).all();
+      return {
+        success: true,
+        articlesRead: (totalRead?.cnt) || 0,
+        timeSpentMinutes: Math.round(((totalDuration?.ms) || 0) / 60000),
+        readingTrendsByDay: last7?.results || [],
+        topSources: topCats?.results || [],
+      };
+    } catch (error) {
+      console.error('Analytics summary error:', error);
       return { success: false, error: error.message };
     }
   }
@@ -445,11 +521,11 @@ async function handlePersonalizedNews(request, env) {
       category: 'all',
       timeFilter,
       sortBy: 'relevance', // Sort by relevance for personalized
-      userProfile: user_profile
+      userProfile: userProfile
     });
     
     // Calculate user relevance score
-    const userRelevanceScore = await calculateUserRelevance(newsItems, user_profile, env);
+    const userRelevanceScore = await calculateUserRelevance(newsItems, userProfile, env);
     
     return new Response(JSON.stringify({
       articles: newsItems,
@@ -738,21 +814,31 @@ async function fetchBlockchainNews(limit, options = {}) {
     let processedNews = rawNews;
     try {
       console.log('Initializing uAgents and MeTTa...');
-      await uAgents.initializeAgents();
-      console.log('uAgents initialized successfully');
       
-      // Use MeTTa-enhanced processing if available
-      if (uAgents.mettaIntegration.isMeTTaAvailable()) {
-        console.log('Using MeTTa-enhanced processing');
-        processedNews = await uAgents.processNewsWithMeTTa(rawNews, options.userProfile);
+      // Initialize uAgents with error handling
+      const uAgentsInitialized = await uAgents.initializeAgents();
+      if (uAgentsInitialized) {
+        console.log('uAgents initialized successfully');
+        
+        // Use MeTTa-enhanced processing if available
+        if (uAgents.mettaIntegration && uAgents.mettaIntegration.isMeTTaAvailable()) {
+          console.log('Using MeTTa-enhanced processing');
+          processedNews = await uAgents.processNewsWithMeTTa(rawNews, options.userProfile);
+        } else {
+          console.log('Using standard uAgents processing');
+          processedNews = await uAgents.processNewsWithAgents(rawNews, options.userProfile);
+        }
+        console.log('uAgents processing completed, processed articles:', processedNews.length);
       } else {
-        console.log('Using standard uAgents processing');
-        processedNews = await uAgents.processNewsWithAgents(rawNews, options.userProfile);
+        console.log('uAgents initialization failed, using knowledge graph only');
+        // Fallback to knowledge graph only
+        processedNews = rawNews;
       }
-      console.log('uAgents processing completed, processed articles:', processedNews.length);
     } catch (error) {
-      console.warn('uAgents/MeTTa not available, using fallback processing:', error.message);
+      console.warn('uAgents/MeTTa processing failed, using knowledge graph fallback:', error.message);
       console.warn('Error details:', error);
+      // Continue with knowledge graph processing
+      processedNews = rawNews;
     }
     
     // Enhance with knowledge graph
@@ -766,15 +852,23 @@ async function fetchBlockchainNews(limit, options = {}) {
         const cleanSummary = article.summary.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1');
         const cleanContent = article.content.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1');
         
-        // Extract entities using knowledge graph
-        const articleText = (article.title + ' ' + cleanSummary).toLowerCase();
-        const entities = knowledgeGraph.extractEntities(articleText);
+        // Extract entities using knowledge graph (with error handling)
+        let entities = [];
+        let categories = ['general'];
+        let relevanceScore = article.relevance_score || 0.5;
         
-        // Categorize using knowledge graph
-        const categories = knowledgeGraph.categorizeContent(articleText);
-        
-        // Calculate relevance using knowledge graph
-        const relevanceScore = knowledgeGraph.calculateRelevanceScore(article, options.userProfile);
+        try {
+          const articleText = (article.title + ' ' + cleanSummary).toLowerCase();
+          entities = knowledgeGraph.extractEntities(articleText);
+          categories = knowledgeGraph.categorizeContent(articleText);
+          relevanceScore = knowledgeGraph.calculateRelevanceScore(article, options.userProfile);
+        } catch (kgError) {
+          console.warn(`Knowledge graph processing failed for article ${index + 1}:`, kgError.message);
+          // Use fallback values
+          entities = [];
+          categories = article.categories || ['general'];
+          relevanceScore = article.relevance_score || 0.5;
+        }
         
         return {
           ...article,
@@ -783,15 +877,28 @@ async function fetchBlockchainNews(limit, options = {}) {
           content: cleanContent,
           excerpt: cleanSummary,
           entities,
-          categories: categories.length > 0 ? categories : article.categories || ['general'],
-          relevance_score: relevanceScore || article.relevance_score || 0.5,
+          categories: categories.length > 0 ? categories : ['general'],
+          relevance_score: relevanceScore,
           knowledge_graph_enhanced: true,
           uagents_processed: true,
           processing_timestamp: new Date().toISOString()
         };
       } catch (error) {
         console.error(`Error processing article ${index + 1}:`, error);
-        return article; // Return original article if processing fails
+        // Return a safe fallback article
+        return {
+          ...article,
+          url: article.url.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1'),
+          summary: article.summary.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1'),
+          content: article.content.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1'),
+          excerpt: article.summary.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1'),
+          entities: [],
+          categories: ['general'],
+          relevance_score: 0.5,
+          knowledge_graph_enhanced: false,
+          uagents_processed: false,
+          processing_timestamp: new Date().toISOString()
+        };
       }
     });
     
@@ -1458,6 +1565,14 @@ export default {
       if (path === '/api/upload' && method === 'POST') {
         return await handleFileUpload(request, env);
       }
+
+      if (path === '/api/user/activity' && method === 'POST') {
+        return await handleTrackActivity(request, env);
+      }
+
+      if (path === '/api/analytics/summary' && method === 'GET') {
+        return await handleAnalyticsSummary(request, env);
+      }
       
       if (path === '/api/news/trending' && method === 'POST') {
         return await handleTrendingNews(request, env);
@@ -1472,7 +1587,7 @@ export default {
       }
 
       if (path === '/api/agents' && method === 'GET') {
-        return await handleGetAgents(request, env);
+        return await handleAgentsDiscovery(request, env);
       }
 
       if (path === '/api/metta/status' && method === 'GET') {
@@ -1564,6 +1679,213 @@ async function handleGetUserProfile(request, env) {
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
+// Track user activity
+async function handleTrackActivity(request, env) {
+  try {
+    const payload = await request.json();
+    const { user_id, type } = payload || {};
+    if (!user_id || !type) {
+      return new Response(JSON.stringify({ success: false, message: 'user_id and type are required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    const db = new DatabaseService(env.DB);
+    const result = await db.insertUserActivity(payload);
+    if (!result.success) {
+      return new Response(JSON.stringify({ success: false, message: result.error }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  } catch (error) {
+    console.error('Track activity error:', error);
+    return new Response(JSON.stringify({ success: false, message: 'Failed to track activity', error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
+// Analytics summary endpoint
+async function handleAnalyticsSummary(request, env) {
+  try {
+    const url = new URL(request.url);
+    const userId = url.searchParams.get('userId');
+    if (!userId) {
+      return new Response(JSON.stringify({ success: false, message: 'userId is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    const db = new DatabaseService(env.DB);
+    const summary = await db.getAnalyticsSummary(userId);
+    if (!summary.success) {
+      return new Response(JSON.stringify({ success: false, message: summary.error }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    return new Response(JSON.stringify({ success: true, ...summary }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  } catch (error) {
+    console.error('Analytics summary error:', error);
+    return new Response(JSON.stringify({ success: false, message: 'Failed to get analytics', error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
+// Agents Discovery API for ASI:One
+async function handleAgentsDiscovery(request, env) {
+  try {
+    const { UAgentsIntegration } = await import('./uagents-integration.js');
+    const uAgents = new UAgentsIntegration();
+    
+    // Ensure agents are registered
+    try {
+      await uAgents.initializeAgents();
+    } catch (error) {
+      console.warn('Failed to initialize uAgents, using fallback agent registration:', error.message);
+      // Register agents manually if initialization fails
+      await uAgents.registerAgentsWithChatProtocol();
+    }
+    
+    // Get available agents
+    let agents = uAgents.getAvailableAgents();
+    const agentStatus = uAgents.getAgentStatus();
+    
+    // If no agents are registered, create default ones
+    if (agents.length === 0) {
+      console.log('No agents found, creating default agents for ASI:One discovery');
+      agents = [
+        {
+          id: 'blockchainvibe-news-fetcher',
+          name: 'BlockchainVibe News Fetcher',
+          description: 'Fetches and processes blockchain news from various RSS sources',
+          capabilities: ['news_fetching', 'content_processing', 'quality_scoring'],
+          endpoint: 'https://blockchainvibe-api.nico-chikuji.workers.dev/api/news/trending',
+          status: 'active',
+          asione_compatible: true,
+          discovery_tags: ['blockchain', 'news', 'ai', 'personalization', 'cryptocurrency'],
+          human_integration: {
+            chat_enabled: true,
+            voice_enabled: false,
+            multimodal: false,
+            natural_language: true,
+            conversation_memory: true
+          },
+          discovery_metadata: {
+            category: 'news',
+            subcategory: 'blockchain_news',
+            complexity: 'intermediate',
+            use_cases: ['news_aggregation', 'content_personalization', 'trend_analysis']
+          },
+          registered_at: new Date().toISOString(),
+          last_heartbeat: new Date().toISOString()
+        },
+        {
+          id: 'blockchainvibe-relevance-scorer',
+          name: 'BlockchainVibe Relevance Scorer',
+          description: 'Calculates personalized relevance scores for news articles using AI',
+          capabilities: ['relevance_scoring', 'personalization', 'user_profiling'],
+          endpoint: 'https://blockchainvibe-api.nico-chikuji.workers.dev/api/news/personalized',
+          status: 'active',
+          asione_compatible: true,
+          discovery_tags: ['blockchain', 'ai', 'personalization', 'scoring', 'relevance'],
+          human_integration: {
+            chat_enabled: true,
+            voice_enabled: false,
+            multimodal: false,
+            natural_language: true,
+            conversation_memory: true
+          },
+          discovery_metadata: {
+            category: 'ai',
+            subcategory: 'personalization',
+            complexity: 'advanced',
+            use_cases: ['relevance_scoring', 'user_profiling', 'content_ranking']
+          },
+          registered_at: new Date().toISOString(),
+          last_heartbeat: new Date().toISOString()
+        },
+        {
+          id: 'blockchainvibe-knowledge-graph',
+          name: 'BlockchainVibe Knowledge Graph',
+          description: 'Extracts entities and categorizes blockchain content using MeTTa knowledge graph',
+          capabilities: ['entity_extraction', 'categorization', 'knowledge_graph'],
+          endpoint: 'https://blockchainvibe-api.nico-chikuji.workers.dev/api/agents',
+          status: 'active',
+          asione_compatible: true,
+          discovery_tags: ['blockchain', 'knowledge_graph', 'entity_extraction', 'metta'],
+          human_integration: {
+            chat_enabled: true,
+            voice_enabled: false,
+            multimodal: false,
+            natural_language: true,
+            conversation_memory: true
+          },
+          discovery_metadata: {
+            category: 'ai',
+            subcategory: 'knowledge_graph',
+            complexity: 'advanced',
+            use_cases: ['entity_extraction', 'content_categorization', 'knowledge_reasoning']
+          },
+          registered_at: new Date().toISOString(),
+          last_heartbeat: new Date().toISOString()
+        }
+      ];
+    }
+    
+    // Format for ASI:One discovery
+    const discoveryData = {
+      agents: agents.map(agent => ({
+        id: agent.id,
+        name: agent.name,
+        description: agent.description,
+        capabilities: agent.capabilities,
+        status: agentStatus[agent.id] || 'unknown',
+        asione_compatible: true,
+        discovery_tags: agent.discovery_tags || [],
+        human_integration: agent.human_integration || {},
+        discovery_metadata: agent.discovery_metadata || {},
+        endpoint: agent.endpoint,
+        registered_at: agent.registered_at,
+        last_heartbeat: agent.last_heartbeat
+      })),
+      total_agents: agents.length,
+      asione_protocol_version: '1.0',
+      blockchainvibe_version: '1.0.0',
+      discovery_timestamp: new Date().toISOString()
+    };
+    
+    return new Response(JSON.stringify(discoveryData), {
+      status: 200,
+      headers: { 
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    });
+  } catch (error) {
+    console.error('Agents discovery error:', error);
+    return new Response(JSON.stringify({
+      error: "Failed to get agents for discovery",
+      details: error.message
+    }), {
+      status: 500,
+      headers: { 
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
     });
   }
 }

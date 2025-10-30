@@ -9,19 +9,43 @@ import {
   User, 
   Settings,
   LogOut,
-  Sparkles
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  Menu
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useSidebar } from '../contexts/SidebarContext';
 
 const SidebarContainer = styled.aside`
-  width: 280px;
+  width: ${props => props.collapsed ? '80px' : '280px'};
   background: ${props => props.theme.colors.surface};
   border-right: 1px solid ${props => props.theme.colors.border};
   padding: 2rem 0;
   position: fixed;
   height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;
   z-index: 100;
+  transition: width ${props => props.theme.transitions.normal};
+  
+  /* Custom scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: ${props => props.theme.colors.border};
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${props => props.theme.colors.textSecondary};
+  }
   
   @media (max-width: ${props => props.theme.breakpoints.lg}) {
     transform: translateX(-100%);
@@ -29,8 +53,31 @@ const SidebarContainer = styled.aside`
   }
 `;
 
+const ToggleButton = styled.button`
+  position: absolute;
+  top: 1rem;
+  right: -15px;
+  width: 30px;
+  height: 30px;
+  background: ${props => props.theme.colors.primary};
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 101;
+  transition: all ${props => props.theme.transitions.fast};
+  
+  &:hover {
+    background: ${props => props.theme.colors.primaryHover};
+    transform: scale(1.1);
+  }
+`;
+
 const SidebarHeader = styled.div`
-  padding: 0 2rem 2rem 2rem;
+  padding: 0 ${props => props.collapsed ? '1rem' : '2rem'} 2rem ${props => props.collapsed ? '1rem' : '2rem'};
   border-bottom: 1px solid ${props => props.theme.colors.border};
   margin-bottom: 2rem;
 `;
@@ -38,6 +85,7 @@ const SidebarHeader = styled.div`
 const Logo = styled.div`
   display: flex;
   align-items: center;
+  justify-content: ${props => props.collapsed ? 'center' : 'flex-start'};
   gap: 0.75rem;
   font-size: ${props => props.theme.fontSize.xl};
   font-weight: ${props => props.theme.fontWeight.bold};
@@ -47,11 +95,12 @@ const Logo = styled.div`
   &::before {
     content: '🤖';
     font-size: 1.5rem;
+    flex-shrink: 0;
   }
 `;
 
 const SidebarContent = styled.div`
-  padding: 0 1rem;
+  padding: 0 ${props => props.collapsed ? '0.5rem' : '1rem'};
 `;
 
 const MenuSection = styled.div`
@@ -65,19 +114,24 @@ const SectionTitle = styled.h3`
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 1rem;
-  padding: 0 1rem;
+  padding: 0 ${props => props.collapsed ? '0.5rem' : '1rem'};
 `;
 
 const MenuItem = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  justify-content: ${props => props.collapsed ? 'center' : 'flex-start'};
+  gap: ${props => props.collapsed ? '0' : '0.75rem'};
+  padding: ${props => props.collapsed ? '0.75rem 0' : '0.75rem 1rem'};
   margin-bottom: 0.25rem;
   border-radius: ${props => props.theme.borderRadius.lg};
   color: ${props => props.theme.colors.text};
   cursor: pointer;
   transition: all ${props => props.theme.transitions.fast};
+  
+  & > svg {
+    flex-shrink: 0;
+  }
   
   &:hover {
     background: ${props => props.theme.colors.surfaceHover};
@@ -93,6 +147,7 @@ const MenuItem = styled.div`
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const { collapsed, toggleCollapse } = useSidebar();
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
@@ -103,66 +158,72 @@ const Sidebar = () => {
   };
 
   return (
-    <SidebarContainer>
-      <SidebarHeader>
-        <Logo onClick={() => navigate('/dashboard')}>
-          BlockchainVibe
+    <SidebarContainer collapsed={collapsed}>
+      <ToggleButton onClick={toggleCollapse}>
+        {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+      </ToggleButton>
+      
+      <SidebarHeader collapsed={collapsed}>
+        <Logo collapsed={collapsed} onClick={() => navigate('/dashboard')}>
+          {!collapsed && 'BlockchainVibe'}
         </Logo>
       </SidebarHeader>
       
-      <SidebarContent>
+      <SidebarContent collapsed={collapsed}>
         <MenuSection>
-          <SectionTitle>Main</SectionTitle>
+          {!collapsed && <SectionTitle collapsed={collapsed}>Main</SectionTitle>}
           <MenuItem 
+            collapsed={collapsed}
             className="active"
             onClick={() => navigate('/dashboard')}
+            title="Dashboard"
           >
             <TrendingUp size={18} />
-            Dashboard
+            {!collapsed && 'Dashboard'}
           </MenuItem>
-          <MenuItem onClick={() => navigate('/trending')}>
+          <MenuItem collapsed={collapsed} onClick={() => navigate('/trending')} title="Trending">
             <TrendingUp size={18} />
-            Trending
+            {!collapsed && 'Trending'}
           </MenuItem>
-          <MenuItem onClick={() => navigate('/for-you')}>
+          <MenuItem collapsed={collapsed} onClick={() => navigate('/for-you')} title="For You">
             <Sparkles size={18} />
-            For You
+            {!collapsed && 'For You'}
           </MenuItem>
-          <MenuItem onClick={() => navigate('/news')}>
+          <MenuItem collapsed={collapsed} onClick={() => navigate('/news')} title="News Feed">
             <Newspaper size={18} />
-            News Feed
+            {!collapsed && 'News Feed'}
           </MenuItem>
-          <MenuItem onClick={() => navigate('/saved')}>
+          <MenuItem collapsed={collapsed} onClick={() => navigate('/saved')} title="Saved Articles">
             <Bookmark size={18} />
-            Saved Articles
+            {!collapsed && 'Saved Articles'}
           </MenuItem>
-          <MenuItem onClick={() => navigate('/liked')}>
+          <MenuItem collapsed={collapsed} onClick={() => navigate('/liked')} title="Liked Articles">
             <Heart size={18} />
-            Liked Articles
+            {!collapsed && 'Liked Articles'}
           </MenuItem>
         </MenuSection>
 
         <MenuSection>
-          <SectionTitle>Analytics</SectionTitle>
-          <MenuItem onClick={() => navigate('/analytics')}>
+          {!collapsed && <SectionTitle collapsed={collapsed}>Analytics</SectionTitle>}
+          <MenuItem collapsed={collapsed} onClick={() => navigate('/analytics')} title="Analytics">
             <BarChart3 size={18} />
-            Analytics
+            {!collapsed && 'Analytics'}
           </MenuItem>
         </MenuSection>
 
         <MenuSection>
-          <SectionTitle>Account</SectionTitle>
-          <MenuItem onClick={() => navigate('/profile')}>
+          {!collapsed && <SectionTitle collapsed={collapsed}>Account</SectionTitle>}
+          <MenuItem collapsed={collapsed} onClick={() => navigate('/profile')} title="Profile">
             <User size={18} />
-            Profile
+            {!collapsed && 'Profile'}
           </MenuItem>
-          <MenuItem onClick={() => navigate('/settings')}>
+          <MenuItem collapsed={collapsed} onClick={() => navigate('/settings')} title="Settings">
             <Settings size={18} />
-            Settings
+            {!collapsed && 'Settings'}
           </MenuItem>
-          <MenuItem onClick={handleLogout}>
+          <MenuItem collapsed={collapsed} onClick={handleLogout} title="Logout">
             <LogOut size={18} />
-            Logout
+            {!collapsed && 'Logout'}
           </MenuItem>
         </MenuSection>
       </SidebarContent>
