@@ -35,7 +35,7 @@ const BackgroundContainer = styled.div`
   width: 100%;
   height: 100%;
   overflow: hidden;
-  z-index: -1;
+  z-index: 0;
   background: linear-gradient(135deg, 
     ${props => props.theme.colors.background} 0%,
     ${props => props.theme.colors.backgroundSecondary} 25%,
