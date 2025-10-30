@@ -217,67 +217,10 @@ const LikedArticles = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching liked articles
-    const mockLikedArticles = [
-      {
-        id: '1',
-        title: 'Revolutionary DeFi Protocol Launches Cross-Chain Bridge',
-        summary: 'New protocol enables seamless asset transfers across multiple blockchain networks, potentially revolutionizing DeFi interoperability.',
-        source: 'DeFi News',
-        publishedAt: '2024-01-15T14:20:00Z',
-        category: 'DeFi',
-        tags: ['defi', 'cross-chain', 'bridge', 'interoperability'],
-        url: 'https://example.com/defi-bridge',
-        imageUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400',
-        likedAt: '2024-01-15T15:30:00Z',
-        relevanceScore: 0.96
-      },
-      {
-        id: '2',
-        title: 'Bitcoin Mining Becomes More Sustainable with New Green Energy Initiative',
-        summary: 'Major mining operations transition to renewable energy sources, significantly reducing Bitcoin\'s carbon footprint.',
-        source: 'Crypto Sustainability',
-        publishedAt: '2024-01-14T11:15:00Z',
-        category: 'Bitcoin',
-        tags: ['bitcoin', 'mining', 'sustainability', 'green-energy'],
-        url: 'https://example.com/bitcoin-green',
-        imageUrl: 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=400',
-        likedAt: '2024-01-14T12:45:00Z',
-        relevanceScore: 0.89
-      },
-      {
-        id: '3',
-        title: 'Ethereum Layer 2 Solutions See Massive Adoption Growth',
-        summary: 'Layer 2 scaling solutions are experiencing unprecedented adoption, with transaction volumes reaching new highs.',
-        source: 'Ethereum Weekly',
-        publishedAt: '2024-01-13T16:30:00Z',
-        category: 'Ethereum',
-        tags: ['ethereum', 'layer2', 'scaling', 'adoption'],
-        url: 'https://example.com/eth-layer2',
-        imageUrl: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400',
-        likedAt: '2024-01-13T18:00:00Z',
-        relevanceScore: 0.93
-      },
-      {
-        id: '4',
-        title: 'NFT Marketplace Introduces AI-Powered Curation System',
-        summary: 'Leading NFT platform implements artificial intelligence to help users discover and curate digital art collections.',
-        source: 'NFT Insider',
-        publishedAt: '2024-01-12T09:45:00Z',
-        category: 'NFTs',
-        tags: ['nft', 'ai', 'curation', 'marketplace'],
-        url: 'https://example.com/nft-ai',
-        imageUrl: 'https://images.unsplash.com/photo-1639322537504-6427a16b0a28?w=400',
-        likedAt: '2024-01-12T10:30:00Z',
-        relevanceScore: 0.87
-      }
-    ];
-
-    setTimeout(() => {
-      setLikedArticles(mockLikedArticles);
-      setFilteredArticles(mockLikedArticles);
-      setIsLoading(false);
-    }, 1000);
+    // No mock data. Initialize empty and stop loading.
+    setLikedArticles([]);
+    setFilteredArticles([]);
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -357,7 +300,7 @@ const LikedArticles = () => {
           <StatLabel>Categories</StatLabel>
         </StatCard>
         <StatCard>
-          <StatValue>{Math.round(likedArticles.reduce((acc, a) => acc + a.relevanceScore, 0) / likedArticles.length * 100)}%</StatValue>
+          <StatValue>{likedArticles.length === 0 ? '—' : Math.round((likedArticles.reduce((acc, a) => acc + (a.relevanceScore || 0), 0) / likedArticles.length) * 100) + '%'}</StatValue>
           <StatLabel>Avg Relevance</StatLabel>
         </StatCard>
         <StatCard>

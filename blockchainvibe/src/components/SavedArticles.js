@@ -217,54 +217,10 @@ const SavedArticles = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching saved articles
-    const mockSavedArticles = [
-      {
-        id: '1',
-        title: 'Bitcoin Reaches New All-Time High as Institutional Adoption Grows',
-        summary: 'Major corporations continue to add Bitcoin to their balance sheets, driving the cryptocurrency to unprecedented heights.',
-        source: 'CoinDesk',
-        publishedAt: '2024-01-15T10:30:00Z',
-        category: 'Bitcoin',
-        tags: ['bitcoin', 'institutional', 'adoption'],
-        url: 'https://example.com/bitcoin-ath',
-        imageUrl: 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=400',
-        savedAt: '2024-01-15T12:00:00Z',
-        relevanceScore: 0.95
-      },
-      {
-        id: '2',
-        title: 'Ethereum 2.0 Staking Rewards Hit Record Highs',
-        summary: 'The transition to Proof of Stake continues to show promising results with staking rewards reaching new milestones.',
-        source: 'Ethereum Foundation',
-        publishedAt: '2024-01-14T15:45:00Z',
-        category: 'Ethereum',
-        tags: ['ethereum', 'staking', 'eth2'],
-        url: 'https://example.com/eth2-staking',
-        imageUrl: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400',
-        savedAt: '2024-01-14T16:30:00Z',
-        relevanceScore: 0.88
-      },
-      {
-        id: '3',
-        title: 'DeFi Protocol Launches Revolutionary Yield Farming Strategy',
-        summary: 'New DeFi protocol introduces innovative yield farming mechanisms that could reshape the landscape.',
-        source: 'DeFi Pulse',
-        publishedAt: '2024-01-13T09:15:00Z',
-        category: 'DeFi',
-        tags: ['defi', 'yield-farming', 'protocol'],
-        url: 'https://example.com/defi-yield',
-        imageUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400',
-        savedAt: '2024-01-13T11:20:00Z',
-        relevanceScore: 0.92
-      }
-    ];
-
-    setTimeout(() => {
-      setSavedArticles(mockSavedArticles);
-      setFilteredArticles(mockSavedArticles);
-      setIsLoading(false);
-    }, 1000);
+    // No mock data. Initialize empty and stop loading.
+    setSavedArticles([]);
+    setFilteredArticles([]);
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -344,7 +300,7 @@ const SavedArticles = () => {
           <StatLabel>Categories</StatLabel>
         </StatCard>
         <StatCard>
-          <StatValue>{Math.round(savedArticles.reduce((acc, a) => acc + a.relevanceScore, 0) / savedArticles.length * 100)}%</StatValue>
+          <StatValue>{savedArticles.length === 0 ? '—' : Math.round((savedArticles.reduce((acc, a) => acc + (a.relevanceScore || 0), 0) / savedArticles.length) * 100) + '%'}</StatValue>
           <StatLabel>Avg Relevance</StatLabel>
         </StatCard>
         <StatCard>
