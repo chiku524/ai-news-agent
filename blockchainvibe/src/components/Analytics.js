@@ -356,21 +356,7 @@ const Analytics = () => {
           </StatChange>
         </StatCard>
 
-        <StatCard
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <StatIcon>
-            <Heart size={24} />
-          </StatIcon>
-          <StatValue>23</StatValue>
-          <StatLabel>Articles Liked</StatLabel>
-          <StatChange positive>
-            <TrendingUp size={16} />
-            +8 this week
-          </StatChange>
-        </StatCard>
+        {/* Removed hardcoded liked articles card to avoid misleading stats */}
       </StatsGrid>
 
       <ChartsGrid>
@@ -396,20 +382,21 @@ const Analytics = () => {
         </ChartCard>
       </ChartsGrid>
 
-      <AIInsights>
-        <AIInsightsHeader>
-          <Brain size={24} color="#8b5cf6" />
-          <AIInsightsTitle>AI-Powered Insights</AIInsightsTitle>
-          <Zap size={20} color="#f59e0b" />
-        </AIInsightsHeader>
-        
-        {analyticsData?.aiInsights?.map((insight, index) => (
-          <InsightItem key={index}>
-            <InsightText>{insight.text}</InsightText>
-            <InsightSource>Source: {insight.source}</InsightSource>
-          </InsightItem>
-        ))}
-      </AIInsights>
+      {Array.isArray(analyticsData?.aiInsights) && analyticsData.aiInsights.length > 0 && (
+        <AIInsights>
+          <AIInsightsHeader>
+            <Brain size={24} color="#8b5cf6" />
+            <AIInsightsTitle>AI-Powered Insights</AIInsightsTitle>
+            <Zap size={20} color="#f59e0b" />
+          </AIInsightsHeader>
+          {analyticsData.aiInsights.map((insight, index) => (
+            <InsightItem key={index}>
+              <InsightText>{insight.text}</InsightText>
+              <InsightSource>Source: {insight.source}</InsightSource>
+            </InsightItem>
+          ))}
+        </AIInsights>
+      )}
     </AnalyticsContainer>
   );
 };

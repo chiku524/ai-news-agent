@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useUser } from '../hooks/useUser';
 import LoadingSpinner from './LoadingSpinner';
+import api from '../services/api';
 
 const ProfileContainer = styled.div`
   max-width: 1000px;
@@ -219,6 +220,24 @@ const ActivityTime = styled.div`
 
 const UserProfile = () => {
   const { userProfile, isLoading, error } = useUser();
+  const [summary, setSummary] = React.useState(null);
+  const [loadingSummary, setLoadingSummary] = React.useState(true);
+  React.useEffect(() => {
+    const run = async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const userId = user?.user_id || user?.id;
+        if (!userId) { setSummary(null); return; }
+        const res = await api.get(`/api/analytics/summary?userId=${encodeURIComponent(userId)}`);
+        setSummary(res.data || null);
+      } catch (e) {
+        setSummary(null);
+      } finally {
+        setLoadingSummary(false);
+      }
+    };
+    run();
+  }, []);
 
   if (isLoading) {
     return (
@@ -255,20 +274,14 @@ const UserProfile = () => {
   };
 
   const stats = {
-    articlesRead: 127,
-    articlesLiked: 42,
-    articlesSaved: 18,
-    readingStreak: 7,
-    favoriteTopic: 'DeFi',
-    joinDate: 'January 2024'
+    articlesRead: summary?.articlesRead || 0,
+    articlesLiked: 0,
+    articlesSaved: 0,
+    readingStreak: 0,
+    favoriteTopic: (summary?.topSources && summary.topSources[0]?.source) || '—',
   };
 
-  const recentActivity = [
-    { icon: <Eye size={16} />, title: 'Read "Ethereum 2.0 Staking Guide"', time: '2 hours ago' },
-    { icon: <Heart size={16} />, title: 'Liked "DeFi Yield Farming Strategies"', time: '4 hours ago' },
-    { icon: <Bookmark size={16} />, title: 'Saved "NFT Market Analysis"', time: '1 day ago' },
-    { icon: <TrendingUp size={16} />, title: 'Completed 7-day reading streak', time: '2 days ago' }
-  ];
+  const recentActivity = [];
 
   return (
     <ProfileContainer>
@@ -326,60 +339,38 @@ const UserProfile = () => {
           <StatValue>{stats.articlesRead}</StatValue>
           <StatLabel>Articles Read</StatLabel>
         </StatCard>
-        
-        <StatCard>
-          <StatIcon>
-            <Heart size={20} />
-          </StatIcon>
-          <StatValue>{stats.articlesLiked}</StatValue>
-          <StatLabel>Articles Liked</StatLabel>
-        </StatCard>
-        
-        <StatCard>
-          <StatIcon>
-            <Bookmark size={20} />
-          </StatIcon>
-          <StatValue>{stats.articlesSaved}</StatValue>
-          <StatLabel>Articles Saved</StatLabel>
-        </StatCard>
-        
-        <StatCard>
-          <StatIcon>
-            <TrendingUp size={20} />
-          </StatIcon>
-          <StatValue>{stats.readingStreak}</StatValue>
-          <StatLabel>Day Streak</StatLabel>
-        </StatCard>
-        
-        {/* Removed Time Spent to avoid unreliable tracking */}
-        
-        <StatCard>
-          <StatIcon>
-            <BarChart3 size={20} />
-          </StatIcon>
-          <StatValue>{stats.favoriteTopic}</StatValue>
-          <StatLabel>Favorite Topic</StatLabel>
-        </StatCard>
+        {stats.favoriteTopic && stats.favoriteTopic !== '—' && (
+          <StatCard>
+            <StatIcon>
+              <BarChart3 size={20} />
+            </StatIcon>
+            <StatValue>{stats.favoriteTopic}</StatValue>
+            <StatLabel>Top Source</StatLabel>
+          </StatCard>
+        )}
       </StatsGrid>
 
-      <SectionTitle>
-        <Activity size={24} />
-        Recent Activity
-      </SectionTitle>
-
-      <ActivitySection>
-        {recentActivity.map((activity, index) => (
-          <ActivityItem key={index}>
-            <ActivityIcon>
-              {activity.icon}
-            </ActivityIcon>
-            <ActivityContent>
-              <ActivityTitle>{activity.title}</ActivityTitle>
-              <ActivityTime>{activity.time}</ActivityTime>
-            </ActivityContent>
-          </ActivityItem>
-        ))}
-      </ActivitySection>
+      {recentActivity.length > 0 && (
+        <>
+          <SectionTitle>
+            <Activity size={24} />
+            Recent Activity
+          </SectionTitle>
+          <ActivitySection>
+            {recentActivity.map((activity, index) => (
+              <ActivityItem key={index}>
+                <ActivityIcon>
+                  {activity.icon}
+                </ActivityIcon>
+                <ActivityContent>
+                  <ActivityTitle>{activity.title}</ActivityTitle>
+                  <ActivityTime>{activity.time}</ActivityTime>
+                </ActivityContent>
+              </ActivityItem>
+            ))}
+          </ActivitySection>
+        </>
+      )}
     </ProfileContainer>
   );
 };
