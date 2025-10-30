@@ -199,13 +199,33 @@ const NewsFeed = ({ category, timeframe, searchQuery }) => {
   const [sortBy, setSortBy] = useState('relevance');
   const [page, setPage] = useState(1);
   const [allNews, setAllNews] = useState([]);
+  const [timeFilter, setTimeFilter] = useState(timeframe || '24h');
+  const [categoryFilter, setCategoryFilter] = useState(category || 'all');
+
+  const timeFilters = [
+    { value: '24h', label: '24 Hours' },
+    { value: '7d', label: '7 Days' },
+    { value: '30d', label: '30 Days' },
+    { value: 'all', label: 'All Time' }
+  ];
+
+  const categoryFilters = [
+    { value: 'all', label: 'All Categories' },
+    { value: 'defi', label: 'DeFi' },
+    { value: 'nft', label: 'NFTs' },
+    { value: 'layer2', label: 'Layer 2' },
+    { value: 'web3', label: 'Web3' },
+    { value: 'gaming', label: 'Gaming' },
+    { value: 'regulation', label: 'Regulation' }
+  ];
   
   const { data: newsData, isLoading, error, refetch } = useNews({
-    category,
-    timeframe,
+    category: categoryFilter,
+    timeframe: timeFilter,
     searchQuery,
     sortBy,
-    page
+    page,
+    type: 'personalized'
   });
 
   const { trackActivity } = useUser();
@@ -223,7 +243,7 @@ const NewsFeed = ({ category, timeframe, searchQuery }) => {
   useEffect(() => {
     setPage(1);
     setAllNews([]);
-  }, [category, timeframe, searchQuery, sortBy]);
+  }, [categoryFilter, timeFilter, searchQuery, sortBy]);
 
   const handleLoadMore = () => {
     setPage(prev => prev + 1);
@@ -317,6 +337,28 @@ const NewsFeed = ({ category, timeframe, searchQuery }) => {
         </div>
         
         <FeedControls>
+          {/* Timeframe filters */}
+          {timeFilters.map(f => (
+            <ControlButton
+              key={f.value}
+              className={timeFilter === f.value ? 'active' : ''}
+              onClick={() => setTimeFilter(f.value)}
+            >
+              <Clock size={18} />
+              {f.label}
+            </ControlButton>
+          ))}
+          {/* Category filters */}
+          {categoryFilters.map(f => (
+            <ControlButton
+              key={f.value}
+              className={categoryFilter === f.value ? 'active' : ''}
+              onClick={() => setCategoryFilter(f.value)}
+            >
+              <TrendingUp size={18} />
+              {f.label}
+            </ControlButton>
+          ))}
           <ControlButton
             className={sortBy === 'relevance' ? 'active' : ''}
             onClick={() => setSortBy('relevance')}
@@ -351,11 +393,11 @@ const NewsFeed = ({ category, timeframe, searchQuery }) => {
             <StatLabel>Relevance Score</StatLabel>
           </StatCard>
           <StatCard>
-            <StatValue>{timeframe}</StatValue>
+            <StatValue>{timeFilter}</StatValue>
             <StatLabel>Time Frame</StatLabel>
           </StatCard>
           <StatCard>
-            <StatValue>{category}</StatValue>
+            <StatValue>{categoryFilter}</StatValue>
             <StatLabel>Category</StatLabel>
           </StatCard>
         </StatsContainer>
