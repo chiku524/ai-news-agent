@@ -13,8 +13,8 @@ const drift = keyframes`
 `;
 
 const pulse = keyframes`
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.1); }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 `;
 
 const rotate = keyframes`
@@ -44,7 +44,8 @@ const BackgroundContainer = styled.div`
     ${props => props.theme.colors.background} 100%
   );
   pointer-events: none;
-  will-change: transform;
+  /* Avoid triggering layout/visibility thrash on some devices */
+  will-change: auto;
 `;
 
 const GradientOverlay = styled.div`
@@ -54,10 +55,11 @@ const GradientOverlay = styled.div`
   width: 100%;
   height: 100%;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(120, 255, 198, 0.05) 0%, transparent 50%);
-  animation: ${pulse} 8s ease-in-out infinite;
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(120, 255, 198, 0.04) 0%, transparent 50%);
+  /* Keep overlay static to prevent perceived fade on foreground elements */
+  animation: none;
 `;
 
 const BlockchainBlock = styled.div`
