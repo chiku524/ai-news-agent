@@ -1588,6 +1588,13 @@ export default {
         return await handleTrackActivity(request, env);
       }
 
+      if (path === '/api/user/likes' && method === 'GET') {
+        return await handleGetUserItems(request, env, 'like');
+      }
+      if (path === '/api/user/saved' && method === 'GET') {
+        return await handleGetUserItems(request, env, 'bookmark');
+      }
+
       if (path === '/api/analytics/summary' && method === 'GET') {
         return await handleAnalyticsSummary(request, env);
       }
@@ -1755,6 +1762,52 @@ async function handleTrackActivity(request, env) {
   } catch (error) {
     console.error('Track activity error:', error);
     return new Response(JSON.stringify({ success: false, message: 'Failed to track activity', error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
+async function handleGetUserItems(request, env, type) {
+  try {
+    const url = new URL(request.url);
+    const userId = url.searchParams.get('userId');
+    if (!userId) {
+      return new Response(JSON.stringify({ success: false, message: 'userId is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    const db = new DatabaseService(env.DB);
+    await db.initDatabase();
+    const rows = await db.db.prepare(`
+      SELECT article_id, article_title, article_source, created_at, metadata
+      FROM user_activity
+      WHERE user_id = ? AND type = ?
+      ORDER BY created_at DESC
+      LIMIT 200
+    `).bind(userId, type).all();
+    const items = (rows?.results || []).map(r => {
+      let meta = {};
+      try { meta = r.metadata ? JSON.parse(r.metadata) : {}; } catch {}
+      return {
+        id: r.article_id,
+        title: r.article_title,
+        source: r.article_source,
+        url: meta.url || null,
+        image_url: meta.image_url || null,
+        category: meta.category || null,
+        tags: meta.tags || [],
+        relevanceScore: meta.relevanceScore || null,
+        savedAt: r.created_at,
+        likedAt: r.created_at,
+      };
+    });
+    return new Response(JSON.stringify({ success: true, items }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ success: false, message: 'Failed to get items', error: error.message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', ...corsHeaders }
     });

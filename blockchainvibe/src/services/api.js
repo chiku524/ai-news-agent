@@ -113,6 +113,22 @@ export const userAPI = {
     });
     return response.data;
   },
+
+  getLikedArticles: async () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user?.user_id || user?.id;
+    if (!userId) return [];
+    const response = await api.get(`/api/user/likes?userId=${encodeURIComponent(userId)}`);
+    return response.data?.items || [];
+  },
+
+  getSavedArticles: async () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user?.user_id || user?.id;
+    if (!userId) return [];
+    const response = await api.get(`/api/user/saved?userId=${encodeURIComponent(userId)}`);
+    return response.data?.items || [];
+  },
 };
 
 export const mettaAPI = {

@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 
 import NewsCard from './NewsCard';
 import LoadingSpinner from './LoadingSpinner';
+import { userAPI } from '../services/api';
 
 const SavedContainer = styled.div`
   max-width: 1200px;
@@ -217,10 +218,18 @@ const SavedArticles = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // No mock data. Initialize empty and stop loading.
-    setSavedArticles([]);
-    setFilteredArticles([]);
-    setIsLoading(false);
+    (async () => {
+      try {
+        const items = await userAPI.getSavedArticles();
+        setSavedArticles(items);
+        setFilteredArticles(items);
+      } catch (_) {
+        setSavedArticles([]);
+        setFilteredArticles([]);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
   }, []);
 
   useEffect(() => {

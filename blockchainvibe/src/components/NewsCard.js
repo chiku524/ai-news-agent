@@ -12,6 +12,7 @@ import {
   Eye
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { userAPI } from '../services/api';
 
 const CardContainer = styled(motion.div)`
   background: ${props => props.theme.colors.surface};
@@ -296,10 +297,38 @@ const NewsCard = ({
       case 'like':
         setIsLiked(!isLiked);
         handleInteraction(articleData.id, isLiked ? 'unlike' : 'like');
+        try {
+          userAPI.trackActivity({
+            type: isLiked ? 'unlike' : 'like',
+            article_id: articleData.id,
+            article_title: articleData.title,
+            article_source: articleData.source,
+            metadata: {
+              url: articleData.url,
+              image_url: articleData.image_url,
+              category: (articleData.categories && articleData.categories[0]) || null,
+              tags: articleData.tags || [],
+            },
+          });
+        } catch {}
         break;
       case 'bookmark':
         setIsBookmarked(!isBookmarked);
         handleInteraction(articleData.id, isBookmarked ? 'unbookmark' : 'bookmark');
+        try {
+          userAPI.trackActivity({
+            type: isBookmarked ? 'unbookmark' : 'bookmark',
+            article_id: articleData.id,
+            article_title: articleData.title,
+            article_source: articleData.source,
+            metadata: {
+              url: articleData.url,
+              image_url: articleData.image_url,
+              category: (articleData.categories && articleData.categories[0]) || null,
+              tags: articleData.tags || [],
+            },
+          });
+        } catch {}
         break;
       case 'share':
         setIsShared(true);
@@ -323,6 +352,20 @@ const NewsCard = ({
       localStorage.setItem('reading_session', JSON.stringify(session));
     } catch {}
     handleInteraction(articleData.id, 'read');
+    try {
+      userAPI.trackActivity({
+        type: 'read',
+        article_id: articleData.id,
+        article_title: articleData.title,
+        article_source: articleData.source,
+        metadata: {
+          url: articleData.url,
+          image_url: articleData.image_url,
+          category: (articleData.categories && articleData.categories[0]) || null,
+          tags: articleData.tags || [],
+        },
+      });
+    } catch {}
     window.open(articleData.url, '_blank');
   };
 
