@@ -346,40 +346,61 @@ export class UAgentsIntegration {
   // Enhanced news processing with MeTTa knowledge graph
   async processNewsWithMeTTa(newsItems, userProfile = null) {
     try {
+      // Ensure MeTTa is initialized first - prioritize MeTTa Knowledge Graph
+      if (!this.mettaIntegration.isMeTTaAvailable()) {
+        console.log('Initializing MeTTa Knowledge Graph...');
+        await this.mettaIntegration.initialize();
+      }
+
+      // If MeTTa is available, use it; otherwise log and continue with MeTTa queries
       const enhancedNews = [];
 
       for (const item of newsItems) {
-        // Extract entities using MeTTa
-        const entities = await this.mettaIntegration.extractEntitiesWithMeTTa(
-          item.title + ' ' + item.summary
-        );
+        try {
+          // Extract entities using MeTTa Knowledge Graph (primary)
+          const entities = await this.mettaIntegration.extractEntitiesWithMeTTa(
+            item.title + ' ' + (item.summary || item.content || '')
+          );
 
-        // Categorize using MeTTa
-        const categories = await this.mettaIntegration.categorizeWithMeTTa(
-          item.title + ' ' + item.summary
-        );
+          // Categorize using MeTTa Knowledge Graph (primary)
+          const categories = await this.mettaIntegration.categorizeWithMeTTa(
+            item.title + ' ' + (item.summary || item.content || '')
+          );
 
-        // Calculate relevance using MeTTa
-        const relevanceResult = await this.mettaIntegration.calculateRelevanceWithMeTTa(
-          item, userProfile
-        );
+          // Calculate relevance using MeTTa Knowledge Graph (primary)
+          const relevanceResult = await this.mettaIntegration.calculateRelevanceWithMeTTa(
+            item, userProfile
+          );
 
-        enhancedNews.push({
-          ...item,
-          entities: entities,
-          categories: categories.map(c => c.category),
-          relevance_score: relevanceResult.relevance_score,
-          metta_enhanced: true,
-          reasoning: relevanceResult.reasoning,
-          matched_concepts: relevanceResult.matched_concepts,
-          processing_timestamp: new Date().toISOString()
-        });
+          enhancedNews.push({
+            ...item,
+            entities: entities,
+            categories: categories.map(c => c.category),
+            relevance_score: relevanceResult.relevance_score,
+            metta_enhanced: true,
+            reasoning: relevanceResult.reasoning,
+            matched_concepts: relevanceResult.matched_concepts,
+            source: 'metta_kg', // Mark as MeTTa Knowledge Graph sourced
+            processing_timestamp: new Date().toISOString()
+          });
+        } catch (itemError) {
+          console.warn(`MeTTa processing error for item "${item.title}":`, itemError.message);
+          // Still include item but mark as partially processed
+          enhancedNews.push({
+            ...item,
+            metta_enhanced: false,
+            source: 'fallback',
+            processing_timestamp: new Date().toISOString()
+          });
+        }
       }
 
+      console.log(`MeTTa Knowledge Graph processed ${enhancedNews.filter(n => n.metta_enhanced).length}/${newsItems.length} articles`);
       return enhancedNews;
     } catch (error) {
-      console.error('MeTTa processing error:', error);
-      // Fallback to basic processing
+      console.error('MeTTa Knowledge Graph processing error:', error);
+      // Only fallback if MeTTa completely fails
+      console.warn('Falling back to basic processing');
       return this.fallbackProcessing(newsItems, userProfile);
     }
   }

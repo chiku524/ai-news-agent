@@ -78,11 +78,11 @@ export class MeTTaIntegration {
     };
   }
 
-  // Fallback query using our custom knowledge graph
+  // Fallback query using our custom knowledge graph (only if MeTTa unavailable)
   fallbackQuery(query, context) {
-    // Use our custom knowledge graph as fallback
-    // Note: This is a simplified fallback - in a real implementation,
-    // we would import the knowledge graph properly
+    // Only use fallback if MeTTa Knowledge Graph is truly unavailable
+    // Prioritize MeTTa's Knowledge Graph APIs over custom implementation
+    console.warn('MeTTa Knowledge Graph unavailable, using minimal fallback');
     return {
       entities: [],
       relationships: [],
