@@ -242,6 +242,12 @@ const Analytics = () => {
         }
         const res = await api.get(`/api/analytics/summary?userId=${encodeURIComponent(userId)}`);
         const data = res.data || {};
+        // Fetch insights in parallel
+        let insights = [];
+        try {
+          const ins = await api.get(`/api/ai/insights?userId=${encodeURIComponent(userId)}`);
+          insights = ins.data?.insights || [];
+        } catch (_) {}
         const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
         const trendMap = { Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0, Sun:0 };
         (data.readingTrendsByDay || []).forEach(r => {
@@ -257,7 +263,7 @@ const Analytics = () => {
           timeSpent: data.timeSpentMinutes || 0,
           averageRelevance: 0,
           topCategories,
-          aiInsights: [],
+          aiInsights: insights,
           readingTrends: { thisWeek: thisWeekTotal, lastWeek: 0, change: 0 },
           relevanceScore: { current: 0, previous: 0, change: 0 },
           _trendSeries: Object.entries(trendMap).map(([label, value]) => ({ label, value, category: 'reading' })),

@@ -577,12 +577,25 @@ async function handlePersonalizedNews(request, env) {
 async function handleChatMessage(request, env) {
   try {
     const message = await request.json();
-    
+    const text = (message?.text || '').toLowerCase();
     // Import uAgents integration
     const { UAgentsIntegration } = await import('./uagents-integration.js');
     const uAgents = new UAgentsIntegration();
     
-    // Handle chat message
+    // Route simple intents to local endpoints for fast answers
+    if (text.includes('insight') || text.includes('summary')) {
+      const userId = message?.userId || message?.user_id;
+      if (userId) {
+        const url = new URL(request.url);
+        url.pathname = '/api/ai/insights';
+        url.search = `userId=${encodeURIComponent(userId)}`;
+        const resp = await handleAIInsights(new Request(url, { method: 'GET' }), env);
+        const data = await resp.json();
+        return new Response(JSON.stringify({ reply: data?.insights || [] }), { headers: { 'Content-Type': 'application/json', ...corsHeaders } });
+      }
+    }
+
+    // Otherwise, pass through to uAgents integration (which can bridge Chat Protocol)
     const response = await uAgents.handleChatMessage(message);
     
     return new Response(JSON.stringify(response), {
@@ -1598,6 +1611,9 @@ export default {
       if (path === '/api/analytics/summary' && method === 'GET') {
         return await handleAnalyticsSummary(request, env);
       }
+      if (path === '/api/ai/insights' && method === 'GET') {
+        return await handleAIInsights(request, env);
+      }
       
       if (path === '/api/news/trending' && method === 'POST') {
         return await handleTrendingNews(request, env);
@@ -1839,6 +1855,59 @@ async function handleAnalyticsSummary(request, env) {
   } catch (error) {
     console.error('Analytics summary error:', error);
     return new Response(JSON.stringify({ success: false, message: 'Failed to get analytics', error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
+// AI Insights derived from D1 activity (lightweight, deterministic)
+async function handleAIInsights(request, env) {
+  try {
+    const url = new URL(request.url);
+    const userId = url.searchParams.get('userId');
+    if (!userId) {
+      return new Response(JSON.stringify({ success: false, message: 'userId is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    const db = new DatabaseService(env.DB);
+    await db.initDatabase();
+
+    const topSources = await db.db.prepare(`
+      SELECT article_source as source, COUNT(*) as cnt
+      FROM user_activity
+      WHERE user_id = ? AND type = 'read' AND created_at >= datetime('now','-6 days')
+      GROUP BY article_source
+      ORDER BY cnt DESC
+      LIMIT 5
+    `).bind(userId).all();
+
+    const peakHour = await db.db.prepare(`
+      SELECT CAST(strftime('%H', created_at) AS INTEGER) as hour, COUNT(*) as cnt
+      FROM user_activity
+      WHERE user_id = ? AND type = 'read'
+      GROUP BY strftime('%Y-%m-%d %H', created_at)
+      ORDER BY cnt DESC
+      LIMIT 1
+    `).bind(userId).first();
+
+    const insights = [];
+    const top = topSources?.results || [];
+    if (top.length > 0) {
+      const s = top[0];
+      insights.push({ text: `Most-read source this week: ${s.source} (${s.cnt} reads).`, source: 'D1 user_activity' });
+    }
+    if (peakHour && typeof peakHour.hour === 'number') {
+      insights.push({ text: `You typically read around ${peakHour.hour}:00.`, source: 'D1 user_activity' });
+    }
+
+    return new Response(JSON.stringify({ success: true, insights }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ success: false, message: 'Failed to generate insights', error: error.message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', ...corsHeaders }
     });
