@@ -256,38 +256,8 @@ const FeatureDescription = styled.p`
   line-height: 1.6;
 `;
 
-const StatsSection = styled.section`
-  padding: 4rem 2rem;
-  background: ${props => props.theme.colors.primary};
-  color: ${props => props.theme.colors.textInverse};
-  position: relative;
-  z-index: 1;
-`;
-
-const StatsContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
-  text-align: center;
-`;
-
-const StatItem = styled(motion.div)`
-  & h3 {
-    font-size: ${props => props.theme.fontSize['3xl']};
-    font-weight: ${props => props.theme.fontWeight.bold};
-    margin-bottom: 0.5rem;
-  }
-  
-  & p {
-    font-size: ${props => props.theme.fontSize.lg};
-    opacity: 0.9;
-  }
-`;
-
 const CTASection = styled.section`
-  padding: 6rem 2rem;
+  padding: 6rem 2rem 2rem 2rem;
   background: ${props => props.theme.colors.background};
   text-align: center;
   position: relative;
@@ -952,41 +922,12 @@ const LandingPage = ({ theme, onThemeChange }) => {
         </ContactContainer>
       </ContactSection>
 
-      <StatsSection>
-        <StatsContainer>
-          <Reveal delay={0.1}>
-            <StatItem>
-              <h3>10K+</h3>
-              <p>Active Users</p>
-            </StatItem>
-          </Reveal>
-          <Reveal delay={0.2}>
-            <StatItem>
-              <h3>1M+</h3>
-              <p>Articles Processed</p>
-            </StatItem>
-          </Reveal>
-          <Reveal delay={0.3}>
-            <StatItem>
-              <h3>99.9%</h3>
-              <p>Uptime</p>
-            </StatItem>
-          </Reveal>
-          <Reveal delay={0.4}>
-            <StatItem>
-              <h3>24/7</h3>
-              <p>Real-time Updates</p>
-            </StatItem>
-          </Reveal>
-        </StatsContainer>
-      </StatsSection>
-
       <CTASection>
         <CTAContainer>
           <CTATitle>Ready to Transform Your News Experience?</CTATitle>
           <CTADescription>
-            Join thousands of blockchain enthusiasts who trust BlockchainVibe 
-            for their daily dose of intelligent, personalized news.
+            Get started with BlockchainVibe today and experience intelligent, 
+            personalized blockchain news powered by AI.
           </CTADescription>
           <CTAButtons>
             <PrimaryButton onClick={handleGetStarted}>
