@@ -29,7 +29,8 @@ const AuthContainer = styled.div`
     ${props => props.theme.colors.secondary}10 100%);
   padding: 2rem;
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  isolation: isolate;
 `;
 
 const AuthCard = styled(motion.div)`

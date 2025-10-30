@@ -23,7 +23,8 @@ const LandingContainer = styled.div`
   background: ${props => props.theme.colors.background};
   color: ${props => props.theme.colors.text};
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  isolation: isolate;
 `;
 
 

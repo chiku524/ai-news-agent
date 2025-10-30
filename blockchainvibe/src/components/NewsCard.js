@@ -313,6 +313,15 @@ const NewsCard = ({
   };
 
   const handleReadMore = () => {
+    try {
+      const session = {
+        article_id: articleData.id,
+        article_title: articleData.title,
+        article_source: articleData.source,
+        started_at: Date.now()
+      };
+      localStorage.setItem('reading_session', JSON.stringify(session));
+    } catch {}
     handleInteraction(articleData.id, 'read');
     window.open(articleData.url, '_blank');
   };

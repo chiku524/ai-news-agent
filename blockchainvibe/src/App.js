@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
@@ -15,6 +15,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 // Context
 import { ThemeProvider as CustomThemeProvider, useTheme } from './contexts/ThemeContext';
 import { SidebarProvider } from './contexts/SidebarContext';
+import { userAPI } from './services/api';
 
 // Lazy load components for better performance
 const Dashboard = lazy(() => import('./components/Dashboard/Dashboard'));
@@ -109,6 +110,34 @@ const AppContainer = styled.div`
 
 const AppContent = () => {
   const { theme, currentTheme, setTheme } = useTheme();
+
+  // Flush "reading_session" durations when user returns focus to the app
+  useEffect(() => {
+    const onFocus = async () => {
+      try {
+        const raw = localStorage.getItem('reading_session');
+        if (!raw) return;
+        const session = JSON.parse(raw);
+        if (!session?.started_at || !session?.article_id) return;
+        const durationMs = Date.now() - session.started_at;
+        if (durationMs > 0) {
+          await userAPI.trackActivity({
+            type: 'read',
+            article_id: session.article_id,
+            article_title: session.article_title,
+            article_source: session.article_source,
+            duration_ms: durationMs,
+            metadata: { method: 'focus_return' }
+          });
+        }
+      } catch {}
+      finally {
+        try { localStorage.removeItem('reading_session'); } catch {}
+      }
+    };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, []);
 
   return (
     <ThemeProvider theme={currentTheme}>
