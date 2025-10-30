@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { motion, useInView } from 'framer-motion';
-import React, { useRef } from 'react';
 import { 
   ArrowRight, 
   TrendingUp, 
