@@ -95,6 +95,30 @@ const ControlButton = styled.button`
   }
 `;
 
+const SelectGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const SelectLabel = styled.span`
+  color: ${props => props.theme.colors.textSecondary};
+  font-size: ${props => props.theme.fontSize.sm};
+`;
+
+const Select = styled.select`
+  padding: 0.6rem 0.8rem;
+  border: 1px solid ${props => props.theme.colors.border};
+  background: ${props => props.theme.colors.background};
+  color: ${props => props.theme.colors.text};
+  border-radius: ${props => props.theme.borderRadius.md};
+  font-size: ${props => props.theme.fontSize.sm};
+  transition: all ${props => props.theme.transitions.fast};
+  min-width: 150px;
+  &:hover { border-color: ${props => props.theme.colors.primary}; }
+  &:focus { outline: none; box-shadow: 0 0 0 3px ${props => props.theme.colors.primary}20; border-color: ${props => props.theme.colors.primary}; }
+`;
+
 const StatsContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -337,28 +361,22 @@ const NewsFeed = ({ category, timeframe, searchQuery }) => {
         </div>
         
         <FeedControls>
-          {/* Timeframe filters */}
-          {timeFilters.map(f => (
-            <ControlButton
-              key={f.value}
-              className={timeFilter === f.value ? 'active' : ''}
-              onClick={() => setTimeFilter(f.value)}
-            >
-              <Clock size={18} />
-              {f.label}
-            </ControlButton>
-          ))}
-          {/* Category filters */}
-          {categoryFilters.map(f => (
-            <ControlButton
-              key={f.value}
-              className={categoryFilter === f.value ? 'active' : ''}
-              onClick={() => setCategoryFilter(f.value)}
-            >
-              <TrendingUp size={18} />
-              {f.label}
-            </ControlButton>
-          ))}
+          <SelectGroup>
+            <SelectLabel>Timeframe</SelectLabel>
+            <Select value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} aria-label="Timeframe">
+              {timeFilters.map(f => (
+                <option key={f.value} value={f.value}>{f.label}</option>
+              ))}
+            </Select>
+          </SelectGroup>
+          <SelectGroup>
+            <SelectLabel>Category</SelectLabel>
+            <Select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} aria-label="Category">
+              {categoryFilters.map(f => (
+                <option key={f.value} value={f.value}>{f.label}</option>
+              ))}
+            </Select>
+          </SelectGroup>
           <ControlButton
             className={sortBy === 'relevance' ? 'active' : ''}
             onClick={() => setSortBy('relevance')}
