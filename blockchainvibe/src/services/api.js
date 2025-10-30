@@ -82,7 +82,7 @@ export const userAPI = {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const userId = user?.user_id || user?.id || 'demo_user';
     const response = await api.get(`/user/profile?userId=${userId}`);
-    return response.data;
+    return response.data?.user || null;
   },
 
   updateProfile: async (userId, profileData) => {

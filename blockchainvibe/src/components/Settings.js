@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useQueryClient } from 'react-query';
 import styled from 'styled-components';
 import { 
   Settings as SettingsIcon, 
@@ -283,6 +284,7 @@ const SaveButton = styled.button`
 const Settings = () => {
   const { currentTheme, toggleTheme } = useTheme();
   const { userProfile } = useUser();
+  const queryClient = useQueryClient();
   const [activeSection, setActiveSection] = useState('profile');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -376,6 +378,8 @@ const Settings = () => {
       localStorage.setItem('user', JSON.stringify(updatedUser));
 
       toast.success('Settings saved successfully!');
+      // Refresh cached user profile
+      queryClient.invalidateQueries(['user','profile']);
     } catch (error) {
       console.error('Save error:', error);
       toast.error(`Failed to save settings: ${error.message}`);
@@ -424,6 +428,8 @@ const Settings = () => {
       const updated = { ...current, ...(type === 'banner' ? { banner_image: data.url } : { profile_picture: data.url }) };
       localStorage.setItem('user', JSON.stringify(updated));
       toast.success('Image updated');
+      // Refresh cached user profile
+      queryClient.invalidateQueries(['user','profile']);
     } catch (e) {
       toast.error(e.message || 'Failed to upload image');
     }

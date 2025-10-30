@@ -10,7 +10,8 @@ import {
   Clock,
   Target,
   Brain,
-  Zap
+  Zap,
+  Calendar
 } from 'lucide-react';
 import { useUser } from '../hooks/useUser';
 import api, { userAPI } from '../services/api';

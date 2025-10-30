@@ -183,6 +183,7 @@ class DatabaseService {
 
   async updateUserField(userId, field, value) {
     try {
+      await this.initDatabase();
       await this.db.prepare(`
         UPDATE users SET ${field} = ? WHERE user_id = ?
       `).bind(value, userId).run();
@@ -196,6 +197,8 @@ class DatabaseService {
 
   async updateUserProfile(userId, profileData) {
     try {
+      await this.initDatabase();
+      const normalize = (v) => (v === '' || v === undefined ? null : v);
       const {
         name,
         email,
@@ -222,8 +225,8 @@ class DatabaseService {
           profile_completed = 1
         WHERE user_id = ?
       `).bind(
-        name, email, bio, profile_picture, banner_image,
-        location, website, twitter, linkedin, userId
+        normalize(name), normalize(email), normalize(bio), normalize(profile_picture), normalize(banner_image),
+        normalize(location), normalize(website), normalize(twitter), normalize(linkedin), userId
       ).run();
       
       return { success: true };
