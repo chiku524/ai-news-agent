@@ -106,6 +106,8 @@ const GlobalStyle = createGlobalStyle`
 const AppContainer = styled.div`
   min-height: 100vh;
   background: ${props => props.theme.colors.background};
+  position: relative;
+  z-index: 1;
 `;
 
 const AppContent = () => {
