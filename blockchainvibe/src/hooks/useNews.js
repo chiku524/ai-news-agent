@@ -13,7 +13,8 @@ export const useNews = (params = {}) => {
   } = params;
 
   const queryFunction = type === 'personalized' 
-    ? () => newsAPI.getPersonalizedNews({
+    ? async () => {
+        const res = await newsAPI.getPersonalizedNews({
         category,
         timeframe,
         searchQuery,
@@ -21,15 +22,20 @@ export const useNews = (params = {}) => {
         page,
         limit,
         user_profile: null
-      })
-    : () => newsAPI.getTrendingNews({
+      });
+        return { ...res, news: res.news || res.articles };
+      }
+    : async () => {
+        const res = await newsAPI.getTrendingNews({
         category,
         timeframe,
         searchQuery,
         sortBy,
         page,
         limit
-      });
+        });
+        return { ...res, news: res.news || res.articles };
+      };
 
   return useQuery(
     ['news', { category, timeframe, searchQuery, sortBy, page, limit, type }],

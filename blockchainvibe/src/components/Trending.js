@@ -384,12 +384,10 @@ const Trending = () => {
     toast.success('Trending news refreshed!');
   };
 
-  const mockStats = {
-    totalViews: '2.4M',
-    totalLikes: '156K',
-    totalComments: '23K',
-    trendingArticles: allNews.length || 0
-  };
+  const totalArticles = allNews.length;
+  const uniqueSources = Array.from(new Set(allNews.map(a => a.source).filter(Boolean))).length;
+  const totalWithImages = allNews.filter(a => a.image_url).length;
+  const latestUpdated = trendingData?.last_updated;
 
   if (isLoading && page === 1) {
     return (
@@ -443,32 +441,32 @@ const Trending = () => {
           <StatIcon>
             <Eye size={20} />
           </StatIcon>
-          <StatValue>{mockStats.totalViews}</StatValue>
-          <StatLabel>Total Views</StatLabel>
+          <StatValue>{totalArticles}</StatValue>
+          <StatLabel>Trending Articles</StatLabel>
         </StatCard>
         
         <StatCard>
           <StatIcon>
             <Heart size={20} />
           </StatIcon>
-          <StatValue>{mockStats.totalLikes}</StatValue>
-          <StatLabel>Total Likes</StatLabel>
+          <StatValue>{uniqueSources}</StatValue>
+          <StatLabel>Unique Sources</StatLabel>
         </StatCard>
         
         <StatCard>
           <StatIcon>
             <MessageCircle size={20} />
           </StatIcon>
-          <StatValue>{mockStats.totalComments}</StatValue>
-          <StatLabel>Total Comments</StatLabel>
+          <StatValue>{totalWithImages}</StatValue>
+          <StatLabel>Articles with Images</StatLabel>
         </StatCard>
         
         <StatCard>
           <StatIcon>
             <TrendingUp size={20} />
           </StatIcon>
-          <StatValue>{mockStats.trendingArticles}</StatValue>
-          <StatLabel>Trending Articles</StatLabel>
+          <StatValue>{latestUpdated ? new Date(latestUpdated).toLocaleTimeString() : '—'}</StatValue>
+          <StatLabel>Last Updated</StatLabel>
         </StatCard>
       </StatsGrid>
 

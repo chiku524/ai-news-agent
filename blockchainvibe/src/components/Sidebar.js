@@ -14,7 +14,7 @@ import {
   ChevronRight,
   Menu
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useSidebar } from '../contexts/SidebarContext';
 
 const SidebarContainer = styled.aside`
@@ -53,28 +53,7 @@ const SidebarContainer = styled.aside`
   }
 `;
 
-const ToggleButton = styled.button`
-  position: absolute;
-  top: 1rem;
-  right: -15px;
-  width: 30px;
-  height: 30px;
-  background: ${props => props.theme.colors.primary};
-  border: none;
-  border-radius: 50%;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 101;
-  transition: all ${props => props.theme.transitions.fast};
-  
-  &:hover {
-    background: ${props => props.theme.colors.primaryHover};
-    transform: scale(1.1);
-  }
-`;
+// Removed toggle button; sidebar now expands/collapses on hover
 
 const SidebarHeader = styled.div`
   padding: 0 ${props => props.collapsed ? '1rem' : '2rem'} 2rem ${props => props.collapsed ? '1rem' : '2rem'};
@@ -147,7 +126,10 @@ const MenuItem = styled.div`
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const { collapsed, toggleCollapse } = useSidebar();
+  const location = useLocation();
+  const { collapsed, setCollapsed } = useSidebar();
+
+  const isActive = (path) => location.pathname === path || location.pathname.startsWith(path);
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
@@ -158,10 +140,11 @@ const Sidebar = () => {
   };
 
   return (
-    <SidebarContainer collapsed={collapsed}>
-      <ToggleButton onClick={toggleCollapse}>
-        {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-      </ToggleButton>
+    <SidebarContainer 
+      collapsed={collapsed}
+      onMouseEnter={() => setCollapsed(false)}
+      onMouseLeave={() => setCollapsed(true)}
+    >
       
       <SidebarHeader collapsed={collapsed}>
         <Logo collapsed={collapsed} onClick={() => navigate('/dashboard')}>
@@ -174,30 +157,50 @@ const Sidebar = () => {
           {!collapsed && <SectionTitle collapsed={collapsed}>Main</SectionTitle>}
           <MenuItem 
             collapsed={collapsed}
-            className="active"
+            className={isActive('/dashboard') ? 'active' : ''}
             onClick={() => navigate('/dashboard')}
             title="Dashboard"
           >
             <TrendingUp size={18} />
             {!collapsed && 'Dashboard'}
           </MenuItem>
-          <MenuItem collapsed={collapsed} onClick={() => navigate('/trending')} title="Trending">
+          <MenuItem 
+            collapsed={collapsed}
+            className={isActive('/trending') ? 'active' : ''}
+            onClick={() => navigate('/trending')} 
+            title="Trending">
             <TrendingUp size={18} />
             {!collapsed && 'Trending'}
           </MenuItem>
-          <MenuItem collapsed={collapsed} onClick={() => navigate('/for-you')} title="For You">
+          <MenuItem 
+            collapsed={collapsed}
+            className={isActive('/for-you') ? 'active' : ''}
+            onClick={() => navigate('/for-you')} 
+            title="For You">
             <Sparkles size={18} />
             {!collapsed && 'For You'}
           </MenuItem>
-          <MenuItem collapsed={collapsed} onClick={() => navigate('/news')} title="News Feed">
+          <MenuItem 
+            collapsed={collapsed}
+            className={isActive('/news') ? 'active' : ''}
+            onClick={() => navigate('/news')} 
+            title="News Feed">
             <Newspaper size={18} />
             {!collapsed && 'News Feed'}
           </MenuItem>
-          <MenuItem collapsed={collapsed} onClick={() => navigate('/saved')} title="Saved Articles">
+          <MenuItem 
+            collapsed={collapsed}
+            className={isActive('/saved') ? 'active' : ''}
+            onClick={() => navigate('/saved')} 
+            title="Saved Articles">
             <Bookmark size={18} />
             {!collapsed && 'Saved Articles'}
           </MenuItem>
-          <MenuItem collapsed={collapsed} onClick={() => navigate('/liked')} title="Liked Articles">
+          <MenuItem 
+            collapsed={collapsed}
+            className={isActive('/liked') ? 'active' : ''}
+            onClick={() => navigate('/liked')} 
+            title="Liked Articles">
             <Heart size={18} />
             {!collapsed && 'Liked Articles'}
           </MenuItem>
@@ -205,7 +208,11 @@ const Sidebar = () => {
 
         <MenuSection>
           {!collapsed && <SectionTitle collapsed={collapsed}>Analytics</SectionTitle>}
-          <MenuItem collapsed={collapsed} onClick={() => navigate('/analytics')} title="Analytics">
+          <MenuItem 
+            collapsed={collapsed}
+            className={isActive('/analytics') ? 'active' : ''}
+            onClick={() => navigate('/analytics')} 
+            title="Analytics">
             <BarChart3 size={18} />
             {!collapsed && 'Analytics'}
           </MenuItem>
@@ -213,11 +220,19 @@ const Sidebar = () => {
 
         <MenuSection>
           {!collapsed && <SectionTitle collapsed={collapsed}>Account</SectionTitle>}
-          <MenuItem collapsed={collapsed} onClick={() => navigate('/profile')} title="Profile">
+          <MenuItem 
+            collapsed={collapsed}
+            className={isActive('/profile') ? 'active' : ''}
+            onClick={() => navigate('/profile')} 
+            title="Profile">
             <User size={18} />
             {!collapsed && 'Profile'}
           </MenuItem>
-          <MenuItem collapsed={collapsed} onClick={() => navigate('/settings')} title="Settings">
+          <MenuItem 
+            collapsed={collapsed}
+            className={isActive('/settings') ? 'active' : ''}
+            onClick={() => navigate('/settings')} 
+            title="Settings">
             <Settings size={18} />
             {!collapsed && 'Settings'}
           </MenuItem>

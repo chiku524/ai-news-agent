@@ -268,6 +268,7 @@ const DashboardContent = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [user, setUser] = useState(null);
+  const [analytics, setAnalytics] = useState({ articlesRead: 0, timeSpentMinutes: 0 });
 
   // Check if profile completion is needed
   useEffect(() => {
@@ -284,6 +285,20 @@ const DashboardContent = () => {
     if ((userData && !profileCompleted) || showModal || pendingProfileData) {
       setShowProfileModal(true);
     }
+
+    // Fetch analytics summary for quick cards
+    (async () => {
+      try {
+        const uid = userData?.user_id || userData?.id;
+        if (!uid) return;
+        const res = await fetch(`https://blockchainvibe-api.nico-chikuji.workers.dev/api/analytics/summary?userId=${encodeURIComponent(uid)}`);
+        const data = await res.json();
+        setAnalytics({
+          articlesRead: data?.articlesRead || 0,
+          timeSpentMinutes: data?.timeSpentMinutes || 0,
+        });
+      } catch (_) {}
+    })();
   }, []);
 
   const { data: newsData, isLoading: newsLoading, error: newsError, refetch: refetchNews } = useQuery(
@@ -426,22 +441,22 @@ const DashboardContent = () => {
 
       <StatsGrid>
         <StatCard>
-          <StatValue>{newsData?.articles?.length || 0}</StatValue>
+          <StatValue>{analytics.articlesRead}</StatValue>
           <StatLabel>Articles Read Today</StatLabel>
         </StatCard>
         
         <StatCard>
-          <StatValue>12</StatValue>
-          <StatLabel>Saved Articles</StatLabel>
+          <StatValue>{Math.floor(analytics.timeSpentMinutes)}</StatValue>
+          <StatLabel>Minutes Reading</StatLabel>
         </StatCard>
         
         <StatCard>
-          <StatValue>8</StatValue>
-          <StatLabel>Liked Articles</StatLabel>
+          <StatValue>{newsData?.articles?.length || 0}</StatValue>
+          <StatLabel>Feed Articles Loaded</StatLabel>
         </StatCard>
         
         <StatCard>
-          <StatValue>95%</StatValue>
+          <StatValue>{Math.round((newsData?.user_relevance_score || 0) * 100)}%</StatValue>
           <StatLabel>Relevance Score</StatLabel>
         </StatCard>
       </StatsGrid>

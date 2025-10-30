@@ -11,14 +11,14 @@ export const useSidebar = () => {
 };
 
 export const SidebarProvider = ({ children }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
   };
 
   return (
-    <SidebarContext.Provider value={{ collapsed, toggleCollapse }}>
+    <SidebarContext.Provider value={{ collapsed, toggleCollapse, setCollapsed }}>
       {children}
     </SidebarContext.Provider>
   );

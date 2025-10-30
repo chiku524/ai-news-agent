@@ -115,12 +115,27 @@ class DatabaseService {
         ORDER BY cnt DESC
         LIMIT 6
       `).bind(userId).all();
+      const peakHour = await this.db.prepare(`
+        SELECT CAST(strftime('%H', created_at) AS INTEGER) as hour, COUNT(*) as cnt
+        FROM user_activity
+        WHERE user_id = ? AND type = 'read'
+        GROUP BY strftime('%Y-%m-%d %H', created_at)
+        ORDER BY cnt DESC
+        LIMIT 1
+      `).bind(userId).first();
+      const avgRead = await this.db.prepare(`
+        SELECT AVG(NULLIF(duration_ms,0)) as avg_ms
+        FROM user_activity
+        WHERE user_id = ? AND type = 'read'
+      `).bind(userId).first();
       return {
         success: true,
         articlesRead: (totalRead?.cnt) || 0,
         timeSpentMinutes: Math.round(((totalDuration?.ms) || 0) / 60000),
         readingTrendsByDay: last7?.results || [],
         topSources: topCats?.results || [],
+        peakReadingHour: peakHour ? peakHour.hour : null,
+        avgReadSeconds: avgRead && avgRead.avg_ms ? Math.round(avgRead.avg_ms / 1000) : 0,
       };
     } catch (error) {
       console.error('Analytics summary error:', error);
@@ -1582,6 +1597,14 @@ export default {
         return await handlePersonalizedNews(request, env);
       }
 
+      if (path === '/api/news/search' && method === 'POST') {
+        return await handleNewsSearch(request, env);
+      }
+
+      if (path.startsWith('/api/news/') && method === 'GET') {
+        return await handleNewsDetail(request, env);
+      }
+
       if (path === '/api/chat/message' && method === 'POST') {
         return await handleChatMessage(request, env);
       }
@@ -1594,6 +1617,10 @@ export default {
         return await handleMeTTaStatus(request, env);
       }
 
+      if (path === '/api/categories' && method === 'GET') {
+        return await handleCategories(request, env);
+      }
+
       if (path === '/api/test-rss' && method === 'GET') {
         return await handleTestRSS(request, env);
       }
@@ -1604,6 +1631,23 @@ export default {
 
       if (path === '/api/user/profile' && method === 'PUT') {
         return await handleUpdateUserProfile(request, env);
+      }
+
+      // Compatibility routes without /api prefix for existing client
+      if (path === '/user/profile' && method === 'GET') {
+        return await handleGetUserProfile(request, env);
+      }
+      if (path === '/user/profile' && method === 'PUT') {
+        return await handleUpdateUserProfile(request, env);
+      }
+      if (path === '/user/preferences' && method === 'POST') {
+        return await handleUpdateUserPreferences(request, env);
+      }
+      if (path === '/metta/context' && method === 'GET') {
+        return await handleMeTTaContext(request, env);
+      }
+      if (path === '/metta/search' && method === 'POST') {
+        return await handleMeTTaSearch(request, env);
       }
 
       // Default response
@@ -1931,6 +1975,128 @@ async function handleUpdateUserProfile(request, env) {
       message: 'Failed to update user profile',
       error: error.message
     }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
+async function handleNewsSearch(request, env) {
+  try {
+    const { query = '', limit = 10, timeFilter = '24h' } = await request.json();
+    const items = await fetchBlockchainNews(limit * 2, { timeFilter, sortBy: 'relevance' });
+    const q = (query || '').trim().toLowerCase();
+    const filtered = items.filter(a => {
+      const t = (a.title || '').toLowerCase();
+      const s = (a.summary || '').toLowerCase();
+      return q.length === 0 || t.includes(q) || s.includes(q);
+    }).slice(0, limit);
+    return new Response(JSON.stringify({ articles: filtered, total_count: filtered.length }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Failed to search news', details: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
+async function handleNewsDetail(request, env) {
+  try {
+    const url = new URL(request.url);
+    const id = url.pathname.split('/').pop();
+    const items = await fetchBlockchainNews(120, { timeFilter: '7d', sortBy: 'relevance' });
+    const found = items.find(a => a.id === id || (a.url && a.url === decodeURIComponent(id)));
+    if (!found) {
+      return new Response(JSON.stringify({ error: 'Article not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    return new Response(JSON.stringify(found), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Failed to get article', details: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
+async function handleCategories(request, env) {
+  try {
+    const items = await fetchBlockchainNews(150, { timeFilter: '7d', sortBy: 'relevance' });
+    const counts = new Map();
+    items.forEach(a => {
+      const cats = Array.isArray(a.categories) ? a.categories : ['general'];
+      cats.forEach(c => counts.set(c, (counts.get(c) || 0) + 1));
+    });
+    const categories = Array.from(counts.entries()).map(([name, count]) => ({ name, count }));
+    return new Response(JSON.stringify({ categories }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Failed to get categories', details: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
+async function handleUpdateUserPreferences(request, env) {
+  try {
+    const { user_id, preferences } = await request.json();
+    if (!user_id || !preferences) {
+      return new Response(JSON.stringify({ success: false, message: 'user_id and preferences are required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    // For simplicity store preferences in users table website field if no dedicated table
+    const db = new DatabaseService(env.DB);
+    await db.updateUserField(user_id, 'website', JSON.stringify(preferences));
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ success: false, message: 'Failed to update preferences', error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
+async function handleMeTTaContext(request, env) {
+  try {
+    const { MeTTaIntegration } = await import('./metta-integration.js');
+    const mi = new MeTTaIntegration();
+    await mi.initialize();
+    const stats = mi.getMeTTaStats();
+    return new Response(JSON.stringify({ success: true, stats }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ success: false, message: 'Failed to get MeTTa context', error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
+async function handleMeTTaSearch(request, env) {
+  try {
+    const { query } = await request.json();
+    const { MeTTaIntegration } = await import('./metta-integration.js');
+    const mi = new MeTTaIntegration();
+    await mi.initialize();
+    const results = await mi.searchContext(query || '');
+    return new Response(JSON.stringify({ success: true, results }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ success: false, message: 'Failed to search MeTTa', error: error.message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', ...corsHeaders }
     });

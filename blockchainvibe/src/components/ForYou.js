@@ -361,6 +361,7 @@ const ForYou = () => {
   };
 
   const [mockStats, setStats] = useState({ relevanceScore: '—', articlesRead: 0, savedArticles: 0, readingStreak: '—' });
+  const [insights, setInsights] = useState({ peakHour: null, avgReadSec: 0, topSource: '—' });
   useEffect(() => {
     (async () => {
       try {
@@ -374,6 +375,11 @@ const ForYou = () => {
           articlesRead: data?.articlesRead || 0,
           savedArticles: 0,
           readingStreak: '—'
+        });
+        setInsights({
+          peakHour: data?.peakReadingHour,
+          avgReadSec: data?.avgReadSeconds || 0,
+          topSource: (data?.topSources && data.topSources[0]?.source) || '—'
         });
       } catch (_) {}
     })();
@@ -557,15 +563,15 @@ const ForYou = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>Peak Reading Time</span>
-                <span style={{ color: '#10b981', fontWeight: 'bold' }}>9:00 AM</span>
+                <span style={{ color: '#10b981', fontWeight: 'bold' }}>{insights.peakHour === null ? '—' : `${insights.peakHour}:00`}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Avg. Reading Time</span>
-                <span style={{ color: '#3b82f6' }}>4.2 min</span>
+                <span>Avg. Read Time</span>
+                <span style={{ color: '#3b82f6' }}>{Math.round(insights.avgReadSec)}s</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Most Engaged Topic</span>
-                <span style={{ color: '#8b5cf6' }}>DeFi</span>
+                <span>Top Source</span>
+                <span style={{ color: '#8b5cf6' }}>{insights.topSource}</span>
               </div>
             </div>
           </SidebarCard>
