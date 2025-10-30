@@ -759,9 +759,8 @@ const LandingPage = ({ theme, onThemeChange }) => {
         <FeaturesContainer>
           <SectionTitle
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            viewport={{ once: true, margin: "-100px" }}
           >
             Why Choose BlockchainVibe?
           </SectionTitle>
@@ -774,9 +773,8 @@ const LandingPage = ({ theme, onThemeChange }) => {
               <FeatureCard
                 key={index}
                 initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true, margin: "-100px" }}
               >
                 <FeatureIcon>
                   {feature.icon}
@@ -793,9 +791,8 @@ const LandingPage = ({ theme, onThemeChange }) => {
         <PricingContainer>
           <SectionTitle
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            viewport={{ once: true, margin: "-100px" }}
           >
             Simple, Transparent Pricing
           </SectionTitle>
@@ -855,9 +852,8 @@ const LandingPage = ({ theme, onThemeChange }) => {
             <AboutText>
               <SectionTitle
                 initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                viewport={{ once: true, margin: "-100px" }}
               >
                 About BlockchainVibe
               </SectionTitle>
@@ -874,27 +870,24 @@ const LandingPage = ({ theme, onThemeChange }) => {
             <AboutStats>
               <AboutStat
                 initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                viewport={{ once: true, margin: "-100px" }}
               >
                 <h3>50+</h3>
                 <p>News Sources</p>
               </AboutStat>
               <AboutStat
                 initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                viewport={{ once: true, margin: "-100px" }}
               >
                 <h3>24/7</h3>
                 <p>AI Monitoring</p>
               </AboutStat>
               <AboutStat
                 initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                viewport={{ once: true, margin: "-100px" }}
               >
                 <h3>99.9%</h3>
                 <p>Accuracy Rate</p>
@@ -908,9 +901,8 @@ const LandingPage = ({ theme, onThemeChange }) => {
         <ContactContainer>
           <SectionTitle
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            viewport={{ once: true, margin: "-100px" }}
           >
             Get in Touch
           </SectionTitle>
@@ -954,36 +946,32 @@ const LandingPage = ({ theme, onThemeChange }) => {
         <StatsContainer>
           <StatItem
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            viewport={{ once: true, margin: "-100px" }}
           >
             <h3>10K+</h3>
             <p>Active Users</p>
           </StatItem>
           <StatItem
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true, margin: "-100px" }}
           >
             <h3>1M+</h3>
             <p>Articles Processed</p>
           </StatItem>
           <StatItem
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            viewport={{ once: true, margin: "-100px" }}
           >
             <h3>99.9%</h3>
             <p>Uptime</p>
           </StatItem>
           <StatItem
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            viewport={{ once: true, margin: "-100px" }}
           >
             <h3>24/7</h3>
             <p>Real-time Updates</p>
