@@ -21,6 +21,10 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useUser } from '../hooks/useUser';
 import ProfileCompletionModal from './Auth/ProfileCompletionModal';
 
+const HiddenFileInput = styled.input`
+  display: none;
+`;
+
 const SettingsContainer = styled.div`
   max-width: 1000px;
   margin: 0 auto;
@@ -282,6 +286,8 @@ const Settings = () => {
   const [activeSection, setActiveSection] = useState('profile');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const profileInputRef = React.useRef(null);
+  const bannerInputRef = React.useRef(null);
   
   const [profileData, setProfileData] = useState({
     name: '',
@@ -379,7 +385,48 @@ const Settings = () => {
   };
 
   const handleImageUpload = (type) => {
-    setShowProfileModal(true);
+    // Open native file picker instead of completion modal
+    if (type === 'profile') {
+      profileInputRef.current?.click();
+    } else if (type === 'banner') {
+      bannerInputRef.current?.click();
+    }
+  };
+
+  const uploadImage = async (type, file) => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const userId = user?.user_id || user?.id;
+      if (!userId) {
+        throw new Error('User ID not found. Please sign in again.');
+      }
+      const form = new FormData();
+      form.append('file', file);
+      form.append('type', type === 'banner' ? 'banner' : 'profile');
+      form.append('userId', userId);
+      const res = await fetch('https://blockchainvibe-api.nico-chikuji.workers.dev/api/upload', {
+        method: 'POST',
+        body: form,
+      });
+      if (!res.ok) {
+        const t = await res.text();
+        throw new Error(t || 'Upload failed');
+      }
+      const data = await res.json();
+      // Update local state/preview
+      if (type === 'banner') {
+        setProfileData(prev => ({ ...prev, banner_image: data.url }));
+      } else {
+        setProfileData(prev => ({ ...prev, profile_picture: data.url }));
+      }
+      // Update localStorage user as well
+      const current = JSON.parse(localStorage.getItem('user') || '{}');
+      const updated = { ...current, ...(type === 'banner' ? { banner_image: data.url } : { profile_picture: data.url }) };
+      localStorage.setItem('user', JSON.stringify(updated));
+      toast.success('Image updated');
+    } catch (e) {
+      toast.error(e.message || 'Failed to upload image');
+    }
   };
 
   const sidebarItems = [
@@ -435,6 +482,15 @@ const Settings = () => {
                     <Camera size={16} />
                     Change Photo
                   </ImageUploadButton>
+                  <HiddenFileInput
+                    ref={profileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) uploadImage('profile', file);
+                    }}
+                  />
                 </ImageUploadContainer>
               </FormGroup>
 
@@ -448,6 +504,15 @@ const Settings = () => {
                     <Camera size={16} />
                     Change Banner
                   </ImageUploadButton>
+                  <HiddenFileInput
+                    ref={bannerInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) uploadImage('banner', file);
+                    }}
+                  />
                 </ImageUploadContainer>
               </FormGroup>
 

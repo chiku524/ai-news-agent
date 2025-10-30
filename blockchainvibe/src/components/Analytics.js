@@ -323,13 +323,15 @@ const Analytics = () => {
           transition={{ delay: 0.2 }}
         >
           <StatIcon>
-            <Clock size={24} />
+            <Calendar size={24} />
           </StatIcon>
-          <StatValue>{Math.floor((analyticsData?.timeSpent || 0) / 60)}h</StatValue>
-          <StatLabel>Time Spent Reading</StatLabel>
+          <StatValue>
+            {Object.values(analyticsData?._trendSeries || []).filter(d => (d.value || 0) > 0).length}
+          </StatValue>
+          <StatLabel>Active Days This Week</StatLabel>
           <StatChange positive>
             <TrendingUp size={16} />
-            +15% from last month
+            Keep it up
           </StatChange>
         </StatCard>
 

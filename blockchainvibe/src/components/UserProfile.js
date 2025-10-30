@@ -259,7 +259,6 @@ const UserProfile = () => {
     articlesLiked: 42,
     articlesSaved: 18,
     readingStreak: 7,
-    totalTimeSpent: '24h 30m',
     favoriteTopic: 'DeFi',
     joinDate: 'January 2024'
   };
@@ -352,13 +351,7 @@ const UserProfile = () => {
           <StatLabel>Day Streak</StatLabel>
         </StatCard>
         
-        <StatCard>
-          <StatIcon>
-            <Calendar size={20} />
-          </StatIcon>
-          <StatValue>{stats.totalTimeSpent}</StatValue>
-          <StatLabel>Time Spent</StatLabel>
-        </StatCard>
+        {/* Removed Time Spent to avoid unreliable tracking */}
         
         <StatCard>
           <StatIcon>
