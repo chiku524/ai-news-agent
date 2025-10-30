@@ -43,6 +43,8 @@ const AuthCard = styled(motion.div)`
   width: 100%;
   max-width: 450px;
   box-shadow: ${props => props.theme.shadows['2xl']};
+  position: relative;
+  z-index: 1;
 `;
 
 const BackButton = styled.button`

@@ -182,6 +182,8 @@ const FeaturesSection = styled.section`
   padding: 6rem 2rem;
   background: ${props => props.theme.colors.surface};
   margin-top: 2rem;
+  position: relative;
+  z-index: 1;
 `;
 
 const FeaturesContainer = styled.div`
@@ -258,6 +260,8 @@ const StatsSection = styled.section`
   padding: 4rem 2rem;
   background: ${props => props.theme.colors.primary};
   color: ${props => props.theme.colors.textInverse};
+  position: relative;
+  z-index: 1;
 `;
 
 const StatsContainer = styled.div`
@@ -286,6 +290,8 @@ const CTASection = styled.section`
   padding: 6rem 2rem;
   background: ${props => props.theme.colors.background};
   text-align: center;
+  position: relative;
+  z-index: 1;
 `;
 
 const CTAContainer = styled.div`
@@ -325,6 +331,8 @@ const FooterContainer = styled.div`
 const PricingSection = styled.section`
   padding: 6rem 0;
   background: ${props => props.theme.colors.background};
+  position: relative;
+  z-index: 1;
 `;
 
 const PricingContainer = styled.div`
@@ -439,6 +447,8 @@ const PricingButton = styled.button`
 const AboutSection = styled.section`
   padding: 6rem 0;
   background: ${props => props.theme.colors.surface};
+  position: relative;
+  z-index: 1;
 `;
 
 const AboutContainer = styled.div`
@@ -500,6 +510,8 @@ const AboutStat = styled(motion.div)`
 const ContactSection = styled.section`
   padding: 6rem 0;
   background: ${props => props.theme.colors.background};
+  position: relative;
+  z-index: 1;
 `;
 
 const ContactContainer = styled.div`
