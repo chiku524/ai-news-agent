@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
+import React, { useRef } from 'react';
 import { 
   ArrowRight, 
   TrendingUp, 
@@ -661,6 +662,21 @@ const SocialLink = styled.a`
 const LandingPage = ({ theme, onThemeChange }) => {
   const navigate = useNavigate();
 
+  const Reveal = ({ children, delay = 0 }) => {
+    const ref = useRef(null);
+    const inView = useInView(ref, { once: true, amount: 0.2 });
+    return (
+      <motion.div
+        ref={ref}
+        initial={{ opacity: 0, y: 30 }}
+        animate={inView ? { opacity: 1, y: 0, transitionEnd: { opacity: 1 } } : undefined}
+        transition={{ duration: 0.6, delay }}
+      >
+        {children}
+      </motion.div>
+    );
+  };
+
   const handleGetStarted = () => {
     navigate('/register');
   };
@@ -757,33 +773,26 @@ const LandingPage = ({ theme, onThemeChange }) => {
 
       <FeaturesSection id="features">
         <FeaturesContainer>
-          <SectionTitle
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true, amount: 0.2 }}
-          >
-            Why Choose BlockchainVibe?
-          </SectionTitle>
+          <Reveal>
+            <SectionTitle>
+              Why Choose BlockchainVibe?
+            </SectionTitle>
+          </Reveal>
           <SectionSubtitle>
             Experience the future of blockchain news consumption with our cutting-edge AI technology
           </SectionSubtitle>
           
           <FeaturesGrid>
             {features.map((feature, index) => (
-              <FeatureCard
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true, amount: 0.2 }}
-              >
-                <FeatureIcon>
-                  {feature.icon}
-                </FeatureIcon>
-                <FeatureTitle>{feature.title}</FeatureTitle>
-                <FeatureDescription>{feature.description}</FeatureDescription>
-              </FeatureCard>
+              <Reveal key={index} delay={index * 0.1}>
+                <FeatureCard>
+                  <FeatureIcon>
+                    {feature.icon}
+                  </FeatureIcon>
+                  <FeatureTitle>{feature.title}</FeatureTitle>
+                  <FeatureDescription>{feature.description}</FeatureDescription>
+                </FeatureCard>
+              </Reveal>
             ))}
           </FeaturesGrid>
         </FeaturesContainer>
@@ -791,14 +800,11 @@ const LandingPage = ({ theme, onThemeChange }) => {
 
       <PricingSection id="pricing">
         <PricingContainer>
-          <SectionTitle
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true, amount: 0.2 }}
-          >
-            Simple, Transparent Pricing
-          </SectionTitle>
+          <Reveal>
+            <SectionTitle>
+              Simple, Transparent Pricing
+            </SectionTitle>
+          </Reveal>
           <SectionSubtitle>
             Choose the plan that fits your needs. No hidden fees, no surprises.
           </SectionSubtitle>
@@ -853,14 +859,11 @@ const LandingPage = ({ theme, onThemeChange }) => {
         <AboutContainer>
           <AboutContent>
             <AboutText>
-              <SectionTitle
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                viewport={{ once: true, amount: 0.2 }}
-              >
-                About BlockchainVibe
-              </SectionTitle>
+              <Reveal>
+                <SectionTitle>
+                  About BlockchainVibe
+                </SectionTitle>
+              </Reveal>
               <SectionSubtitle>
                 We're revolutionizing how the blockchain community consumes news through 
                 cutting-edge AI technology and intelligent automation.
@@ -872,33 +875,24 @@ const LandingPage = ({ theme, onThemeChange }) => {
               </AboutDescription>
             </AboutText>
             <AboutStats>
-              <AboutStat
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                viewport={{ once: true, amount: 0.2 }}
-              >
-                <h3>50+</h3>
-                <p>News Sources</p>
-              </AboutStat>
-              <AboutStat
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                viewport={{ once: true, amount: 0.2 }}
-              >
-                <h3>24/7</h3>
-                <p>AI Monitoring</p>
-              </AboutStat>
-              <AboutStat
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                viewport={{ once: true, amount: 0.2 }}
-              >
-                <h3>99.9%</h3>
-                <p>Accuracy Rate</p>
-              </AboutStat>
+              <Reveal delay={0.1}>
+                <AboutStat>
+                  <h3>50+</h3>
+                  <p>News Sources</p>
+                </AboutStat>
+              </Reveal>
+              <Reveal delay={0.2}>
+                <AboutStat>
+                  <h3>24/7</h3>
+                  <p>AI Monitoring</p>
+                </AboutStat>
+              </Reveal>
+              <Reveal delay={0.3}>
+                <AboutStat>
+                  <h3>99.9%</h3>
+                  <p>Accuracy Rate</p>
+                </AboutStat>
+              </Reveal>
             </AboutStats>
           </AboutContent>
         </AboutContainer>
@@ -906,14 +900,11 @@ const LandingPage = ({ theme, onThemeChange }) => {
 
       <ContactSection id="contact">
         <ContactContainer>
-          <SectionTitle
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true, amount: 0.2 }}
-          >
-            Get in Touch
-          </SectionTitle>
+          <Reveal>
+            <SectionTitle>
+              Get in Touch
+            </SectionTitle>
+          </Reveal>
           <SectionSubtitle>
             Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
           </SectionSubtitle>
@@ -952,42 +943,30 @@ const LandingPage = ({ theme, onThemeChange }) => {
 
       <StatsSection>
         <StatsContainer>
-          <StatItem
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            viewport={{ once: true, amount: 0.2 }}
-          >
-            <h3>10K+</h3>
-            <p>Active Users</p>
-          </StatItem>
-          <StatItem
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true, amount: 0.2 }}
-          >
-            <h3>1M+</h3>
-            <p>Articles Processed</p>
-          </StatItem>
-          <StatItem
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            viewport={{ once: true, amount: 0.2 }}
-          >
-            <h3>99.9%</h3>
-            <p>Uptime</p>
-          </StatItem>
-          <StatItem
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            viewport={{ once: true, amount: 0.2 }}
-          >
-            <h3>24/7</h3>
-            <p>Real-time Updates</p>
-          </StatItem>
+          <Reveal delay={0.1}>
+            <StatItem>
+              <h3>10K+</h3>
+              <p>Active Users</p>
+            </StatItem>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <StatItem>
+              <h3>1M+</h3>
+              <p>Articles Processed</p>
+            </StatItem>
+          </Reveal>
+          <Reveal delay={0.3}>
+            <StatItem>
+              <h3>99.9%</h3>
+              <p>Uptime</p>
+            </StatItem>
+          </Reveal>
+          <Reveal delay={0.4}>
+            <StatItem>
+              <h3>24/7</h3>
+              <p>Real-time Updates</p>
+            </StatItem>
+          </Reveal>
         </StatsContainer>
       </StatsSection>
 

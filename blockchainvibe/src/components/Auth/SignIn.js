@@ -358,7 +358,7 @@ const SignIn = () => {
       <AnimatedBackground />
       <AuthCard
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        animate={{ opacity: 1, y: 0, transitionEnd: { opacity: 1 } }}
         transition={{ duration: 0.5 }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
