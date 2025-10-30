@@ -1,5 +1,8 @@
 # 🚀 BlockchainVibe
 
+![tag:innovationlab](https://img.shields.io/badge/innovationlab-3D8BD3)
+![tag:hackathon](https://img.shields.io/badge/hackathon-5F43F1)
+
 A modern, AI-powered blockchain news aggregator with OAuth authentication and Cloudflare deployment. Feel the vibe of blockchain intelligence!
 
 ## ✨ Features
@@ -184,6 +187,34 @@ Integration with SingularityNET's MeTTa knowledge graph:
 2. **Entity Extraction**: MeTTa extracts blockchain entities and relationships
 3. **Relevance Scoring**: User-specific relevance based on interests and history
 4. **Personalization**: News ranked by user relevance and MeTTa insights
+
+### Agent Directory (Innovation Lab)
+
+All agents are categorized under Innovation Lab.
+
+- ID: `blockchainvibe-news-fetcher`
+  - Name: BlockchainVibe News Fetcher
+  - Capabilities: news_fetching, content_processing, quality_scoring
+  - Chat Protocol: ASI:One compatible
+- ID: `blockchainvibe-relevance-scorer`
+  - Name: BlockchainVibe Relevance Scorer
+  - Capabilities: relevance_scoring, personalization, user_profiling
+  - Chat Protocol: ASI:One compatible
+
+Note: Agents are registered programmatically with Chat Protocol; addresses are managed by the protocol layer. See `server/uagents-integration.js` and `server/chat-protocol.js`.
+
+### Extra Resources
+- Fetch.ai uAgents: https://github.com/fetchai/uAgents
+- SingularityNET MeTTa overview: https://github.com/singnet
+- Cloudflare Workers: https://developers.cloudflare.com/workers/
+- Cloudflare D1: https://developers.cloudflare.com/d1/
+- Cloudflare Pages: https://developers.cloudflare.com/pages/
+
+## 🎥 Demo Video
+
+Include a 3–5 minute demo video demonstrating the agents you built. Replace the placeholder link below with your video URL:
+
+Demo: https://example.com/demo-video
 
 ## 🛠️ Development
 

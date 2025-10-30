@@ -95,6 +95,18 @@ const ControlButton = styled.button`
   }
 `;
 
+const FilterBar = styled.div`
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: ${props => props.theme.colors.surface};
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+`;
+
 const SelectGroup = styled.div`
   display: flex;
   align-items: center;
@@ -361,22 +373,6 @@ const NewsFeed = ({ category, timeframe, searchQuery }) => {
         </div>
         
         <FeedControls>
-          <SelectGroup>
-            <SelectLabel>Timeframe</SelectLabel>
-            <Select value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} aria-label="Timeframe">
-              {timeFilters.map(f => (
-                <option key={f.value} value={f.value}>{f.label}</option>
-              ))}
-            </Select>
-          </SelectGroup>
-          <SelectGroup>
-            <SelectLabel>Category</SelectLabel>
-            <Select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} aria-label="Category">
-              {categoryFilters.map(f => (
-                <option key={f.value} value={f.value}>{f.label}</option>
-              ))}
-            </Select>
-          </SelectGroup>
           <ControlButton
             className={sortBy === 'relevance' ? 'active' : ''}
             onClick={() => setSortBy('relevance')}
@@ -399,6 +395,25 @@ const NewsFeed = ({ category, timeframe, searchQuery }) => {
           </ControlButton>
         </FeedControls>
       </FeedHeader>
+
+      <FilterBar>
+        <SelectGroup>
+          <SelectLabel>Timeframe</SelectLabel>
+          <Select value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} aria-label="Timeframe">
+            {timeFilters.map(f => (
+              <option key={f.value} value={f.value}>{f.label}</option>
+            ))}
+          </Select>
+        </SelectGroup>
+        <SelectGroup>
+          <SelectLabel>Category</SelectLabel>
+          <Select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} aria-label="Category">
+            {categoryFilters.map(f => (
+              <option key={f.value} value={f.value}>{f.label}</option>
+            ))}
+          </Select>
+        </SelectGroup>
+      </FilterBar>
 
       {newsData && (
         <StatsContainer>
