@@ -257,8 +257,8 @@ const FeatureDescription = styled.p`
 `;
 
 const CTASection = styled.section`
-  padding: 6rem 2rem 2rem 2rem;
-  background: ${props => props.theme.colors.background};
+  padding: 6rem 2rem 0 2rem;
+  background: ${props => props.theme.colors.surface};
   text-align: center;
   position: relative;
   z-index: 1;
@@ -267,6 +267,7 @@ const CTASection = styled.section`
 const CTAContainer = styled.div`
   max-width: 800px;
   margin: 0 auto;
+  padding-bottom: 4rem;
 `;
 
 const CTATitle = styled.h2`
@@ -963,19 +964,28 @@ const LandingPage = ({ theme, onThemeChange }) => {
           <FooterSection>
             <h4>Resources</h4>
             <ul>
-              <li><a href="#help">Help Center</a></li>
-              <li><a href="#community">Community</a></li>
-              <li><a href="#status">Status</a></li>
-              <li><a href="#security">Security</a></li>
+              <li><a href="/docs">Documentation</a></li>
+              <li><a href="/docs/WHITEPAPER.md" target="_blank" rel="noreferrer">Whitepaper</a></li>
+              <li><a href="/docs/api-reference">API Reference</a></li>
+              <li><a href="/docs/ai-integration">AI Integration</a></li>
+            </ul>
+          </FooterSection>
+          
+          <FooterSection>
+            <h4>Support</h4>
+            <ul>
+              <li><a href="/docs/help-center">Help Center</a></li>
+              <li><a href="/docs/contact-us">Contact Us</a></li>
+              <li><a href="/docs/bug-report">Report a Bug</a></li>
+              <li><a href="https://github.com/chiku524/ai-news-agent/issues" target="_blank" rel="noreferrer">GitHub Issues</a></li>
             </ul>
           </FooterSection>
           
           <FooterSection>
             <h4>Legal</h4>
             <ul>
-              <li><a href="#privacy">Privacy Policy</a></li>
-              <li><a href="#terms">Terms of Service</a></li>
-              <li><a href="#cookies">Cookie Policy</a></li>
+              <li><a href="/TERMS_OF_SERVICE.md" target="_blank" rel="noreferrer">Terms of Service</a></li>
+              <li><a href="/PRIVACY_POLICY.md" target="_blank" rel="noreferrer">Privacy Policy</a></li>
             </ul>
           </FooterSection>
         </FooterContainer>

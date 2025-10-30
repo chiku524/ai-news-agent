@@ -15,10 +15,18 @@ const FooterInner = styled.div`
   margin: 0 auto;
   padding: 2rem;
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
   gap: 2rem;
 
+  @media (max-width: 1200px) {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+  }
+
   @media (max-width: 900px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 600px) {
     grid-template-columns: 1fr;
   }
 `;
@@ -121,10 +129,27 @@ const Footer = () => {
         <Column>
           <ColumnTitle>Resources</ColumnTitle>
           <LinkList>
+            <FooterLink href="/docs" target="_blank" rel="noreferrer">Documentation</FooterLink>
+            <FooterLink href="/docs/WHITEPAPER.md" target="_blank" rel="noreferrer">Whitepaper</FooterLink>
+            <FooterLink href="/docs/api-reference" target="_blank" rel="noreferrer">API Reference</FooterLink>
+            <FooterLink href="/docs/ai-integration" target="_blank" rel="noreferrer">AI Integration</FooterLink>
             <FooterLink href="https://github.com/chiku524/ai-news-agent" target="_blank" rel="noreferrer">GitHub</FooterLink>
-            <FooterLink href="/settings">Settings</FooterLink>
-            <FooterLink href="/profile">Profile</FooterLink>
-            <FooterLink href="/signin">Sign In</FooterLink>
+          </LinkList>
+        </Column>
+        <Column>
+          <ColumnTitle>Support</ColumnTitle>
+          <LinkList>
+            <FooterLink href="/docs/help-center" target="_blank" rel="noreferrer">Help Center</FooterLink>
+            <FooterLink href="/docs/contact-us" target="_blank" rel="noreferrer">Contact Us</FooterLink>
+            <FooterLink href="/docs/bug-report" target="_blank" rel="noreferrer">Report a Bug</FooterLink>
+            <FooterLink href="https://github.com/chiku524/ai-news-agent/issues" target="_blank" rel="noreferrer">GitHub Issues</FooterLink>
+          </LinkList>
+        </Column>
+        <Column>
+          <ColumnTitle>Legal</ColumnTitle>
+          <LinkList>
+            <FooterLink href="/TERMS_OF_SERVICE.md" target="_blank" rel="noreferrer">Terms of Service</FooterLink>
+            <FooterLink href="/PRIVACY_POLICY.md" target="_blank" rel="noreferrer">Privacy Policy</FooterLink>
           </LinkList>
         </Column>
       </FooterInner>
