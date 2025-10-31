@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import Navigation from './Navigation';
 import AnimatedBackground from './AnimatedBackground';
 import Footer from './Footer';
+import MarkdownContent from './MarkdownContent';
 import { useTheme } from '../contexts/ThemeContext';
 
 const DocPageContainer = styled.div`
@@ -166,9 +167,9 @@ const DocPage = () => {
     if (legalPages.includes(page)) {
       const fileName = page === 'terms' ? 'TERMS_OF_SERVICE' : 
                        page === 'privacy' ? 'PRIVACY_POLICY' : 'WHITEPAPER';
-      return `https://github.com/chiku524/ai-news-agent/blob/main/blockchainvibe/${fileName}.md`;
+      return `/${fileName}.md`;
     }
-    return `https://github.com/chiku524/ai-news-agent/blob/main/blockchainvibe/docs/${page || 'index'}.md`;
+    return `/docs/${page || 'index'}.md`;
   };
   
   return (
@@ -177,55 +178,7 @@ const DocPage = () => {
       <Navigation theme={theme} onThemeChange={setTheme} />
       <PageContainer>
         <PageContent>
-          <PageTitle>{title}</PageTitle>
-          <PageText>
-            <p>
-              The full documentation for <strong>{title}</strong> is available in our GitHub repository.
-              Click the link below to view the complete documentation:
-            </p>
-            <p style={{ textAlign: 'center', margin: '2rem 0' }}>
-              <a 
-                href={getFilePath()}
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  display: 'inline-block',
-                  padding: '1rem 2rem',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white',
-                  borderRadius: '0.5rem',
-                  textDecoration: 'none',
-                  fontWeight: '600',
-                  transition: 'transform 0.2s',
-                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-                }}
-                onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
-                onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
-              >
-                View Full Documentation on GitHub →
-              </a>
-            </p>
-            <p>
-              <strong>Documentation Structure:</strong>
-            </p>
-            <ul>
-              <li>General documentation files are located in the <code>blockchainvibe/docs/</code> directory</li>
-              <li>Legal documents (Terms of Service, Privacy Policy, Whitepaper) are in the root <code>blockchainvibe/</code> directory</li>
-              <li>All documentation is written in Markdown format for easy reading</li>
-            </ul>
-            <p>
-              <strong>Alternative Access:</strong>
-            </p>
-            <ul>
-              <li>You can clone the repository: <code>git clone https://github.com/chiku524/ai-news-agent.git</code></li>
-              <li>Navigate to <code>blockchainvibe/docs/</code> or the root directory for legal documents</li>
-              <li>View the files in your preferred Markdown viewer</li>
-            </ul>
-            <p style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(102, 126, 234, 0.1)', borderRadius: '0.5rem' }}>
-              <strong>Note:</strong> We're working on implementing an in-app documentation viewer. 
-              For now, please access the full documentation via GitHub or by cloning the repository.
-            </p>
-          </PageText>
+          <MarkdownContent filePath={getFilePath()} />
         </PageContent>
       </PageContainer>
       <Footer />

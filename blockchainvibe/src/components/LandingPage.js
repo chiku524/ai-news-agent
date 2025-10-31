@@ -286,6 +286,9 @@ const Footer = styled.footer`
   border-top: 1px solid ${props => props.theme.colors.border};
   padding: 3rem 2rem 2rem 2rem;
   margin-top: 0;
+  position: relative;
+  z-index: 10;
+  width: 100%;
 `;
 
 const FooterContainer = styled.div`
