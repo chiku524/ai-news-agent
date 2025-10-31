@@ -54,7 +54,7 @@ Addresses information overload in the blockchain news ecosystem by providing int
 **Note**: See instructions below for submitting to Colosseum.
 
 ### Link to your Loom / Demo Video
-**Answer**: https://www.youtube.com/watch?v=vVkr_wuyFSM
+**Answer**: https://www.youtube.com/watch?v=9MMPRB8rj-0
 
 ### Presentation link
 **Answer**: (Optional - Leave blank or add if you have a presentation)
@@ -106,7 +106,7 @@ Addresses information overload in the blockchain news ecosystem by providing int
    - Project name: BlockchainVibe
    - Description: (Use the same description as above)
    - GitHub link: https://github.com/chiku524/ai-news-agent
-   - Demo video: https://www.youtube.com/watch?v=vVkr_wuyFSM
+   - Demo video: https://www.youtube.com/watch?v=9MMPRB8rj-0
    - Website: https://blockchainvibe.news
    - Category: Innovation Lab / AI Agents Track
    - Agent details: Include both agent IDs and addresses (if available)
