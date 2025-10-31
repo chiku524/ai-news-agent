@@ -9,7 +9,6 @@ import {
   Zap, 
   Users, 
   Star,
-  Play,
   Github,
   Twitter,
   Linkedin
@@ -146,36 +145,11 @@ const DemoVideo = styled(motion.div)`
   border: 1px solid ${props => props.theme.colors.border};
 `;
 
-const VideoPlaceholder = styled.div`
+const VideoPlayer = styled.video`
+  width: 100%;
+  height: auto;
+  display: block;
   aspect-ratio: 16/9;
-  background: ${props => props.theme.gradients.surface};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  color: ${props => props.theme.colors.textSecondary};
-  font-size: ${props => props.theme.fontSize.lg};
-`;
-
-const PlayButton = styled.button`
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: ${props => props.theme.colors.primary};
-  color: ${props => props.theme.colors.textInverse};
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  transition: all ${props => props.theme.transitions.normal};
-  margin-bottom: 1rem;
-  
-  &:hover {
-    transform: scale(1.1);
-    background: ${props => props.theme.colors.primaryHover};
-  }
 `;
 
 const FeaturesSection = styled.section`
@@ -667,12 +641,14 @@ const LandingPage = ({ theme, onThemeChange }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <VideoPlaceholder>
-              <PlayButton>
-                <Play size={32} fill="currentColor" />
-              </PlayButton>
-              <p>Watch Demo</p>
-            </VideoPlaceholder>
+            <VideoPlayer
+              controls
+              preload="metadata"
+              poster=""
+            >
+              <source src="/demo-video.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </VideoPlayer>
           </DemoVideo>
         </HeroContent>
       </HeroSection>
