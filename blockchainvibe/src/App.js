@@ -30,8 +30,6 @@ const Analytics = lazy(() => import('./components/Analytics'));
 const SavedArticles = lazy(() => import('./components/SavedArticles'));
 const LikedArticles = lazy(() => import('./components/LikedArticles'));
 const Settings = lazy(() => import('./components/Settings'));
-const BackgroundTest = lazy(() => import('./components/BackgroundTest'));
-const SimpleBackgroundTest = lazy(() => import('./components/SimpleBackgroundTest'));
 const NotFound = lazy(() => import('./components/NotFound'));
 const Documentation = lazy(() => import('./components/Documentation'));
 const DocPage = lazy(() => import('./components/DocPage'));
@@ -158,16 +156,6 @@ const AppContent = () => {
             <Route path="/signin" element={<SignIn />} />
             <Route path="/register" element={<Register />} />
             <Route path="/auth/callback" element={<OAuthCallback />} />
-            <Route path="/test-background" element={
-              <Suspense fallback={<LoadingSpinner message="Loading test..." />}>
-                <BackgroundTest />
-              </Suspense>
-            } />
-            <Route path="/simple-test" element={
-              <Suspense fallback={<LoadingSpinner message="Loading simple test..." />}>
-                <SimpleBackgroundTest />
-              </Suspense>
-            } />
             <Route path="/dashboard" element={
               <Layout>
                 <Suspense fallback={<LoadingSpinner message="Loading dashboard..." />}>

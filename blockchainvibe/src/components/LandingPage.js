@@ -146,13 +146,6 @@ const DemoVideo = styled(motion.div)`
   border: 1px solid ${props => props.theme.colors.border};
 `;
 
-const VideoPlayer = styled.video`
-  width: 100%;
-  height: auto;
-  display: block;
-  aspect-ratio: 16/9;
-`;
-
 const VideoIframe = styled.iframe`
   width: 100%;
   aspect-ratio: 16/9;
@@ -161,31 +154,6 @@ const VideoIframe = styled.iframe`
   
   /* Ensure proper loading */
   loading: lazy;
-`;
-
-const VideoFallback = styled.div`
-  aspect-ratio: 16/9;
-  background: ${props => props.theme.colors.surface};
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: ${props => props.theme.borderRadius.lg};
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 2rem;
-  text-align: center;
-  color: ${props => props.theme.colors.textSecondary};
-`;
-
-const FallbackLink = styled.a`
-  color: ${props => props.theme.colors.primary};
-  text-decoration: none;
-  font-weight: ${props => props.theme.fontWeight.semibold};
-  
-  &:hover {
-    text-decoration: underline;
-  }
 `;
 
 const FeaturesSection = styled.section`
@@ -683,7 +651,7 @@ const LandingPage = ({ theme, onThemeChange }) => {
             transition={{ duration: 0.8, delay: 0.6 }}
           >
             <VideoIframe
-              src="https://www.youtube.com/embed/vVkr_wuyFSM?rel=0&modestbranding=1"
+              src="https://www.youtube.com/embed/wsfWtXsyK1A?rel=0&modestbranding=1"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
