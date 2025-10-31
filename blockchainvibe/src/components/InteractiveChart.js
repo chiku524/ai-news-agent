@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { TrendingUp, Brain, Zap } from 'lucide-react';
+import { Brain, Zap } from 'lucide-react';
 
 const ChartContainer = styled.div`
   width: 100%;

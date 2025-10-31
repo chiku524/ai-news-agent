@@ -8,7 +8,6 @@ import {
   TrendingUp,
   Bookmark,
   Eye,
-  Zap,
   Target,
   Brain
 } from 'lucide-react';
@@ -18,7 +17,6 @@ import NewsCard from './NewsCard';
 import LoadingSpinner from './LoadingSpinner';
 import { useQuery } from 'react-query';
 import { newsAPI } from '../services/api';
-import { useUser } from '../hooks/useUser';
 
 const ForYouContainer = styled.div`
   max-width: 1200px;
@@ -306,7 +304,6 @@ const EmptyStateDescription = styled.p`
 `;
 
 const ForYou = () => {
-  const { } = useUser();
   const [timeFilter, setTimeFilter] = useState('today');
   const [page, setPage] = useState(1);
   const [allNews, setAllNews] = useState([]);

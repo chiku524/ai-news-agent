@@ -137,22 +137,6 @@ const PageContent = styled.div`
 
 const DocPage = () => {
   const { page } = useParams();
-  
-  const pageNames = {
-    'whitepaper': 'Whitepaper',
-    'api-reference': 'API Reference',
-    'ai-integration': 'AI Integration',
-    'help-center': 'Help Center',
-    'contact-us': 'Contact Us',
-    'bug-report': 'Bug Report',
-    'terms': 'Terms of Service',
-    'privacy': 'Privacy Policy',
-    'getting-started': 'Getting Started',
-    'features': 'Features',
-    'user-guide': 'User Guide',
-    'architecture': 'Architecture'
-  };
-  
   const { theme, setTheme } = useTheme();
   
   // Get SEO metadata for this page
