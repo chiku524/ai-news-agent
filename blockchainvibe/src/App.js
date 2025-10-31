@@ -34,6 +34,9 @@ const SimpleBackgroundTest = lazy(() => import('./components/SimpleBackgroundTes
 const NotFound = lazy(() => import('./components/NotFound'));
 const Documentation = lazy(() => import('./components/Documentation'));
 const DocPage = lazy(() => import('./components/DocPage'));
+const HelpCenter = lazy(() => import('./components/HelpCenter'));
+const ContactUsPage = lazy(() => import('./components/ContactUsPage'));
+const BugReportPage = lazy(() => import('./components/BugReportPage'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -244,6 +247,21 @@ const AppContent = () => {
             <Route path="/docs" element={
               <Suspense fallback={<LoadingSpinner message="Loading documentation..." />}>
                 <Documentation />
+              </Suspense>
+            } />
+            <Route path="/docs/help-center" element={
+              <Suspense fallback={<LoadingSpinner message="Loading help center..." />}>
+                <HelpCenter />
+              </Suspense>
+            } />
+            <Route path="/docs/contact-us" element={
+              <Suspense fallback={<LoadingSpinner message="Loading contact us..." />}>
+                <ContactUsPage />
+              </Suspense>
+            } />
+            <Route path="/docs/bug-report" element={
+              <Suspense fallback={<LoadingSpinner message="Loading bug report..." />}>
+                <BugReportPage />
               </Suspense>
             } />
             <Route path="/docs/:page" element={
