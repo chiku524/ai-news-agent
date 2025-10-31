@@ -33,6 +33,8 @@ const Settings = lazy(() => import('./components/Settings'));
 const BackgroundTest = lazy(() => import('./components/BackgroundTest'));
 const SimpleBackgroundTest = lazy(() => import('./components/SimpleBackgroundTest'));
 const NotFound = lazy(() => import('./components/NotFound'));
+const Documentation = lazy(() => import('./components/Documentation'));
+const DocPage = lazy(() => import('./components/DocPage'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -239,6 +241,16 @@ const AppContent = () => {
                   <Settings />
                 </Suspense>
               </Layout>
+            } />
+            <Route path="/docs" element={
+              <Suspense fallback={<LoadingSpinner message="Loading documentation..." />}>
+                <Documentation />
+              </Suspense>
+            } />
+            <Route path="/docs/:page" element={
+              <Suspense fallback={<LoadingSpinner message="Loading page..." />}>
+                <DocPage />
+              </Suspense>
             } />
             <Route path="*" element={
               <Layout>

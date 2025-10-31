@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import { Github, Twitter, Globe, Mail } from 'lucide-react';
 
 const FooterContainer = styled.footer`
@@ -71,6 +72,13 @@ const FooterLink = styled.a`
   &:hover { color: ${props => props.theme.colors.text}; }
 `;
 
+const FooterRouterLink = styled(Link)`
+  color: ${props => props.theme.colors.textSecondary};
+  text-decoration: none;
+  font-size: ${props => props.theme.fontSize.sm};
+  &:hover { color: ${props => props.theme.colors.text}; }
+`;
+
 const BottomBar = styled.div`
   border-top: 1px solid ${props => props.theme.colors.border};
   padding: 1rem 0;
@@ -118,38 +126,29 @@ const Footer = () => {
           <BrandText>AI-powered blockchain news, personalized with uAgents and a knowledge graph.</BrandText>
         </Brand>
         <Column>
-          <ColumnTitle>Product</ColumnTitle>
-          <LinkList>
-            <FooterLink href="/trending">Trending</FooterLink>
-            <FooterLink href="/for-you">For You</FooterLink>
-            <FooterLink href="/news">News Feed</FooterLink>
-            <FooterLink href="/analytics">Analytics</FooterLink>
-          </LinkList>
-        </Column>
-        <Column>
           <ColumnTitle>Resources</ColumnTitle>
           <LinkList>
-            <FooterLink href="/docs" target="_blank" rel="noreferrer">Documentation</FooterLink>
-            <FooterLink href="/docs/WHITEPAPER.md" target="_blank" rel="noreferrer">Whitepaper</FooterLink>
-            <FooterLink href="/docs/api-reference" target="_blank" rel="noreferrer">API Reference</FooterLink>
-            <FooterLink href="/docs/ai-integration" target="_blank" rel="noreferrer">AI Integration</FooterLink>
+            <FooterRouterLink to="/docs">Documentation</FooterRouterLink>
+            <FooterRouterLink to="/docs/whitepaper">Whitepaper</FooterRouterLink>
+            <FooterRouterLink to="/docs/api-reference">API Reference</FooterRouterLink>
+            <FooterRouterLink to="/docs/ai-integration">AI Integration</FooterRouterLink>
             <FooterLink href="https://github.com/chiku524/ai-news-agent" target="_blank" rel="noreferrer">GitHub</FooterLink>
           </LinkList>
         </Column>
         <Column>
           <ColumnTitle>Support</ColumnTitle>
           <LinkList>
-            <FooterLink href="/docs/help-center" target="_blank" rel="noreferrer">Help Center</FooterLink>
-            <FooterLink href="/docs/contact-us" target="_blank" rel="noreferrer">Contact Us</FooterLink>
-            <FooterLink href="/docs/bug-report" target="_blank" rel="noreferrer">Report a Bug</FooterLink>
+            <FooterRouterLink to="/docs/help-center">Help Center</FooterRouterLink>
+            <FooterRouterLink to="/docs/contact-us">Contact Us</FooterRouterLink>
+            <FooterRouterLink to="/docs/bug-report">Report a Bug</FooterRouterLink>
             <FooterLink href="https://github.com/chiku524/ai-news-agent/issues" target="_blank" rel="noreferrer">GitHub Issues</FooterLink>
           </LinkList>
         </Column>
         <Column>
           <ColumnTitle>Legal</ColumnTitle>
           <LinkList>
-            <FooterLink href="/TERMS_OF_SERVICE.md" target="_blank" rel="noreferrer">Terms of Service</FooterLink>
-            <FooterLink href="/PRIVACY_POLICY.md" target="_blank" rel="noreferrer">Privacy Policy</FooterLink>
+            <FooterRouterLink to="/docs/terms">Terms of Service</FooterRouterLink>
+            <FooterRouterLink to="/docs/privacy">Privacy Policy</FooterRouterLink>
           </LinkList>
         </Column>
       </FooterInner>

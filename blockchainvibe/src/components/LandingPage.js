@@ -14,12 +14,11 @@ import {
   Twitter,
   Linkedin
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Navigation from './Navigation';
 import AnimatedBackground from './AnimatedBackground';
 
 const LandingContainer = styled.div`
-  min-height: 100vh;
   background: ${props => props.theme.colors.background};
   color: ${props => props.theme.colors.text};
   position: relative;
@@ -257,7 +256,7 @@ const FeatureDescription = styled.p`
 `;
 
 const CTASection = styled.section`
-  padding: 6rem 2rem 0 2rem;
+  padding: 6rem 2rem;
   background: ${props => props.theme.colors.surface};
   text-align: center;
   position: relative;
@@ -267,7 +266,6 @@ const CTASection = styled.section`
 const CTAContainer = styled.div`
   max-width: 800px;
   margin: 0 auto;
-  padding-bottom: 4rem;
 `;
 
 const CTATitle = styled.h2`
@@ -287,6 +285,7 @@ const Footer = styled.footer`
   background: ${props => props.theme.colors.surface};
   border-top: 1px solid ${props => props.theme.colors.border};
   padding: 3rem 2rem 2rem 2rem;
+  margin-top: 0;
 `;
 
 const FooterContainer = styled.div`
@@ -942,16 +941,6 @@ const LandingPage = ({ theme, onThemeChange }) => {
       <Footer>
         <FooterContainer>
           <FooterSection>
-            <h4>Product</h4>
-            <ul>
-              <li><a href="#features">Features</a></li>
-              <li><a href="#pricing">Pricing</a></li>
-              <li><a href="#api">API</a></li>
-              <li><a href="#docs">Documentation</a></li>
-            </ul>
-          </FooterSection>
-          
-          <FooterSection>
             <h4>Company</h4>
             <ul>
               <li><a href="#about">About</a></li>
@@ -964,19 +953,19 @@ const LandingPage = ({ theme, onThemeChange }) => {
           <FooterSection>
             <h4>Resources</h4>
             <ul>
-              <li><a href="/docs">Documentation</a></li>
-              <li><a href="/docs/WHITEPAPER.md" target="_blank" rel="noreferrer">Whitepaper</a></li>
-              <li><a href="/docs/api-reference">API Reference</a></li>
-              <li><a href="/docs/ai-integration">AI Integration</a></li>
+              <li><Link to="/docs">Documentation</Link></li>
+              <li><Link to="/docs/whitepaper">Whitepaper</Link></li>
+              <li><Link to="/docs/api-reference">API Reference</Link></li>
+              <li><Link to="/docs/ai-integration">AI Integration</Link></li>
             </ul>
           </FooterSection>
           
           <FooterSection>
             <h4>Support</h4>
             <ul>
-              <li><a href="/docs/help-center">Help Center</a></li>
-              <li><a href="/docs/contact-us">Contact Us</a></li>
-              <li><a href="/docs/bug-report">Report a Bug</a></li>
+              <li><Link to="/docs/help-center">Help Center</Link></li>
+              <li><Link to="/docs/contact-us">Contact Us</Link></li>
+              <li><Link to="/docs/bug-report">Report a Bug</Link></li>
               <li><a href="https://github.com/chiku524/ai-news-agent/issues" target="_blank" rel="noreferrer">GitHub Issues</a></li>
             </ul>
           </FooterSection>
@@ -984,8 +973,8 @@ const LandingPage = ({ theme, onThemeChange }) => {
           <FooterSection>
             <h4>Legal</h4>
             <ul>
-              <li><a href="/TERMS_OF_SERVICE.md" target="_blank" rel="noreferrer">Terms of Service</a></li>
-              <li><a href="/PRIVACY_POLICY.md" target="_blank" rel="noreferrer">Privacy Policy</a></li>
+              <li><Link to="/docs/terms">Terms of Service</Link></li>
+              <li><Link to="/docs/privacy">Privacy Policy</Link></li>
             </ul>
           </FooterSection>
         </FooterContainer>
