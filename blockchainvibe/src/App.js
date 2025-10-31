@@ -11,7 +11,6 @@ import Register from './components/Auth/Register';
 import OAuthCallback from './components/Auth/OAuthCallback';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
-import Footer from './components/Footer';
 
 // Context
 import { ThemeProvider as CustomThemeProvider, useTheme } from './contexts/ThemeContext';
@@ -261,7 +260,6 @@ const AppContent = () => {
             } />
           </Routes>
           </AppContainer>
-          <Footer />
           
           <Toaster
             position="top-right"

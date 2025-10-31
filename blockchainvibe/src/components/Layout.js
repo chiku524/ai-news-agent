@@ -2,12 +2,19 @@ import React from 'react';
 import styled from 'styled-components';
 import Sidebar from './Sidebar';
 import AnimatedBackground from './AnimatedBackground';
+import Footer from './Footer';
 import { useSidebar } from '../contexts/SidebarContext';
 
 const LayoutContainer = styled.div`
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
   position: relative;
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  flex: 1;
 `;
 
 const MainContent = styled.main`
@@ -31,10 +38,13 @@ const Layout = ({ children, showSidebar = true }) => {
   return (
     <LayoutContainer>
       <AnimatedBackground />
-      {showSidebar && <Sidebar />}
-      <MainContent sidebarCollapsed={collapsed}>
-        {children}
-      </MainContent>
+      <ContentWrapper>
+        {showSidebar && <Sidebar />}
+        <MainContent sidebarCollapsed={collapsed}>
+          {children}
+        </MainContent>
+      </ContentWrapper>
+      <Footer />
     </LayoutContainer>
   );
 };

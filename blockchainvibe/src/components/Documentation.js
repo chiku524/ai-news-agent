@@ -1,12 +1,27 @@
 import React from 'react';
 import styled from 'styled-components';
-import Layout from './Layout';
 import { FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import Navigation from './Navigation';
+import AnimatedBackground from './AnimatedBackground';
+import Footer from './Footer';
+import { useTheme } from '../contexts/ThemeContext';
+
+const DocsPageContainer = styled.div`
+  min-height: 100vh;
+  background: ${props => props.theme.colors.background};
+  color: ${props => props.theme.colors.text};
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+`;
 
 const DocsContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 6rem 2rem 2rem 2rem;
+  position: relative;
+  z-index: 1;
 `;
 
 const DocsHeader = styled.div`
@@ -74,7 +89,7 @@ const DocCardDescription = styled.p`
   margin-bottom: 1rem;
 `;
 
-const DocLink = styled.a`
+const DocLink = styled(Link)`
   color: ${props => props.theme.colors.primary};
   text-decoration: none;
   font-weight: ${props => props.theme.fontWeight.medium};
@@ -85,6 +100,7 @@ const DocLink = styled.a`
 `;
 
 const Documentation = () => {
+  const { theme, currentTheme, setTheme } = useTheme();
   const docs = [
     {
       title: 'Getting Started',
@@ -125,7 +141,9 @@ const Documentation = () => {
   ];
 
   return (
-    <Layout>
+    <DocsPageContainer>
+      <AnimatedBackground />
+      <Navigation theme={theme} onThemeChange={setTheme} />
       <DocsContainer>
         <DocsHeader>
           <DocsTitle>Documentation</DocsTitle>
@@ -140,14 +158,15 @@ const Documentation = () => {
               <DocIcon>{doc.icon}</DocIcon>
               <DocCardTitle>{doc.title}</DocCardTitle>
               <DocCardDescription>{doc.description}</DocCardDescription>
-              <DocLink href={`${process.env.PUBLIC_URL || ''}${doc.link}`}>
+              <DocLink to={doc.link}>
                 Read more →
               </DocLink>
             </DocCard>
           ))}
         </DocsGrid>
       </DocsContainer>
-    </Layout>
+      <Footer />
+    </DocsPageContainer>
   );
 };
 

@@ -1,12 +1,26 @@
 import React from 'react';
 import styled from 'styled-components';
-import Layout from './Layout';
 import { useParams } from 'react-router-dom';
+import Navigation from './Navigation';
+import AnimatedBackground from './AnimatedBackground';
+import Footer from './Footer';
+import { useTheme } from '../contexts/ThemeContext';
+
+const DocPageContainer = styled.div`
+  min-height: 100vh;
+  background: ${props => props.theme.colors.background};
+  color: ${props => props.theme.colors.text};
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+`;
 
 const PageContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 6rem 2rem 2rem 2rem;
+  position: relative;
+  z-index: 1;
 `;
 
 const PageContent = styled.div`
@@ -69,9 +83,12 @@ const DocPage = () => {
   };
   
   const title = pageNames[page] || 'Documentation';
+  const { theme, currentTheme, setTheme } = useTheme();
   
   return (
-    <Layout>
+    <DocPageContainer>
+      <AnimatedBackground />
+      <Navigation theme={theme} onThemeChange={setTheme} />
       <PageContainer>
         <PageContent>
           <PageTitle>{title}</PageTitle>
@@ -104,7 +121,8 @@ const DocPage = () => {
           </PageText>
         </PageContent>
       </PageContainer>
-    </Layout>
+      <Footer />
+    </DocPageContainer>
   );
 };
 
