@@ -216,7 +216,7 @@ const SearchResults = () => {
       </SearchHeader>
 
       <ResultsContainer>
-        {searchData.results.map((news, index) => (
+        {searchData.results.map((news) => (
           <NewsCard
             key={news.id}
             news={news}

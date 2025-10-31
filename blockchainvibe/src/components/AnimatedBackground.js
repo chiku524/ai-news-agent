@@ -191,7 +191,7 @@ const DataFlow = styled.div`
   box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
 `;
 
-const AnimatedBackground = ({ variant = 'default', debug = false }) => {
+const AnimatedBackground = ({ debug = false }) => {
   const containerRef = useRef(null);
 
   // Debug logging
