@@ -8,12 +8,9 @@ import {
   Shield, 
   Zap, 
   Users, 
-  Star,
-  Github,
-  Twitter,
-  Linkedin
+  Star
 } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
 import AnimatedBackground from './AnimatedBackground';
 import Footer from './Footer';

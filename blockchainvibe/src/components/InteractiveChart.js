@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { BarChart3, TrendingUp, Brain, Zap } from 'lucide-react';
+import { TrendingUp, Brain, Zap } from 'lucide-react';
 
 const ChartContainer = styled.div`
   width: 100%;
@@ -138,7 +138,7 @@ const LoadingText = styled.div`
 `;
 
 const InteractiveChart = ({ data, title = "Reading Trends", onDataUpdate }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [chartData, setChartData] = useState(data || []);
   const chartRef = useRef(null);
 

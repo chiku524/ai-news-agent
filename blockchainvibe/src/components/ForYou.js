@@ -5,10 +5,8 @@ import {
   Sparkles, 
   Clock, 
   RefreshCw,
-  Filter,
   TrendingUp,
   Bookmark,
-  Heart,
   Eye,
   Zap,
   Target,
@@ -308,7 +306,7 @@ const EmptyStateDescription = styled.p`
 `;
 
 const ForYou = () => {
-  const { userProfile } = useUser();
+  const { } = useUser();
   const [timeFilter, setTimeFilter] = useState('today');
   const [page, setPage] = useState(1);
   const [allNews, setAllNews] = useState([]);

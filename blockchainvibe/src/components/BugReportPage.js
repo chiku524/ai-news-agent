@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Bug, Github, Mail, FileText, AlertCircle, Info } from 'lucide-react';
+import { Bug, AlertCircle, Info } from 'lucide-react';
 import Navigation from './Navigation';
 import AnimatedBackground from './AnimatedBackground';
 import Footer from './Footer';
@@ -171,12 +171,6 @@ const InfoList = styled.ul`
   li {
     margin-bottom: 0.5rem;
   }
-`;
-
-const InfoText = styled.p`
-  color: ${props => props.theme.colors.textSecondary};
-  line-height: 1.8;
-  margin: 0;
 `;
 
 const LinkText = styled.a`

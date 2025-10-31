@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, FileText, Code, Brain, HelpCircle, MessageCircle, Bug, FileCheck, Shield, Scale } from 'lucide-react';
+import { BookOpen, FileText, Code, Brain, HelpCircle, MessageCircle, Bug, Shield, Scale } from 'lucide-react';
 
 const Sidebar = styled.aside`
   position: sticky;

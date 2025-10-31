@@ -2,19 +2,16 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { 
-  BarChart3, 
   TrendingUp, 
   TrendingDown,
   Eye,
-  Heart,
-  Clock,
   Target,
   Brain,
   Zap,
   Calendar
 } from 'lucide-react';
 import { useUser } from '../hooks/useUser';
-import api, { userAPI } from '../services/api';
+import api from '../services/api';
 import InteractiveChart from './InteractiveChart';
 
 const AnalyticsContainer = styled.div`
@@ -124,18 +121,6 @@ const ChartTitle = styled.h3`
   color: ${props => props.theme.colors.text};
 `;
 
-const ChartPlaceholder = styled.div`
-  height: 300px;
-  background: ${props => props.theme.colors.background};
-  border: 2px dashed ${props => props.theme.colors.border};
-  border-radius: ${props => props.theme.borderRadius.md};
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: ${props => props.theme.colors.textSecondary};
-  text-align: center;
-`;
 
 const AIInsights = styled.div`
   background: ${props => props.theme.colors.surface};
@@ -220,7 +205,7 @@ const CategoryPercentage = styled.div`
 `;
 
 const Analytics = () => {
-  const { userProfile, isLoading } = useUser();
+  const { isLoading } = useUser();
   const [analyticsData, setAnalyticsData] = useState(null);
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import Navigation from './Navigation';
@@ -41,22 +41,6 @@ const PageContent = styled.div`
   border-radius: ${props => props.theme.borderRadius.lg};
   padding: 3rem;
   min-height: 60vh;
-`;
-
-const PageTitle = styled.h1`
-  font-size: ${props => props.theme.fontSize['4xl']};
-  font-weight: ${props => props.theme.fontWeight.bold};
-  margin-bottom: 2rem;
-  color: ${props => props.theme.colors.text};
-`;
-
-const PageText = styled.div`
-  color: ${props => props.theme.colors.text};
-  line-height: 1.8;
-  
-  p {
-    margin-bottom: 1.5rem;
-  }
   
   h2 {
     font-size: ${props => props.theme.fontSize['2xl']};
@@ -169,7 +153,6 @@ const DocPage = () => {
     'architecture': 'Architecture'
   };
   
-  const title = pageNames[page] || 'Documentation';
   const { theme, setTheme } = useTheme();
   
   // Get SEO metadata for this page

@@ -8,14 +8,7 @@ import {
   Shield, 
   Palette,
   Save,
-  Camera,
-  MapPin,
-  Globe,
-  Twitter,
-  Linkedin,
-  Mail,
-  Eye,
-  EyeOff
+  Camera
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTheme } from '../contexts/ThemeContext';

@@ -1,9 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { 
-  User, 
-  Heart, 
-  Bookmark,
   Eye,
   TrendingUp,
   Calendar,
@@ -221,7 +218,7 @@ const ActivityTime = styled.div`
 const UserProfile = () => {
   const { userProfile, isLoading, error } = useUser();
   const [summary, setSummary] = React.useState(null);
-  const [loadingSummary, setLoadingSummary] = React.useState(true);
+  const [, setLoadingSummary] = React.useState(true);
   React.useEffect(() => {
     const run = async () => {
       try {

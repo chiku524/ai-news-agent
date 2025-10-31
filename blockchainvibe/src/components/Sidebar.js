@@ -9,10 +9,7 @@ import {
   User, 
   Settings,
   LogOut,
-  Sparkles,
-  ChevronLeft,
-  ChevronRight,
-  Menu
+  Sparkles
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSidebar } from '../contexts/SidebarContext';

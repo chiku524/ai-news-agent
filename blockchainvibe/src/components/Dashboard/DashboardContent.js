@@ -4,9 +4,7 @@ import {
   TrendingUp, 
   RefreshCw, 
   Search,
-  ChevronRight,
-  Activity,
-  Zap
+  ChevronRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
@@ -16,7 +14,6 @@ import NewsCard from '../NewsCard';
 import LoadingSpinner from '../LoadingSpinner';
 import ProfileCompletionModal from '../Auth/ProfileCompletionModal';
 import { newsAPI } from '../../services/api';
-import { useTheme } from '../../contexts/ThemeContext';
 
 const DashboardContainer = styled.div`
   min-height: 100vh;
@@ -263,7 +260,6 @@ const TrendingText = styled.div`
 `;
 
 const DashboardContent = () => {
-  const { currentTheme } = useTheme();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [showProfileModal, setShowProfileModal] = useState(false);

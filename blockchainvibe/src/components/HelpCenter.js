@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { HelpCircle, Book, MessageCircle, Bug, Search } from 'lucide-react';
+import { Book, MessageCircle, Bug, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navigation from './Navigation';
 import AnimatedBackground from './AnimatedBackground';

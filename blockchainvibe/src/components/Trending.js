@@ -3,14 +3,10 @@ import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, 
-  Clock, 
   Eye, 
   Heart, 
   MessageCircle,
   RefreshCw,
-  Filter,
-  Calendar,
-  BarChart3,
   Zap
 } from 'lucide-react';
 import toast from 'react-hot-toast';

@@ -109,7 +109,7 @@ const DocLink = styled(Link)`
 `;
 
 const Documentation = () => {
-  const { theme, currentTheme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const docs = [
     {
       title: 'Getting Started',
