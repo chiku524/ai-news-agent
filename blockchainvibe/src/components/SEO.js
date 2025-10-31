@@ -56,6 +56,7 @@ const SEO = ({
       <link rel="canonical" href={fullUrl} />
 
       {/* Favicon */}
+      <link rel="icon" type="image/x-icon" href="/favicon.ico" />
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
       <link rel="icon" type="image/png" sizes="192x192" href="/logo192.png" />

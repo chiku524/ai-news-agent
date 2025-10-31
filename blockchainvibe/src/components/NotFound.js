@@ -21,6 +21,15 @@ const NotFoundContent = styled(motion.div)`
 const NotFoundIcon = styled.div`
   font-size: 8rem;
   margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const LogoIcon = styled.img`
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
 `;
 
 const NotFoundTitle = styled.h1`
@@ -95,7 +104,9 @@ const NotFound = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <NotFoundIcon>🤖</NotFoundIcon>
+        <NotFoundIcon>
+          <LogoIcon src="/logo.svg" alt="BlockchainVibe Logo" />
+        </NotFoundIcon>
         <NotFoundTitle>404 - Page Not Found</NotFoundTitle>
         <NotFoundDescription>
           Oops! The page you're looking for doesn't exist. 

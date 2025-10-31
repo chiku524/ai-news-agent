@@ -45,6 +45,12 @@ const LogoImage = styled.img`
   height: 32px;
   width: auto;
   object-fit: contain;
+  display: block;
+  
+  /* Ensure logo loads even if SVG has issues */
+  &[src="/logo.svg"] {
+    min-width: 32px;
+  }
 `;
 
 const LogoText = styled.span`

@@ -6,6 +6,8 @@ import AnimatedBackground from './AnimatedBackground';
 import Footer from './Footer';
 import MarkdownContent from './MarkdownContent';
 import TableOfContents from './TableOfContents';
+import SEO from './SEO';
+import { getMetadataForRoute } from '../utils/seoMetadata';
 import { useTheme } from '../contexts/ThemeContext';
 
 const DocPageContainer = styled.div`
