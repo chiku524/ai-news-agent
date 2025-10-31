@@ -257,7 +257,7 @@ const NewsFeed = ({ category, timeframe, searchQuery }) => {
   
   const { data: newsData, isLoading, error, refetch } = useNews({
     category: categoryFilter,
-    timeframe: timeFilter,
+    timeframe: timeFilter === 'all' ? null : timeFilter,
     searchQuery,
     sortBy,
     page,
@@ -271,12 +271,18 @@ const NewsFeed = ({ category, timeframe, searchQuery }) => {
       if (page === 1) {
         setAllNews(newsData.news);
       } else {
-        setAllNews(prev => [...prev, ...newsData.news]);
+        setAllNews(prev => {
+          // Avoid duplicates when appending
+          const existingIds = new Set(prev.map(a => a.id));
+          const newArticles = newsData.news.filter(a => !existingIds.has(a.id));
+          return [...prev, ...newArticles];
+        });
       }
     }
   }, [newsData, page]);
 
   useEffect(() => {
+    // Reset page and clear news when filters change
     setPage(1);
     setAllNews([]);
   }, [categoryFilter, timeFilter, searchQuery, sortBy]);

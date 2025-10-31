@@ -45,7 +45,8 @@ export const useNews = (params = {}) => {
       staleTime: 5 * 60 * 1000, // 5 minutes
       cacheTime: 10 * 60 * 1000, // 10 minutes
       refetchOnWindowFocus: false,
-      refetchOnMount: true,
+      refetchOnMount: false, // Don't refetch on mount to prevent infinite loops
+      keepPreviousData: true, // Keep previous data while loading new data
       retry: 2,
     }
   );
@@ -58,9 +59,10 @@ export const useSearchNews = (query, options = {}) => {
     ['search', query, limit],
     () => newsAPI.searchNews(query, limit),
     {
-      enabled: !!query && query.length > 2,
+      enabled: !!query && query.trim().length > 0,
       staleTime: 2 * 60 * 1000, // 2 minutes
       cacheTime: 5 * 60 * 1000, // 5 minutes
+      keepPreviousData: true, // Keep previous data while loading new data
     }
   );
 };

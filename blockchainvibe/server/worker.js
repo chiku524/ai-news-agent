@@ -468,7 +468,7 @@ async function handleTrendingNews(request, env) {
   try {
     const { 
       limit = 20, 
-      timeFilter = '24h',
+      timeFilter = null, // Default to null to allow 'all time'
       categoryFilter = 'all',
       sortBy = 'engagement'
     } = await request.json();
@@ -476,8 +476,8 @@ async function handleTrendingNews(request, env) {
     // Fetch trending news with engagement sorting
     const newsItems = await fetchBlockchainNews(limit, {
       category: categoryFilter,
-      timeFilter,
-      sortBy: 'engagement', // Always sort by engagement for trending
+      timeFilter: timeFilter || 'all', // Convert null to 'all' for backend compatibility
+      sortBy: sortBy || 'engagement', // Use provided sortBy or default to engagement
       userProfile: null // No personalization for trending
     });
     
@@ -2108,15 +2108,40 @@ async function handleUpdateUserProfile(request, env) {
 
 async function handleNewsSearch(request, env) {
   try {
-    const { query = '', limit = 10, timeFilter = '24h' } = await request.json();
-    const items = await fetchBlockchainNews(limit * 2, { timeFilter, sortBy: 'relevance' });
-    const q = (query || '').trim().toLowerCase();
+    const { query = '', limit = 10, timeFilter = 'all' } = await request.json();
+    const q = (query || '').trim();
+    
+    // If query is empty, return empty results
+    if (!q || q.length === 0) {
+      return new Response(JSON.stringify({ 
+        articles: [], 
+        results: [],
+        total_count: 0 
+      }), {
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+    
+    // Fetch more articles to increase chance of finding matches
+    const items = await fetchBlockchainNews(limit * 5, { 
+      timeFilter: timeFilter || 'all', 
+      sortBy: 'relevance' 
+    });
+    
+    const qLower = q.toLowerCase();
     const filtered = items.filter(a => {
       const t = (a.title || '').toLowerCase();
       const s = (a.summary || '').toLowerCase();
-      return q.length === 0 || t.includes(q) || s.includes(q);
+      const c = (a.content || '').toLowerCase();
+      // Search in title, summary, and content
+      return t.includes(qLower) || s.includes(qLower) || c.includes(qLower);
     }).slice(0, limit);
-    return new Response(JSON.stringify({ articles: filtered, total_count: filtered.length }), {
+    
+    return new Response(JSON.stringify({ 
+      articles: filtered, 
+      results: filtered, // Also return as 'results' for compatibility
+      total_count: filtered.length 
+    }), {
       headers: { 'Content-Type': 'application/json', ...corsHeaders }
     });
   } catch (error) {

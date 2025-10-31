@@ -346,7 +346,7 @@ const Trending = () => {
   const { data: trendingData, isLoading, error, refetch } = useQuery(
     ['trending', timeFilter, categoryFilter, sortBy, page],
     () => newsAPI.getTrendingNews({ 
-      timeFilter, 
+      timeFilter: timeFilter === 'all' ? null : timeFilter, 
       categoryFilter, 
       sortBy, 
       page,
@@ -355,8 +355,9 @@ const Trending = () => {
     {
       staleTime: 2 * 60 * 1000, // 2 minutes
       cacheTime: 5 * 60 * 1000, // 5 minutes
-      refetchOnMount: true, // Always refetch when component mounts
+      refetchOnMount: false, // Don't refetch on mount to prevent infinite loops
       refetchOnWindowFocus: false, // Don't refetch on window focus
+      keepPreviousData: true, // Keep previous data while loading new data
     }
   );
 
@@ -383,12 +384,18 @@ const Trending = () => {
       if (page === 1) {
         setAllNews(trendingData.articles);
       } else {
-        setAllNews(prev => [...prev, ...trendingData.articles]);
+        setAllNews(prev => {
+          // Avoid duplicates when appending
+          const existingIds = new Set(prev.map(a => a.id));
+          const newArticles = trendingData.articles.filter(a => !existingIds.has(a.id));
+          return [...prev, ...newArticles];
+        });
       }
     }
   }, [trendingData, page]);
 
   useEffect(() => {
+    // Reset page and clear news when filters change
     setPage(1);
     setAllNews([]);
   }, [timeFilter, categoryFilter, sortBy]);

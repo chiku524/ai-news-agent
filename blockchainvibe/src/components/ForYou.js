@@ -304,14 +304,14 @@ const EmptyStateDescription = styled.p`
 `;
 
 const ForYou = () => {
-  const [timeFilter, setTimeFilter] = useState('today');
+  const [timeFilter, setTimeFilter] = useState('24h');
   const [page, setPage] = useState(1);
   const [allNews, setAllNews] = useState([]);
 
   const timeFilters = [
-    { value: 'today', label: 'Today' },
-    { value: 'week', label: 'This Week' },
-    { value: 'month', label: 'This Month' }
+    { value: '24h', label: 'Today' },
+    { value: '7d', label: 'This Week' },
+    { value: '30d', label: 'This Month' }
   ];
 
   const { data: forYouData, isLoading, error, refetch } = useQuery(
@@ -325,7 +325,8 @@ const ForYou = () => {
     {
       staleTime: 3 * 60 * 1000, // 3 minutes
       cacheTime: 10 * 60 * 1000, // 10 minutes
-      refetchOnMount: true, // Always refetch when component mounts
+      refetchOnMount: false, // Don't refetch on mount to prevent infinite loops
+      keepPreviousData: true, // Keep previous data while loading new data
     }
   );
 
@@ -334,12 +335,18 @@ const ForYou = () => {
       if (page === 1) {
         setAllNews(forYouData.articles);
       } else {
-        setAllNews(prev => [...prev, ...forYouData.articles]);
+        setAllNews(prev => {
+          // Avoid duplicates when appending
+          const existingIds = new Set(prev.map(a => a.id));
+          const newArticles = forYouData.articles.filter(a => !existingIds.has(a.id));
+          return [...prev, ...newArticles];
+        });
       }
     }
   }, [forYouData, page]);
 
   useEffect(() => {
+    // Reset page and clear news when timeFilter changes
     setPage(1);
     setAllNews([]);
   }, [timeFilter]);

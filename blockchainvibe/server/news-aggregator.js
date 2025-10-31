@@ -345,19 +345,30 @@ export class NewsAggregator {
 
   // Filter by time
   filterByTime(articles, timeFilter) {
+    // Handle 'all' or empty timeFilter - return all articles
+    if (!timeFilter || timeFilter === 'all') {
+      return articles;
+    }
+    
     const now = new Date();
     const timeMap = {
       '1h': 60 * 60 * 1000,
       '24h': 24 * 60 * 60 * 1000,
       '7d': 7 * 24 * 60 * 60 * 1000,
-      '30d': 30 * 24 * 60 * 60 * 1000
+      '30d': 30 * 24 * 60 * 60 * 1000,
+      // Also handle alternative formats
+      'today': 24 * 60 * 60 * 1000,
+      'week': 7 * 24 * 60 * 60 * 1000,
+      'month': 30 * 24 * 60 * 60 * 1000
     };
     
     const timeLimit = timeMap[timeFilter];
     if (!timeLimit) return articles;
     
     return articles.filter(article => {
+      if (!article.published_at) return false;
       const articleDate = new Date(article.published_at);
+      if (isNaN(articleDate.getTime())) return false;
       return (now - articleDate) <= timeLimit;
     });
   }

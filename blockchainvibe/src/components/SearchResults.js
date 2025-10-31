@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useSearchParams } from 'react-router-dom';
 import { useSearchNews } from '../hooks/useNews';
 import { useUser } from '../hooks/useUser';
 import NewsCard from './NewsCard';
@@ -119,7 +120,9 @@ const SuggestionTag = styled.button`
   }
 `;
 
-const SearchResults = ({ query }) => {
+const SearchResults = () => {
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get('q') || '';
   const { data: searchData, isLoading, error } = useSearchNews(query);
   const { trackActivity } = useUser();
 
