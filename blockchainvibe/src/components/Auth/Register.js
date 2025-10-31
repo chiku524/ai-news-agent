@@ -19,7 +19,6 @@ import toast from 'react-hot-toast';
 import { useTheme } from '../../contexts/ThemeContext';
 import socialAuthService from '../../services/socialAuth';
 import AnimatedBackground from '../AnimatedBackground';
-import OAuthStatus from './OAuthStatus';
 
 const AuthContainer = styled.div`
   min-height: 100vh;
@@ -718,8 +717,6 @@ const Register = () => {
           </svg>
           Continue with Discord
         </SocialButton>
-        
-        <OAuthStatus environment={process.env.NODE_ENV} />
         
         <AuthFooter>
           <p>
