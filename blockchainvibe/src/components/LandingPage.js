@@ -636,6 +636,11 @@ const LandingPage = ({ theme, onThemeChange }) => {
 
   return (
     <LandingContainer>
+      <SEO 
+        title="BlockchainVibe - AI-Powered Blockchain News Aggregator"
+        description="AI-powered blockchain news platform with intelligent personalization using Fetch.ai uAgents and SingularityNET MeTTa Knowledge Graph. Stay ahead with real-time blockchain news tailored to your interests."
+        url="/"
+      />
       <AnimatedBackground />
       <Navigation theme={theme} onThemeChange={onThemeChange} />
       <HeroSection>
