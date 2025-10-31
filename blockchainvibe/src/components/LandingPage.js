@@ -651,7 +651,7 @@ const LandingPage = ({ theme, onThemeChange }) => {
             transition={{ duration: 0.8, delay: 0.6 }}
           >
             <VideoIframe
-              src="https://www.youtube.com/embed/wsfWtXsyK1A?rel=0&modestbranding=1&enablejsapi=1"
+              src="https://www.youtube.com/embed/wsfWtXsyK1A?rel=0&modestbranding=1&enablejsapi=1&origin=https://blockchainvibe.news"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
