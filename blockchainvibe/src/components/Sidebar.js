@@ -70,12 +70,13 @@ const Logo = styled.div`
   font-weight: ${props => props.theme.fontWeight.bold};
   color: ${props => props.theme.colors.primary};
   cursor: pointer;
-  
-  &::before {
-    content: '🤖';
-    font-size: 1.5rem;
-    flex-shrink: 0;
-  }
+`;
+
+const LogoImage = styled.img`
+  height: ${props => props.collapsed ? '32px' : '36px'};
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
 `;
 
 const SidebarContent = styled.div`
@@ -148,6 +149,7 @@ const Sidebar = () => {
       
       <SidebarHeader collapsed={collapsed}>
         <Logo collapsed={collapsed} onClick={() => navigate('/dashboard')}>
+          <LogoImage collapsed={collapsed} src="/logo.svg" alt="BlockchainVibe Logo" />
           {!collapsed && 'BlockchainVibe'}
         </Logo>
       </SidebarHeader>

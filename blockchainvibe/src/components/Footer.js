@@ -33,6 +33,22 @@ const FooterInner = styled.div`
 
 const Brand = styled.div`
   color: ${props => props.theme.colors.text};
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const BrandLogo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+`;
+
+const LogoImage = styled.img`
+  height: 40px;
+  width: auto;
+  object-fit: contain;
 `;
 
 const BrandTitle = styled.h3`
@@ -121,7 +137,10 @@ const Footer = () => {
     <FooterContainer>
       <FooterInner>
         <Brand>
-          <BrandTitle>BlockchainVibe</BrandTitle>
+          <BrandLogo>
+            <LogoImage src="/logo.svg" alt="BlockchainVibe Logo" />
+            <BrandTitle>BlockchainVibe</BrandTitle>
+          </BrandLogo>
           <BrandText>AI-powered blockchain news, personalized with uAgents and a knowledge graph.</BrandText>
         </Brand>
         <Column>

@@ -34,15 +34,22 @@ const NavContent = styled.div`
 const Logo = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   font-size: ${props => props.theme.fontSize.xl};
   font-weight: ${props => props.theme.fontWeight.bold};
   color: ${props => props.theme.colors.primary};
   cursor: pointer;
-  
-  &::before {
-    content: '🤖';
-    font-size: 1.5rem;
+`;
+
+const LogoImage = styled.img`
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+`;
+
+const LogoText = styled.span`
+  @media (max-width: 480px) {
+    display: none;
   }
 `;
 
@@ -240,7 +247,8 @@ const Navigation = ({ theme, onThemeChange }) => {
       <NavContainer scrolled={scrolled}>
         <NavContent>
           <Logo onClick={handleLogoClick}>
-            BlockchainVibe
+            <LogoImage src="/logo.svg" alt="BlockchainVibe Logo" />
+            <LogoText>BlockchainVibe</LogoText>
           </Logo>
 
           <NavLinks>
@@ -280,7 +288,8 @@ const Navigation = ({ theme, onThemeChange }) => {
         >
           <MobileMenuHeader>
             <Logo onClick={handleLogoClick}>
-              BlockchainVibe
+              <LogoImage src="/logo.svg" alt="BlockchainVibe Logo" />
+              <LogoText>BlockchainVibe</LogoText>
             </Logo>
             <MobileMenuButton onClick={() => setMobileMenuOpen(false)}>
               <X size={24} />
