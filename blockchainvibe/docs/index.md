@@ -86,7 +86,7 @@ BlockchainVibe is an advanced AI-powered news aggregation platform that delivers
 - **Live Platform**: [BlockchainVibe.com](https://blockchainvibe.com)
 - **GitHub Repository**: [github.com/blockchainvibe](https://github.com/blockchainvibe)
 - **API Base URL**: `https://api.blockchainvibe.com`
-- **Support**: [support@blockchainvibe.com](mailto:support@blockchainvibe.com)
+- **Support**: [support@blockchainvibe.news](mailto:support@blockchainvibe.news)
 
 ## 💡 Getting Started
 

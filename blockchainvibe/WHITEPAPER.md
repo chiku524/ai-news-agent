@@ -519,7 +519,7 @@ BlockchainVibe is built using open-source technologies and stands on the shoulde
 
 **GitHub**: [github.com/blockchainvibe](https://github.com/blockchainvibe)
 
-**Support**: [support@blockchainvibe.com](mailto:support@blockchainvibe.com)
+**Support**: [support@blockchainvibe.news](mailto:support@blockchainvibe.news)
 
 **API Documentation**: [api.blockchainvibe.com](https://api.blockchainvibe.com)
 

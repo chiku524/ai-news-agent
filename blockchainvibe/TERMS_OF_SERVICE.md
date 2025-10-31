@@ -310,7 +310,7 @@ These Terms are governed by and construed in accordance with the laws of [Jurisd
 
 ### 10.2 Informal Resolution
 
-Before filing a formal claim, we encourage you to contact us at [support@blockchainvibe.com](mailto:support@blockchainvibe.com) to resolve disputes informally.
+Before filing a formal claim, we encourage you to contact us at [support@blockchainvibe.news](mailto:support@blockchainvibe.news) to resolve disputes informally.
 
 ### 10.3 Binding Arbitration
 
@@ -352,7 +352,7 @@ We are not liable for any failure to perform due to circumstances beyond our rea
 
 If you have questions about these Terms, please contact us:
 
-**Email**: [legal@blockchainvibe.com](mailto:legal@blockchainvibe.com)
+**Email**: [legal@blockchainvibe.news](mailto:legal@blockchainvibe.news)
 
 **Address**: [Business Address]
 

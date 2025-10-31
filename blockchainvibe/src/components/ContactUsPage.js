@@ -201,44 +201,44 @@ const ContactUsPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // In a real implementation, this would send the form data to the backend
-    const mailtoLink = `mailto:support@blockchainvibe.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nCategory: ${formData.category}\nPriority: ${formData.priority}\n\nMessage:\n${formData.message}`)}`;
+        const mailtoLink = `mailto:support@blockchainvibe.news?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nCategory: ${formData.category}\nPriority: ${formData.priority}\n\nMessage:\n${formData.message}`)}`;
     window.location.href = mailtoLink;
   };
 
   const contactMethods = [
     {
       type: 'General Inquiries',
-      email: 'info@blockchainvibe.com',
+      email: 'info@blockchainvibe.news',
       responseTime: '24-48 hours (business days)',
       icon: <Mail size={20} />
     },
     {
       type: 'Support & Help',
-      email: 'support@blockchainvibe.com',
+      email: 'support@blockchainvibe.news',
       responseTime: '24-48 hours (business days)',
       icon: <MessageSquare size={20} />
     },
     {
       type: 'Privacy & Data Protection',
-      email: 'privacy@blockchainvibe.com',
+      email: 'privacy@blockchainvibe.news',
       responseTime: '30 days (as required by GDPR)',
       icon: <Mail size={20} />
     },
     {
       type: 'Legal & Terms',
-      email: 'legal@blockchainvibe.com',
+      email: 'legal@blockchainvibe.news',
       responseTime: '5-7 business days',
       icon: <Mail size={20} />
     },
     {
       type: 'Business & Partnerships',
-      email: 'business@blockchainvibe.com',
+      email: 'business@blockchainvibe.news',
       responseTime: '3-5 business days',
       icon: <Mail size={20} />
     },
     {
       type: 'Security Issues',
-      email: 'security@blockchainvibe.com',
+      email: 'security@blockchainvibe.news',
       responseTime: '24 hours for security issues',
       icon: <Mail size={20} />
     }

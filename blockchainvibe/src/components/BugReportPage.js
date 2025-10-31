@@ -258,7 +258,7 @@ ${formData.environment}
               {' '} - Preferred for technical bugs
             </li>
             <li>
-              <LinkText href="mailto:support@blockchainvibe.com?subject=BUG%20REPORT">
+              <LinkText href="mailto:support@blockchainvibe.news?subject=BUG%20REPORT">
                 Email Support
               </LinkText>
               {' '} - Include "BUG REPORT" in subject

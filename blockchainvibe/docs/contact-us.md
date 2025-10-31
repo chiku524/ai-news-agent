@@ -8,7 +8,7 @@ We're here to help! Reach out to us through any of the following channels for su
 
 ### General Inquiries
 
-**Email**: [info@blockchainvibe.com](mailto:info@blockchainvibe.com)
+**Email**: [info@blockchainvibe.news](mailto:info@blockchainvibe.news)
 
 **Response Time**: 24-48 hours (business days)
 
@@ -16,7 +16,7 @@ We're here to help! Reach out to us through any of the following channels for su
 
 ### Support & Help
 
-**Email**: [support@blockchainvibe.com](mailto:support@blockchainvibe.com)
+**Email**: [support@blockchainvibe.news](mailto:support@blockchainvibe.news)
 
 **Response Time**: 24-48 hours (business days)
 
@@ -26,9 +26,9 @@ We're here to help! Reach out to us through any of the following channels for su
 
 ### Privacy & Data Protection
 
-**Email**: [privacy@blockchainvibe.com](mailto:privacy@blockchainvibe.com)
+**Email**: [privacy@blockchainvibe.news](mailto:privacy@blockchainvibe.news)
 
-**Data Protection Officer**: [dpo@blockchainvibe.com](mailto:dpo@blockchainvibe.com)
+**Data Protection Officer**: [dpo@blockchainvibe.news](mailto:dpo@blockchainvibe.news)
 
 **Response Time**: 30 days (as required by GDPR)
 
@@ -36,7 +36,7 @@ We're here to help! Reach out to us through any of the following channels for su
 
 ### Legal & Terms
 
-**Email**: [legal@blockchainvibe.com](mailto:legal@blockchainvibe.com)
+**Email**: [legal@blockchainvibe.news](mailto:legal@blockchainvibe.news)
 
 **Response Time**: 5-7 business days
 
@@ -44,7 +44,7 @@ We're here to help! Reach out to us through any of the following channels for su
 
 ### Business & Partnerships
 
-**Email**: [business@blockchainvibe.com](mailto:business@blockchainvibe.com)
+**Email**: [business@blockchainvibe.news](mailto:business@blockchainvibe.news)
 
 **Response Time**: 3-5 business days
 
@@ -52,7 +52,7 @@ We're here to help! Reach out to us through any of the following channels for su
 
 ### Media & Press
 
-**Email**: [press@blockchainvibe.com](mailto:press@blockchainvibe.com)
+**Email**: [press@blockchainvibe.news](mailto:press@blockchainvibe.news)
 
 **Response Time**: 2-3 business days
 
@@ -60,7 +60,7 @@ We're here to help! Reach out to us through any of the following channels for su
 
 ### Security Issues
 
-**Email**: [security@blockchainvibe.com](mailto:security@blockchainvibe.com)
+**Email**: [security@blockchainvibe.news](mailto:security@blockchainvibe.news)
 
 **For security vulnerabilities**, please use our responsible disclosure process.
 
@@ -154,7 +154,7 @@ Found a bug? Help us improve BlockchainVibe by reporting it:
 
 1. **[Bug Report Form](./bug-report.md)** - Use our bug report template
 2. **[GitHub Issues](https://github.com/blockchainvibe/issues)** - Create an issue on GitHub
-3. **Email**: [support@blockchainvibe.com](mailto:support@blockchainvibe.com) - Include "BUG REPORT" in subject
+3. **Email**: [support@blockchainvibe.news](mailto:support@blockchainvibe.news) - Include "BUG REPORT" in subject
 
 ### What to Include
 
@@ -176,7 +176,7 @@ Have an idea for a new feature? We'd love to hear from you!
 ### Feature Request Channels
 
 1. **[GitHub Discussions](https://github.com/blockchainvibe/discussions)** - Discuss features with the community
-2. **Email**: [feedback@blockchainvibe.com](mailto:feedback@blockchainvibe.com)
+2. **Email**: [feedback@blockchainvibe.news](mailto:feedback@blockchainvibe.news)
 3. **Contact Form**: Use the contact form above
 
 ### What to Include
@@ -196,7 +196,7 @@ Interested in partnering with BlockchainVibe or using our API? Contact us:
 
 ### Business Contact
 
-**Email**: [business@blockchainvibe.com](mailto:business@blockchainvibe.com)
+**Email**: [business@blockchainvibe.news](mailto:business@blockchainvibe.news)
 
 **Response Time**: 3-5 business days
 
@@ -215,7 +215,7 @@ Found a security vulnerability? Please report it responsibly:
 
 ### Responsible Disclosure
 
-**Email**: [security@blockchainvibe.com](mailto:security@blockchainvibe.com)
+**Email**: [security@blockchainvibe.news](mailto:security@blockchainvibe.news)
 
 **Response Time**: 24 hours
 
@@ -279,7 +279,7 @@ This may help you find the answer faster!
 
 For critical issues affecting platform security or availability:
 
-**Email**: [emergency@blockchainvibe.com](mailto:emergency@blockchainvibe.com)
+**Email**: [emergency@blockchainvibe.news](mailto:emergency@blockchainvibe.news)
 
 **Use only for**: Security vulnerabilities, data breaches, or platform outages.
 

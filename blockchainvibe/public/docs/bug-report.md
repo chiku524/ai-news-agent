@@ -9,7 +9,7 @@ Found a bug? Help us improve BlockchainVibe by reporting it! This guide will hel
 ### Bug Report Channels
 
 1. **[GitHub Issues](https://github.com/blockchainvibe/issues)** - Preferred for technical bugs
-2. **Email**: [support@blockchainvibe.com](mailto:support@blockchainvibe.com) - Include "BUG REPORT" in subject
+2. **Email**: [support@blockchainvibe.news](mailto:support@blockchainvibe.news) - Include "BUG REPORT" in subject
 3. **Contact Form**: Use the [Contact Us](./contact-us.md) form
 
 ---

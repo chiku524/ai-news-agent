@@ -338,7 +338,7 @@ If we become aware that we have collected information from a child under 18:
 
 We comply with the Children's Online Privacy Protection Act (COPPA) and similar laws.
 
-If you believe we have collected information from a child under 18, please contact us at [privacy@blockchainvibe.com](mailto:privacy@blockchainvibe.com).
+If you believe we have collected information from a child under 18, please contact us at [privacy@blockchainvibe.news](mailto:privacy@blockchainvibe.news).
 
 ---
 
@@ -461,7 +461,7 @@ Some third-party services may set cookies:
 
 If you have questions about this Privacy Policy or our privacy practices:
 
-**Email**: [privacy@blockchainvibe.com](mailto:privacy@blockchainvibe.com)
+**Email**: [privacy@blockchainvibe.news](mailto:privacy@blockchainvibe.news)
 
 **Address**: [Business Address]
 
@@ -469,7 +469,7 @@ If you have questions about this Privacy Policy or our privacy practices:
 
 For GDPR-related inquiries, contact our Data Protection Officer:
 
-**Email**: [dpo@blockchainvibe.com](mailto:dpo@blockchainvibe.com)
+**Email**: [dpo@blockchainvibe.news](mailto:dpo@blockchainvibe.news)
 
 ### 12.3 Response Time
 
@@ -514,7 +514,7 @@ California residents have additional rights under the California Consumer Privac
 ### 14.2 Exercising Rights
 
 To exercise your California privacy rights:
-1. Contact us at [privacy@blockchainvibe.com](mailto:privacy@blockchainvibe.com)
+1. Contact us at [privacy@blockchainvibe.news](mailto:privacy@blockchainvibe.news)
 2. Specify your request
 3. Provide verification information
 
@@ -537,7 +537,7 @@ European users have rights under the General Data Protection Regulation (GDPR):
 ### 15.2 Exercising Rights
 
 To exercise your GDPR rights:
-1. Contact us at [dpo@blockchainvibe.com](mailto:dpo@blockchainvibe.com)
+1. Contact us at [dpo@blockchainvibe.news](mailto:dpo@blockchainvibe.news)
 2. Specify your request
 3. Provide verification information
 
