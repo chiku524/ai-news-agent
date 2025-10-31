@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="url(#gradient1)" opacity="0.1"/>
+  
+  <!-- Blockchain blocks representing connectivity -->
+  <g opacity="0.9">
+    <!-- Top-left block -->
+    <rect x="40" y="40" width="32" height="32" rx="4" fill="url(#gradient1)" transform="rotate(-15 56 56)"/>
+    <rect x="44" y="44" width="24" height="24" rx="3" fill="url(#gradient2)" opacity="0.6" transform="rotate(-15 56 56)"/>
+    
+    <!-- Top-right block -->
+    <rect x="128" y="40" width="32" height="32" rx="4" fill="url(#gradient1)" transform="rotate(15 144 56)"/>
+    <rect x="132" y="44" width="24" height="24" rx="3" fill="url(#gradient2)" opacity="0.6" transform="rotate(15 144 56)"/>
+    
+    <!-- Bottom-left block -->
+    <rect x="40" y="128" width="32" height="32" rx="4" fill="url(#gradient1)" transform="rotate(15 56 144)"/>
+    <rect x="44" y="132" width="24" height="24" rx="3" fill="url(#gradient2)" opacity="0.6" transform="rotate(15 56 144)"/>
+    
+    <!-- Bottom-right block -->
+    <rect x="128" y="128" width="32" height="32" rx="4" fill="url(#gradient1)" transform="rotate(-15 144 144)"/>
+    <rect x="132" y="132" width="24" height="24" rx="3" fill="url(#gradient2)" opacity="0.6" transform="rotate(-15 144 144)"/>
+  </g>
+  
+  <!-- Central AI/Brain symbol -->
+  <g opacity="0.95">
+    <!-- Neural network nodes -->
+    <circle cx="84" cy="84" r="6" fill="url(#gradient2)"/>
+    <circle cx="116" cy="84" r="6" fill="url(#gradient2)"/>
+    <circle cx="84" cy="116" r="6" fill="url(#gradient2)"/>
+    <circle cx="116" cy="116" r="6" fill="url(#gradient2)"/>
+    <circle cx="100" cy="100" r="8" fill="url(#gradient1)"/>
+    
+    <!-- Connecting lines (neural network) -->
+    <line x1="84" y1="84" x2="100" y2="100" stroke="url(#gradient2)" stroke-width="2" opacity="0.6"/>
+    <line x1="116" y1="84" x2="100" y2="100" stroke="url(#gradient2)" stroke-width="2" opacity="0.6"/>
+    <line x1="84" y1="116" x2="100" y2="100" stroke="url(#gradient2)" stroke-width="2" opacity="0.6"/>
+    <line x1="116" y1="116" x2="100" y2="100" stroke="url(#gradient2)" stroke-width="2" opacity="0.6"/>
+    
+    <!-- News/Antenna symbol -->
+    <path d="M 100 70 L 100 50 M 90 60 L 100 50 L 110 60" stroke="url(#gradient1)" stroke-width="3" stroke-linecap="round" fill="none"/>
+  </g>
+  
+  <!-- Connecting lines between blocks -->
+  <g opacity="0.4">
+    <line x1="72" y1="56" x2="90" y2="84" stroke="url(#gradient1)" stroke-width="2" stroke-dasharray="2,2"/>
+    <line x1="128" y1="56" x2="110" y2="84" stroke="url(#gradient1)" stroke-width="2" stroke-dasharray="2,2"/>
+    <line x1="72" y1="144" x2="90" y2="116" stroke="url(#gradient1)" stroke-width="2" stroke-dasharray="2,2"/>
+    <line x1="128" y1="144" x2="110" y2="116" stroke="url(#gradient1)" stroke-width="2" stroke-dasharray="2,2"/>
+  </g>
+</svg>
+
