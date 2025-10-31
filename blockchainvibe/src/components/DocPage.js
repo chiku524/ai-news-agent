@@ -170,6 +170,9 @@ const DocPage = () => {
   const title = pageNames[page] || 'Documentation';
   const { theme, setTheme } = useTheme();
   
+  // Get SEO metadata for this page
+  const seoData = getMetadataForRoute(`/docs/${page}`);
+  
   // Determine file path based on page type
   const getFilePath = () => {
     const legalPages = ['terms', 'privacy', 'whitepaper'];
@@ -183,6 +186,12 @@ const DocPage = () => {
   
   return (
     <DocPageContainer>
+      <SEO 
+        title={seoData.title}
+        description={seoData.description}
+        keywords={seoData.keywords}
+        url={seoData.url}
+      />
       <AnimatedBackground />
       <Navigation theme={theme} onThemeChange={setTheme} />
       <PageContainer>

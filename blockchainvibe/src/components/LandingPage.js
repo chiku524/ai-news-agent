@@ -17,6 +17,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Navigation from './Navigation';
 import AnimatedBackground from './AnimatedBackground';
 import Footer from './Footer';
+import SEO from './SEO';
 
 const LandingContainer = styled.div`
   background: ${props => props.theme.colors.background};

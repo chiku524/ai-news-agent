@@ -3,6 +3,7 @@ import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 
 // Components
 import LandingPage from './components/LandingPage';
@@ -298,11 +299,13 @@ const AppContent = () => {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <CustomThemeProvider>
-        <AppContent />
-      </CustomThemeProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <CustomThemeProvider>
+          <AppContent />
+        </CustomThemeProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }
 
