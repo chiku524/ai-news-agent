@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import Navigation from './Navigation';
 import AnimatedBackground from './AnimatedBackground';
 import Footer from './Footer';
+import TableOfContents from './TableOfContents';
 import { useTheme } from '../contexts/ThemeContext';
 
 const DocsPageContainer = styled.div`
@@ -17,11 +18,19 @@ const DocsPageContainer = styled.div`
 `;
 
 const DocsContainer = styled.div`
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 6rem 2rem 2rem 2rem;
   position: relative;
   z-index: 1;
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+`;
+
+const ContentWrapper = styled.div`
+  flex: 1;
+  min-width: 0;
 `;
 
 const DocsHeader = styled.div`
@@ -145,25 +154,28 @@ const Documentation = () => {
       <AnimatedBackground />
       <Navigation theme={theme} onThemeChange={setTheme} />
       <DocsContainer>
-        <DocsHeader>
-          <DocsTitle>Documentation</DocsTitle>
-          <DocsDescription>
-            Comprehensive documentation for BlockchainVibe. Learn how to use the platform,
-            integrate with our API, and understand our AI-powered architecture.
-          </DocsDescription>
-        </DocsHeader>
-        <DocsGrid>
-          {docs.map((doc, index) => (
-            <DocCard key={index}>
-              <DocIcon>{doc.icon}</DocIcon>
-              <DocCardTitle>{doc.title}</DocCardTitle>
-              <DocCardDescription>{doc.description}</DocCardDescription>
-              <DocLink to={doc.link}>
-                Read more →
-              </DocLink>
-            </DocCard>
-          ))}
-        </DocsGrid>
+        <TableOfContents />
+        <ContentWrapper>
+          <DocsHeader>
+            <DocsTitle>Documentation</DocsTitle>
+            <DocsDescription>
+              Comprehensive documentation for BlockchainVibe. Learn how to use the platform,
+              integrate with our API, and understand our AI-powered architecture.
+            </DocsDescription>
+          </DocsHeader>
+          <DocsGrid>
+            {docs.map((doc, index) => (
+              <DocCard key={index}>
+                <DocIcon>{doc.icon}</DocIcon>
+                <DocCardTitle>{doc.title}</DocCardTitle>
+                <DocCardDescription>{doc.description}</DocCardDescription>
+                <DocLink to={doc.link}>
+                  Read more →
+                </DocLink>
+              </DocCard>
+            ))}
+          </DocsGrid>
+        </ContentWrapper>
       </DocsContainer>
       <Footer />
     </DocsPageContainer>

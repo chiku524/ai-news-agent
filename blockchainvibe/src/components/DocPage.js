@@ -5,6 +5,7 @@ import Navigation from './Navigation';
 import AnimatedBackground from './AnimatedBackground';
 import Footer from './Footer';
 import MarkdownContent from './MarkdownContent';
+import TableOfContents from './TableOfContents';
 import { useTheme } from '../contexts/ThemeContext';
 
 const DocPageContainer = styled.div`
@@ -17,11 +18,19 @@ const DocPageContainer = styled.div`
 `;
 
 const PageContainer = styled.div`
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 6rem 2rem 2rem 2rem;
   position: relative;
   z-index: 1;
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+`;
+
+const ContentWrapper = styled.div`
+  flex: 1;
+  min-width: 0; /* Prevents flex item from overflowing */
 `;
 
 const PageContent = styled.div`
@@ -177,9 +186,12 @@ const DocPage = () => {
       <AnimatedBackground />
       <Navigation theme={theme} onThemeChange={setTheme} />
       <PageContainer>
-        <PageContent>
-          <MarkdownContent filePath={getFilePath()} />
-        </PageContent>
+        <TableOfContents />
+        <ContentWrapper>
+          <PageContent>
+            <MarkdownContent filePath={getFilePath()} />
+          </PageContent>
+        </ContentWrapper>
       </PageContainer>
       <Footer />
     </DocPageContainer>

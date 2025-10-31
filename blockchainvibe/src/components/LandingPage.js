@@ -17,6 +17,7 @@ import {
 import { useNavigate, Link } from 'react-router-dom';
 import Navigation from './Navigation';
 import AnimatedBackground from './AnimatedBackground';
+import Footer from './Footer';
 
 const LandingContainer = styled.div`
   background: ${props => props.theme.colors.background};
@@ -281,24 +282,6 @@ const CTADescription = styled.p`
   margin-bottom: 2rem;
 `;
 
-const Footer = styled.footer`
-  background: ${props => props.theme.colors.surface};
-  border-top: 1px solid ${props => props.theme.colors.border};
-  padding: 3rem 2rem 2rem 2rem;
-  margin-top: 0;
-  position: relative;
-  z-index: 10;
-  width: 100%;
-`;
-
-const FooterContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  margin-bottom: 2rem;
-`;
 
 // Pricing Section Styles
 const PricingSection = styled.section`
@@ -581,67 +564,6 @@ const FormButton = styled.button`
   }
 `;
 
-const FooterSection = styled.div`
-  & h4 {
-    font-size: ${props => props.theme.fontSize.lg};
-    font-weight: ${props => props.theme.fontWeight.semibold};
-    margin-bottom: 1rem;
-    color: ${props => props.theme.colors.text};
-  }
-  
-  & ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  & li {
-    margin-bottom: 0.5rem;
-  }
-  
-  & a {
-    color: ${props => props.theme.colors.textSecondary};
-    text-decoration: none;
-    transition: color ${props => props.theme.transitions.fast};
-    
-    &:hover {
-      color: ${props => props.theme.colors.primary};
-    }
-  }
-`;
-
-const FooterBottom = styled.div`
-  border-top: 1px solid ${props => props.theme.colors.border};
-  padding-top: 2rem;
-  text-align: center;
-  color: ${props => props.theme.colors.textSecondary};
-`;
-
-const SocialLinks = styled.div`
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 1rem;
-`;
-
-const SocialLink = styled.a`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: ${props => props.theme.colors.surfaceHover};
-  color: ${props => props.theme.colors.textSecondary};
-  text-decoration: none;
-  transition: all ${props => props.theme.transitions.fast};
-  
-  &:hover {
-    background: ${props => props.theme.colors.primary};
-    color: ${props => props.theme.colors.textInverse};
-    transform: translateY(-2px);
-  }
-`;
 
 const LandingPage = ({ theme, onThemeChange }) => {
   const navigate = useNavigate();
@@ -941,62 +863,7 @@ const LandingPage = ({ theme, onThemeChange }) => {
         </CTAContainer>
       </CTASection>
 
-      <Footer>
-        <FooterContainer>
-          <FooterSection>
-            <h4>Company</h4>
-            <ul>
-              <li><a href="#about">About</a></li>
-              <li><a href="#careers">Careers</a></li>
-              <li><a href="#blog">Blog</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
-          </FooterSection>
-          
-          <FooterSection>
-            <h4>Resources</h4>
-            <ul>
-              <li><Link to="/docs">Documentation</Link></li>
-              <li><Link to="/docs/whitepaper">Whitepaper</Link></li>
-              <li><Link to="/docs/api-reference">API Reference</Link></li>
-              <li><Link to="/docs/ai-integration">AI Integration</Link></li>
-            </ul>
-          </FooterSection>
-          
-          <FooterSection>
-            <h4>Support</h4>
-            <ul>
-              <li><Link to="/docs/help-center">Help Center</Link></li>
-              <li><Link to="/docs/contact-us">Contact Us</Link></li>
-              <li><Link to="/docs/bug-report">Report a Bug</Link></li>
-              <li><a href="https://github.com/chiku524/ai-news-agent/issues" target="_blank" rel="noreferrer">GitHub Issues</a></li>
-            </ul>
-          </FooterSection>
-          
-          <FooterSection>
-            <h4>Legal</h4>
-            <ul>
-              <li><Link to="/docs/terms">Terms of Service</Link></li>
-              <li><Link to="/docs/privacy">Privacy Policy</Link></li>
-            </ul>
-          </FooterSection>
-        </FooterContainer>
-        
-        <FooterBottom>
-          <p>&copy; 2024 BlockchainVibe. All rights reserved.</p>
-          <SocialLinks>
-            <SocialLink href="#twitter">
-              <Twitter size={20} />
-            </SocialLink>
-            <SocialLink href="#github">
-              <Github size={20} />
-            </SocialLink>
-            <SocialLink href="#linkedin">
-              <Linkedin size={20} />
-            </SocialLink>
-          </SocialLinks>
-        </FooterBottom>
-      </Footer>
+      <Footer />
     </LandingContainer>
   );
 };
