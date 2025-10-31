@@ -6,7 +6,7 @@
 
 **[0:00 - 0:20] INTRODUCTION**
 
-Hi, I'm [Your Name], and welcome to BlockchainVibe. 
+Hi, I'm Nico Chikuji, and welcome to BlockchainVibe. 
 
 This is an AI-powered blockchain news aggregator built with Fetch.ai's uAgents framework, SingularityNET's MeTTa Knowledge Graph, and deployed on Cloudflare Workers and Pages.
 

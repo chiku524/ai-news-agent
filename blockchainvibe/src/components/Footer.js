@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { Github, Twitter, Globe, Mail } from 'lucide-react';
 
 const FooterContainer = styled.footer`
-  margin-top: 2rem;
   border-top: 1px solid ${props => props.theme.colors.border};
   background: ${props => props.theme.colors.surface};
   position: relative;
