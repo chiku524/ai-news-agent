@@ -152,6 +152,13 @@ const VideoPlayer = styled.video`
   aspect-ratio: 16/9;
 `;
 
+const VideoIframe = styled.iframe`
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: none;
+  min-height: 450px;
+`;
+
 const FeaturesSection = styled.section`
   padding: 6rem 2rem;
   background: ${props => props.theme.colors.surface};
@@ -641,14 +648,26 @@ const LandingPage = ({ theme, onThemeChange }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <VideoPlayer
-              controls
-              preload="metadata"
-              poster=""
-            >
-              <source src="/demo-video.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </VideoPlayer>
+            {/* For production deployment, use YouTube/Vimeo embed by setting REACT_APP_DEMO_VIDEO_URL env var
+                Example: REACT_APP_DEMO_VIDEO_URL=https://www.youtube.com/embed/VIDEO_ID */}
+            {process.env.REACT_APP_DEMO_VIDEO_URL ? (
+              <VideoIframe
+                src={process.env.REACT_APP_DEMO_VIDEO_URL}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="BlockchainVibe Demo Video"
+              />
+            ) : (
+              <VideoPlayer
+                controls
+                preload="metadata"
+                poster=""
+              >
+                <source src="/demo-video.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </VideoPlayer>
+            )}
           </DemoVideo>
         </HeroContent>
       </HeroSection>
