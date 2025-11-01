@@ -693,57 +693,6 @@ async function handleMeTTaStatus(request, env) {
   }
 }
 
-// Test RSS parsing
-async function handleTestRSS(request, env) {
-  try {
-    console.log('Testing RSS parsing...');
-    
-    // Import news aggregator
-    const { NewsAggregator } = await import('./news-aggregator.js');
-    const aggregator = new NewsAggregator();
-    
-    // Test RSS feeds directly
-    const rssNews = await aggregator.fetchFromRSSFeeds(5);
-    console.log('RSS news fetched:', rssNews.length);
-    
-    // Test full news fetching
-    const fullNews = await aggregator.fetchNews({
-      limit: 5,
-      category: 'all',
-      timeFilter: '24h',
-      sortBy: 'relevance'
-    });
-    console.log('Full news fetched:', fullNews.length);
-    
-    return new Response(JSON.stringify({
-      rss_news: rssNews,
-      full_news: fullNews,
-      rss_count: rssNews.length,
-      full_count: fullNews.length,
-      timestamp: new Date().toISOString()
-    }), {
-      headers: { 
-        'Content-Type': 'application/json',
-        ...corsHeaders
-      }
-    });
-    
-  } catch (error) {
-    console.error('RSS test error:', error);
-    return new Response(JSON.stringify({
-      error: "Failed to test RSS parsing",
-      details: error.message,
-      stack: error.stack
-    }), {
-      status: 500,
-      headers: { 
-        'Content-Type': 'application/json',
-        ...corsHeaders
-      }
-    });
-  }
-}
-
 // General News API with AI integration
 async function handleNews(request, env) {
   try {
@@ -1645,10 +1594,6 @@ export default {
 
       if (path === '/api/categories' && method === 'GET') {
         return await handleCategories(request, env);
-      }
-
-      if (path === '/api/test-rss' && method === 'GET') {
-        return await handleTestRSS(request, env);
       }
 
       if (path === '/api/user/profile' && method === 'GET') {
