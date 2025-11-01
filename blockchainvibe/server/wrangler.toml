@@ -9,7 +9,7 @@ NODE_ENV = "production"
 JWT_SECRET = "blockchainvibe-jwt-secret-2024-production-key"
 GOOGLE_CLIENT_ID = "579208613672-c4pvdarqdnckdai6re7n9nei5svk72st.apps.googleusercontent.com"
 GITHUB_CLIENT_ID = "Ov23lisuJwAjEECYLj0y"
-TWITTER_CLIENT_ID = "QmVxRHdKal81ZW9QU1pfWFhpWWQ6MTpjaQ"
+TWITTER_CLIENT_ID = "ZTBIVVZpeUIyVm9uaU1iRFhiVnI6MTpjaQ"
 DISCORD_CLIENT_ID = "1431187449215717457"
 DISCORD_CLIENT_SECRET = "d3QI-oClsHiCTFPumMkQ8OWwAaJ5O8us"
 
