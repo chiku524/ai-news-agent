@@ -12,7 +12,6 @@ import toast from 'react-hot-toast';
 
 import NewsCard from '../NewsCard';
 import NewsCardSkeleton from '../NewsCardSkeleton';
-import LoadingSpinner from '../LoadingSpinner';
 import ProfileCompletionModal from '../Auth/ProfileCompletionModal';
 import { newsAPI } from '../../services/api';
 

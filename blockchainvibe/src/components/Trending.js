@@ -13,7 +13,6 @@ import toast from 'react-hot-toast';
 
 import NewsCard from './NewsCard';
 import NewsCardSkeleton from './NewsCardSkeleton';
-import LoadingSpinner from './LoadingSpinner';
 import { useQuery } from 'react-query';
 import { newsAPI } from '../services/api';
 
