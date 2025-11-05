@@ -463,6 +463,19 @@ function handleHealth() {
   });
 }
 
+// Timeout helper for long-running operations
+async function withTimeout(promise, timeoutMs, fallback) {
+  return Promise.race([
+    promise,
+    new Promise((resolve) => 
+      setTimeout(() => {
+        console.warn(`Operation timed out after ${timeoutMs}ms, using fallback`);
+        resolve(fallback ? fallback() : []);
+      }, timeoutMs)
+    )
+  ]);
+}
+
 // Trending News API
 async function handleTrendingNews(request, env) {
   try {
@@ -473,13 +486,17 @@ async function handleTrendingNews(request, env) {
       sortBy = 'engagement'
     } = await request.json();
     
-    // Fetch trending news with engagement sorting
-    const newsItems = await fetchBlockchainNews(limit, {
-      category: categoryFilter,
-      timeFilter: timeFilter || 'all', // Convert null to 'all' for backend compatibility
-      sortBy: sortBy || 'engagement', // Use provided sortBy or default to engagement
-      userProfile: null // No personalization for trending
-    });
+    // Fetch trending news with engagement sorting, with timeout
+    const newsItems = await withTimeout(
+      fetchBlockchainNews(limit, {
+        category: categoryFilter,
+        timeFilter: timeFilter || 'all', // Convert null to 'all' for backend compatibility
+        sortBy: sortBy || 'engagement', // Use provided sortBy or default to engagement
+        userProfile: null // No personalization for trending
+      }),
+      25000, // 25 seconds timeout (before axios 30s timeout)
+      () => getMockNews(limit) // Fallback to mock news on timeout
+    );
     
     return new Response(JSON.stringify({
       articles: newsItems,
@@ -495,11 +512,16 @@ async function handleTrendingNews(request, env) {
     
   } catch (error) {
     console.error('Trending news API error:', error);
+    // Return mock news as fallback instead of error
+    const fallbackNews = getMockNews(20);
     return new Response(JSON.stringify({
-      error: "Failed to fetch trending news",
-      details: error.message
+      articles: fallbackNews,
+      total_count: fallbackNews.length,
+      last_updated: new Date().toISOString(),
+      type: 'trending',
+      warning: 'Using fallback data due to error'
     }), {
-      status: 500,
+      status: 200, // Return 200 with warning instead of 500
       headers: { 
         'Content-Type': 'application/json',
         ...corsHeaders
@@ -534,16 +556,24 @@ async function handlePersonalizedNews(request, env) {
     
     const userProfile = user_profile || defaultUserProfile;
     
-    // Fetch personalized news
-    const newsItems = await fetchBlockchainNews(limit, {
-      category: 'all',
-      timeFilter,
-      sortBy: 'relevance', // Sort by relevance for personalized
-      userProfile: userProfile
-    });
+    // Fetch personalized news with timeout
+    const newsItems = await withTimeout(
+      fetchBlockchainNews(limit, {
+        category: 'all',
+        timeFilter,
+        sortBy: 'relevance', // Sort by relevance for personalized
+        userProfile: userProfile
+      }),
+      25000, // 25 seconds timeout
+      () => getMockNews(limit) // Fallback to mock news on timeout
+    );
     
-    // Calculate user relevance score
-    const userRelevanceScore = await calculateUserRelevance(newsItems, userProfile, env);
+    // Calculate user relevance score (with timeout)
+    const userRelevanceScore = await withTimeout(
+      calculateUserRelevance(newsItems, userProfile, env),
+      3000, // 3 seconds for relevance calculation
+      () => 0.5 // Default relevance score
+    );
     
     return new Response(JSON.stringify({
       articles: newsItems,
@@ -560,11 +590,17 @@ async function handlePersonalizedNews(request, env) {
     
   } catch (error) {
     console.error('Personalized news API error:', error);
+    // Return mock news as fallback instead of error
+    const fallbackNews = getMockNews(20);
     return new Response(JSON.stringify({
-      error: "Failed to fetch personalized news",
-      details: error.message
+      articles: fallbackNews,
+      total_count: fallbackNews.length,
+      user_relevance_score: 0.5,
+      last_updated: new Date().toISOString(),
+      type: 'personalized',
+      warning: 'Using fallback data due to error'
     }), {
-      status: 500,
+      status: 200, // Return 200 with warning instead of 500
       headers: { 
         'Content-Type': 'application/json',
         ...corsHeaders
@@ -790,30 +826,55 @@ async function fetchBlockchainNews(limit, options = {}) {
       return getMockNews(limit);
     }
     
-    // Process news with uAgents and MeTTa (if available)
+    // Process news with uAgents and MeTTa (if available) - with timeout
     let processedNews = rawNews;
     try {
       console.log('Initializing uAgents and MeTTa...');
       
-      // Initialize uAgents with error handling
-      const uAgentsInitialized = await uAgents.initializeAgents();
-      if (uAgentsInitialized) {
-        console.log('uAgents initialized successfully');
+      // Wrap uAgents processing with timeout to prevent hanging
+      const uAgentsProcessing = (async () => {
+        // Initialize uAgents with error handling
+        const uAgentsInitialized = await withTimeout(
+          uAgents.initializeAgents(),
+          5000, // 5 seconds for initialization
+          () => false
+        );
         
-        // Use MeTTa-enhanced processing if available
-        if (uAgents.mettaIntegration && uAgents.mettaIntegration.isMeTTaAvailable()) {
-          console.log('Using MeTTa-enhanced processing');
-          processedNews = await uAgents.processNewsWithMeTTa(rawNews, options.userProfile);
+        if (uAgentsInitialized) {
+          console.log('uAgents initialized successfully');
+          
+          // Use MeTTa-enhanced processing if available
+          if (uAgents.mettaIntegration && uAgents.mettaIntegration.isMeTTaAvailable()) {
+            console.log('Using MeTTa-enhanced processing');
+            return await withTimeout(
+              uAgents.processNewsWithMeTTa(rawNews, options.userProfile),
+              10000, // 10 seconds for MeTTa processing
+              () => rawNews
+            );
+          } else {
+            console.log('Using standard uAgents processing');
+            return await withTimeout(
+              uAgents.processNewsWithAgents(rawNews, options.userProfile),
+              10000, // 10 seconds for uAgents processing
+              () => rawNews
+            );
+          }
         } else {
-          console.log('Using standard uAgents processing');
-          processedNews = await uAgents.processNewsWithAgents(rawNews, options.userProfile);
+          console.log('uAgents initialization failed or timed out, using knowledge graph only');
+          return rawNews;
         }
-        console.log('uAgents processing completed, processed articles:', processedNews.length);
-      } else {
-        console.log('uAgents initialization failed, using knowledge graph only');
-        // Fallback to knowledge graph only
-        processedNews = rawNews;
-      }
+      })();
+      
+      processedNews = await withTimeout(
+        uAgentsProcessing,
+        15000, // 15 seconds total for uAgents processing
+        () => {
+          console.warn('uAgents processing timed out, using raw news');
+          return rawNews;
+        }
+      );
+      
+      console.log('uAgents processing completed, processed articles:', processedNews.length);
     } catch (error) {
       console.warn('uAgents/MeTTa processing failed, using knowledge graph fallback:', error.message);
       console.warn('Error details:', error);

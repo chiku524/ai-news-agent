@@ -220,6 +220,307 @@ export const NEWS_SOURCES = {
       category: "defi",
       priority: 4,
       enabled: true
+    },
+    {
+      name: "Aave",
+      url: "https://medium.com/feed/@aaveaave",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Compound Finance",
+      url: "https://medium.com/feed/compound-finance",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "MakerDAO",
+      url: "https://blog.makerdao.com/feed/",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Avalanche",
+      url: "https://medium.com/feed/avalancheavax",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Cosmos",
+      url: "https://blog.cosmos.network/feed",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Algorand",
+      url: "https://www.algorand.com/blog/rss.xml",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Near Protocol",
+      url: "https://near.org/blog/feed/",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Fantom",
+      url: "https://fantom.foundation/blog/feed/",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Crypto.com",
+      url: "https://crypto.com/news/rss",
+      category: "general",
+      priority: 2,
+      enabled: true
+    },
+    {
+      name: "Binance Blog",
+      url: "https://www.binance.com/en/blog/rss.xml",
+      category: "general",
+      priority: 2,
+      enabled: true
+    },
+    {
+      name: "Coinbase Blog",
+      url: "https://blog.coinbase.com/feed",
+      category: "general",
+      priority: 2,
+      enabled: true
+    },
+    {
+      name: "Kraken Intelligence",
+      url: "https://kraken.com/learn/feed",
+      category: "general",
+      priority: 2,
+      enabled: true
+    },
+    {
+      name: "Ledger Blog",
+      url: "https://www.ledger.com/blog/feed",
+      category: "general",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "OpenZeppelin",
+      url: "https://blog.openzeppelin.com/feed/",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Yearn Finance",
+      url: "https://yearn.finance/news/feed",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "SushiSwap",
+      url: "https://sushi.com/blog/feed",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Curve Finance",
+      url: "https://curve.fi/blog/rss.xml",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "1inch Network",
+      url: "https://blog.1inch.io/feed/",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "dYdX",
+      url: "https://dydx.exchange/blog/feed",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Axie Infinity",
+      url: "https://axie.substack.com/feed",
+      category: "gaming",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "The Sandbox",
+      url: "https://www.sandbox.game/blog/feed/",
+      category: "gaming",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Decentraland",
+      url: "https://decentraland.org/blog/feed/",
+      category: "gaming",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "CoinGecko",
+      url: "https://www.coingecko.com/en/feed",
+      category: "general",
+      priority: 2,
+      enabled: true
+    },
+    {
+      name: "Zcash",
+      url: "https://electriccoin.co/blog/feed/",
+      category: "general",
+      priority: 4,
+      enabled: true
+    },
+    {
+      name: "Monero",
+      url: "https://getmonero.org/feed.xml",
+      category: "general",
+      priority: 4,
+      enabled: true
+    },
+    {
+      name: "Litecoin Foundation",
+      url: "https://litecoin-foundation.org/feed/",
+      category: "bitcoin",
+      priority: 4,
+      enabled: true
+    },
+    {
+      name: "Stellar",
+      url: "https://stellar.org/blog/feed",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Ripple",
+      url: "https://ripple.com/insights/feed/",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Tezos",
+      url: "https://tezos.com/feed/",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Filecoin",
+      url: "https://filecoin.io/blog/feed/",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "IPFS",
+      url: "https://blog.ipfs.io/feed/",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Hedera",
+      url: "https://hedera.com/blog/feed",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Internet Computer",
+      url: "https://medium.com/feed/@dfinity",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Celo",
+      url: "https://celo.org/blog/feed",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Terra",
+      url: "https://terra.money/blog/feed",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Harmony",
+      url: "https://harmony.one/blog/feed",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Cronos",
+      url: "https://cronos.org/blog/feed",
+      category: "web3",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Gnosis Chain",
+      url: "https://www.gnosis.io/blog/feed",
+      category: "layer2",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Immutable X",
+      url: "https://www.immutable.com/blog/feed",
+      category: "nft",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "OpenSea",
+      url: "https://opensea.io/blog/rss.xml",
+      category: "nft",
+      priority: 2,
+      enabled: true
+    },
+    {
+      name: "Rarible",
+      url: "https://rarible.com/blog/feed",
+      category: "nft",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "SuperRare",
+      url: "https://superrare.com/blog/feed",
+      category: "nft",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Foundation",
+      url: "https://foundation.app/blog/feed",
+      category: "nft",
+      priority: 3,
+      enabled: true
     }
   ],
 

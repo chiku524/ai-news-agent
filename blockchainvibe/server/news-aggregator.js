@@ -7,6 +7,18 @@ export class NewsAggregator {
   constructor() {
     this.cache = new Map();
     this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
+    this.feedTimeout = 10000; // 10 seconds per RSS feed
+    this.totalFetchTimeout = 20000; // 20 seconds total for all feeds
+  }
+
+  // Timeout helper function
+  async withTimeout(promise, timeoutMs, timeoutMessage) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error(timeoutMessage || `Operation timed out after ${timeoutMs}ms`)), timeoutMs)
+      )
+    ]);
   }
 
   // Main method to fetch news from all sources
@@ -57,10 +69,26 @@ export class NewsAggregator {
   // Fetch news from RSS feeds
   async fetchFromRSSFeeds(limit) {
     const enabledFeeds = NEWS_SOURCES.RSS_FEEDS.filter(feed => feed.enabled);
-    const newsPromises = enabledFeeds.map(feed => this.parseRSSFeed(feed));
+    // Limit to top priority feeds first to speed things up
+    const priorityFeeds = enabledFeeds.slice(0, 10); // Only fetch top 10 feeds initially
+    
+    const newsPromises = priorityFeeds.map(feed => 
+      this.withTimeout(
+        this.parseRSSFeed(feed),
+        this.feedTimeout,
+        `RSS feed ${feed.name} timed out`
+      )
+    );
     
     try {
-      const results = await Promise.allSettled(newsPromises);
+      // Wrap all promises with a total timeout
+      const fetchPromise = Promise.allSettled(newsPromises);
+      const results = await this.withTimeout(
+        fetchPromise,
+        this.totalFetchTimeout,
+        'RSS feed fetching timed out'
+      );
+      
       const allArticles = results
         .filter(result => result.status === 'fulfilled')
         .flatMap(result => result.value)
@@ -69,6 +97,7 @@ export class NewsAggregator {
       return allArticles.slice(0, limit);
     } catch (error) {
       console.error('RSS feed parsing error:', error);
+      // Return empty array instead of failing completely
       return [];
     }
   }
@@ -77,24 +106,41 @@ export class NewsAggregator {
   async parseRSSFeed(feed) {
     try {
       console.log(`Fetching RSS feed: ${feed.name} from ${feed.url}`);
-      const response = await fetch(feed.url, {
-        headers: {
-          'User-Agent': 'BlockchainVibe/1.0 (News Aggregator)'
+      
+      // Create AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), this.feedTimeout);
+      
+      try {
+        const response = await fetch(feed.url, {
+          headers: {
+            'User-Agent': 'BlockchainVibe/1.0 (News Aggregator)'
+          },
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          console.error(`RSS feed ${feed.name} returned ${response.status}`);
+          throw new Error(`RSS feed ${feed.name} returned ${response.status}`);
         }
-      });
-      
-      if (!response.ok) {
-        console.error(`RSS feed ${feed.name} returned ${response.status}`);
-        throw new Error(`RSS feed ${feed.name} returned ${response.status}`);
+        
+        const xmlText = await response.text();
+        console.log(`RSS feed ${feed.name} response length:`, xmlText.length);
+        const articles = this.parseRSSXML(xmlText, feed);
+        console.log(`RSS feed ${feed.name} parsed ${articles.length} articles`);
+        return articles;
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+          console.warn(`RSS feed ${feed.name} timed out after ${this.feedTimeout}ms`);
+          throw new Error(`RSS feed ${feed.name} timed out`);
+        }
+        throw fetchError;
       }
-      
-      const xmlText = await response.text();
-      console.log(`RSS feed ${feed.name} response length:`, xmlText.length);
-      const articles = this.parseRSSXML(xmlText, feed);
-      console.log(`RSS feed ${feed.name} parsed ${articles.length} articles`);
-      return articles;
     } catch (error) {
-      console.error(`Error parsing RSS feed ${feed.name}:`, error);
+      console.error(`Error parsing RSS feed ${feed.name}:`, error.message || error);
       return [];
     }
   }
@@ -268,20 +314,36 @@ export class NewsAggregator {
       
       url += '?' + params.toString();
       
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'BlockchainVibe/1.0 (News Aggregator)'
+      // Add timeout to API calls
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), this.feedTimeout);
+      
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'User-Agent': 'BlockchainVibe/1.0 (News Aggregator)'
+          },
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`API ${api.name} returned ${response.status}`);
         }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`API ${api.name} returned ${response.status}`);
+        
+        const data = await response.json();
+        return this.transformAPIData(data, api);
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+          console.warn(`API ${api.name} timed out after ${this.feedTimeout}ms`);
+          throw new Error(`API ${api.name} timed out`);
+        }
+        throw fetchError;
       }
-      
-      const data = await response.json();
-      return this.transformAPIData(data, api);
     } catch (error) {
-      console.error(`Error fetching from ${api.name}:`, error);
+      console.error(`Error fetching from ${api.name}:`, error.message || error);
       return [];
     }
   }
