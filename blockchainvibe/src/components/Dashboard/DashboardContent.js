@@ -11,6 +11,7 @@ import { useQuery } from 'react-query';
 import toast from 'react-hot-toast';
 
 import NewsCard from '../NewsCard';
+import NewsCardSkeleton from '../NewsCardSkeleton';
 import LoadingSpinner from '../LoadingSpinner';
 import ProfileCompletionModal from '../Auth/ProfileCompletionModal';
 import { newsAPI } from '../../services/api';
@@ -401,13 +402,7 @@ const DashboardContent = () => {
     'CBDC Development'
   ];
 
-  if (newsLoading) {
-    return (
-      <DashboardContainer>
-        <LoadingSpinner message="Loading dashboard..." />
-      </DashboardContainer>
-    );
-  }
+  // Don't show full loading spinner - show skeleton loaders instead
 
   return (
     <DashboardContainer>
@@ -473,7 +468,12 @@ const DashboardContent = () => {
           </SectionHeader>
           
           <NewsGrid>
-            {newsData?.articles?.length > 0 ? (
+            {newsLoading && (!newsData?.articles || newsData.articles.length === 0) ? (
+              // Show skeleton loaders while loading
+              Array.from({ length: 6 }).map((_, index) => (
+                <NewsCardSkeleton key={`skeleton-${index}`} />
+              ))
+            ) : newsData?.articles?.length > 0 ? (
               newsData.articles.slice(0, 6).map((article, index) => (
                 <NewsCard
                   key={article.id || index}

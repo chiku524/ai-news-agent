@@ -12,6 +12,7 @@ import {
 import toast from 'react-hot-toast';
 
 import NewsCard from './NewsCard';
+import NewsCardSkeleton from './NewsCardSkeleton';
 import LoadingSpinner from './LoadingSpinner';
 import { useQuery } from 'react-query';
 import { newsAPI } from '../services/api';
@@ -358,6 +359,8 @@ const Trending = () => {
       refetchOnMount: false, // Don't refetch on mount to prevent infinite loops
       refetchOnWindowFocus: false, // Don't refetch on window focus
       keepPreviousData: true, // Keep previous data while loading new data
+      // Show cached data immediately while fetching
+      placeholderData: (previousData) => previousData,
     }
   );
 
@@ -416,13 +419,8 @@ const Trending = () => {
   const totalWithImages = allNews.filter(a => a.image_url).length;
   const latestUpdated = trendingData?.last_updated;
 
-  if (isLoading && page === 1) {
-    return (
-      <TrendingContainer>
-        <LoadingSpinner message="Loading trending news..." />
-      </TrendingContainer>
-    );
-  }
+  // Show skeleton loaders while loading (instead of full spinner)
+  const showSkeletons = isLoading && page === 1 && (!allNews || allNews.length === 0);
 
   if (error) {
     return (
@@ -534,26 +532,33 @@ const Trending = () => {
           </SectionTitle>
           
           <NewsGrid>
-            <AnimatePresence>
-              {allNews.map((article, index) => (
-                <motion.div
-                  key={article.id || index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                >
-                  <NewsCard
-                    article={article}
-                    onBookmark={() => {}}
-                    onLike={() => {}}
-                    onShare={() => {}}
-                    showEngagement={true}
-                    rank={index + 1}
-                  />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            {showSkeletons ? (
+              // Show skeleton loaders while loading
+              Array.from({ length: 6 }).map((_, index) => (
+                <NewsCardSkeleton key={`skeleton-${index}`} />
+              ))
+            ) : (
+              <AnimatePresence>
+                {allNews.map((article, index) => (
+                  <motion.div
+                    key={article.id || index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                  >
+                    <NewsCard
+                      article={article}
+                      onBookmark={() => {}}
+                      onLike={() => {}}
+                      onShare={() => {}}
+                      showEngagement={true}
+                      rank={index + 1}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            )}
           </NewsGrid>
 
           {allNews.length > 0 && (
