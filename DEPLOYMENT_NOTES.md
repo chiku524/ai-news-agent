@@ -5,7 +5,7 @@
 ### Build Settings
 - **Build command**: `npm run build:ci` (uses CI=true to treat warnings as errors)
 - **Build output directory**: `build`
-- **Root directory**: `blockchainvibe`
+- **Root directory**: `.` (root of repository)
 
 ### Environment Variables
 Cloudflare Pages automatically sets `CI=true` which causes react-scripts to treat ESLint warnings as errors.

@@ -28,22 +28,23 @@ A modern, AI-powered blockchain news aggregator with OAuth authentication and Cl
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd ai-news-agent
+   cd blockchainvibe
    ```
 
 2. **Install dependencies**
    ```bash
-   npm run install-all
+   npm install
+   cd server && npm install && cd ..
    ```
 
 3. **Configure environment variables**
    ```bash
    # Copy environment files
-   cp client/.env.example client/.env
+   cp .env.example .env
    cp server/.env.example server/.env
    
    # Edit with your OAuth credentials
-   nano client/.env
+   nano .env
    nano server/.env
    ```
 
@@ -78,7 +79,7 @@ A modern, AI-powered blockchain news aggregator with OAuth authentication and Cl
 
 ### Environment Variables
 
-**Frontend (`client/.env`)**:
+**Frontend (`.env` in root)**:
 ```env
 REACT_APP_GOOGLE_CLIENT_ID=your_google_client_id
 REACT_APP_GITHUB_CLIENT_ID=your_github_client_id
@@ -135,7 +136,7 @@ DATABASE_URL=sqlite:///./ai_news_agent.db
    - Go to Cloudflare Pages dashboard
    - Connect your GitHub repository
    - Set build command: `npm run build`
-   - Set build output: `client/build`
+   - Set build output: `build`
 
 2. **Set environment variables**
    - Add all `REACT_APP_*` variables
@@ -147,22 +148,22 @@ DATABASE_URL=sqlite:///./ai_news_agent.db
 ## 📁 Project Structure
 
 ```
-ai-news-agent/
-├── client/                 # React frontend
-│   ├── src/
-│   │   ├── components/     # React components
-│   │   ├── contexts/       # React contexts
-│   │   ├── hooks/          # Custom hooks
-│   │   ├── services/       # API services
-│   │   └── styles/         # Styled components
-│   └── package.json
-├── server/                 # FastAPI backend
-│   ├── models/             # Database models
-│   ├── routes/             # API routes
+blockchainvibe/
+├── src/                    # React frontend
+│   ├── components/         # React components
+│   ├── contexts/           # React contexts
+│   ├── hooks/              # Custom hooks
+│   ├── services/           # API services
+│   └── styles/            # Styled components
+├── public/                 # Static assets
+│   ├── docs/               # Documentation
+│   └── ...
+├── server/                 # Cloudflare Workers backend
+│   ├── agents/             # Python uAgents
+│   ├── services/           # Backend services
 │   ├── worker.js           # Cloudflare Worker
-│   └── requirements.txt
-├── wrangler.toml           # Cloudflare Workers config
-├── cloudflare-pages.toml   # Cloudflare Pages config
+│   └── wrangler.toml       # Workers config
+├── package.json            # Frontend dependencies
 └── README.md
 ```
 
@@ -263,12 +264,9 @@ This demo video demonstrates:
 
 ### Available Scripts
 
-- `npm run dev` - Start both frontend and backend
-- `npm run client` - Start only frontend
-- `npm run server` - Start only backend
+- `npm start` - Start React development server
 - `npm run build` - Build for production
-- `npm run deploy:worker` - Deploy to Cloudflare Workers
-- `npm run deploy:pages` - Deploy to Cloudflare Pages
+- `npm test` - Run tests
 
 ### Tech Stack
 
