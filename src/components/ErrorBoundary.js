@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { AlertCircle, RefreshCw, Home } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 const ErrorContainer = styled.div`
   min-height: 100vh;
@@ -112,10 +111,9 @@ class ErrorBoundary extends React.Component {
       error: null,
       errorInfo: null
     };
-    this.navigate = null;
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(_error) {
     // Update state so the next render will show the fallback UI
     return { hasError: true };
   }

@@ -13,7 +13,7 @@ import toast from 'react-hot-toast';
 import NewsCard from '../NewsCard';
 import NewsCardSkeleton from '../NewsCardSkeleton';
 import ProfileCompletionModal from '../Auth/ProfileCompletionModal';
-import { newsAPI, userAPI } from '../../services/api';
+import { newsAPI } from '../../services/api';
 import { handleApiError } from '../../utils/errorHandler';
 
 const DashboardContainer = styled.div`
