@@ -1659,6 +1659,14 @@ export default {
     if (corsResponse) return corsResponse;
 
     try {
+      // Handle WebSocket connections for real-time updates
+      if (path === '/ws/news' && request.headers.get('Upgrade') === 'websocket') {
+        const { webSocketService } = await import('./services/websocket-service.js');
+        const url = new URL(request.url);
+        const userId = url.searchParams.get('userId');
+        return webSocketService.handleConnection(request, userId);
+      }
+      
       // Route handling
       if (path === '/api/health' && method === 'GET') {
         return handleHealth();
