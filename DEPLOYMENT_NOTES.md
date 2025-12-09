@@ -45,7 +45,43 @@ If you're unable to disconnect the old repository, create a new Cloudflare Pages
    - Click "Save and Deploy"
    - Once deployed, you can delete the old project
 
-#### Option 3: Update Git Remote (Already done locally)
+#### Option 3: Delete and Recreate (Recommended - CLI + Dashboard)
+Since the project has too many deployments to delete via CLI, follow these steps:
+
+**Step 1: Delete via Dashboard** (Required):
+   - Go to Cloudflare Dashboard → Pages → `blockchainvibe` project
+   - Go to Settings → General
+   - Scroll down and click "Delete project"
+   - Confirm deletion (this will remove all deployments and allow CLI deletion)
+
+**Step 2: Create New Project via CLI** (After deletion):
+   ```bash
+   wrangler pages project create blockchainvibe --production-branch main
+   ```
+
+**Step 3: Connect to Git via Dashboard**:
+   - Go to Cloudflare Dashboard → Pages → `blockchainvibe` project
+   - Go to Settings → Builds & deployments
+   - Click "Connect to Git"
+   - Select GitHub and authorize
+   - Choose repository: `chiku524/blockchainvibe` (the NEW repository name)
+   - Click "Begin setup"
+
+**Step 4: Configure Build Settings**:
+   - **Build command**: `npm run build:ci`
+   - **Build output directory**: `build`
+   - **Root directory**: `.` (or leave empty) - **CRITICAL: Must be root, not `blockchainvibe`**
+   - **Production branch**: `main`
+
+**Step 5: Set Environment Variables**:
+   - Add all your `REACT_APP_*` environment variables
+   - Set `REACT_APP_API_URL` to your Worker URL
+
+**Step 6: Save and Deploy**:
+   - Click "Save and Deploy"
+   - The build should now work with the correct repository connection
+
+#### Option 4: Update Git Remote (Already done locally)
 The local git remote has been updated to point to the new repository URL.
 
 ### Build Settings
