@@ -58,6 +58,16 @@ class DatabaseService {
         )
       `).run();
       
+      // Create user_profiles table for advanced profiling
+      await this.db.prepare(`
+        CREATE TABLE IF NOT EXISTS user_profiles (
+          user_id TEXT PRIMARY KEY,
+          profile_data TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `).run();
+      
       return { success: true };
     } catch (error) {
       console.error('Database initialization error:', error);
@@ -1841,6 +1851,16 @@ async function handleTrackActivity(request, env) {
         headers: { 'Content-Type': 'application/json', ...corsHeaders }
       });
     }
+    
+    // Update user profile using profiling service
+    try {
+      const { userProfilingService } = await import('./services/user-profiling.js');
+      await userProfilingService.updateProfileFromActivity(user_id, payload, env.DB);
+    } catch (profileError) {
+      // Don't fail the request if profiling fails
+      console.warn('User profiling update failed:', profileError);
+    }
+    
     return new Response(JSON.stringify({ success: true }), {
       headers: { 'Content-Type': 'application/json', ...corsHeaders }
     });
