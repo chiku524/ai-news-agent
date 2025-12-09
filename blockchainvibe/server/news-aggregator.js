@@ -68,6 +68,21 @@ export class NewsAggregator {
       // Sort by relevance score
       scoredNews.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
       
+      // Broadcast breaking news via WebSocket (async, don't wait)
+      (async () => {
+        try {
+          const { webSocketService } = await import('./services/websocket-service.js');
+          for (const article of scoredNews) {
+            if (article.is_breaking) {
+              webSocketService.broadcastBreakingNews(article);
+            }
+          }
+        } catch (error) {
+          // WebSocket not available, continue without broadcasting
+          // Silently fail - WebSocket is optional
+        }
+      })();
+      
       // Limit results
       return scoredNews.slice(0, limit);
       
