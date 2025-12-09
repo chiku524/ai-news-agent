@@ -2,6 +2,10 @@
 // Handles RSS feeds, APIs, and content processing
 
 import { NEWS_SOURCES, NEWS_CATEGORIES, CATEGORY_KEYWORDS } from './news-sources.js';
+import { sourceHealthMonitor } from './services/source-health-monitor.js';
+import { deduplicateArticles, quickDeduplicate } from './utils/deduplication.js';
+import { enhancedRelevanceScorer } from './services/enhanced-relevance-scorer.js';
+import { contentEnricher } from './services/content-enricher.js';
 
 export class NewsAggregator {
   constructor() {
@@ -38,8 +42,8 @@ export class NewsAggregator {
       // Fetch from APIs if enabled
       const apiNews = await this.fetchFromAPIs(limit);
       
-      // Combine and deduplicate
-      const allNews = this.deduplicateNews([...rssNews, ...apiNews]);
+      // Combine and deduplicate using enhanced deduplication
+      const allNews = deduplicateArticles([...rssNews, ...apiNews], 0.75);
       
       // Filter by category
       const filteredNews = category === 'all' 
@@ -52,10 +56,17 @@ export class NewsAggregator {
       // Sort articles
       const sortedNews = this.sortArticles(timeFilteredNews, sortBy);
       
-      // Calculate relevance scores
-      const scoredNews = userProfile 
-        ? await this.calculateRelevanceScores(sortedNews, userProfile)
-        : sortedNews;
+      // Enrich articles with sentiment, entities, summaries, etc.
+      const enrichedNews = contentEnricher.enrichArticles(sortedNews);
+      
+      // Calculate relevance scores using enhanced scorer
+      const scoredNews = enrichedNews.map(article => ({
+        ...article,
+        relevance_score: enhancedRelevanceScorer.calculateRelevanceScore(article, userProfile)
+      }));
+      
+      // Sort by relevance score
+      scoredNews.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
       
       // Limit results
       return scoredNews.slice(0, limit);
@@ -66,19 +77,47 @@ export class NewsAggregator {
     }
   }
 
-  // Fetch news from RSS feeds
+  // Fetch news from RSS feeds with health monitoring
   async fetchFromRSSFeeds(limit) {
-    const enabledFeeds = NEWS_SOURCES.RSS_FEEDS.filter(feed => feed.enabled);
-    // Limit to top priority feeds first to speed things up
-    const priorityFeeds = enabledFeeds.slice(0, 10); // Only fetch top 10 feeds initially
+    // Get all feeds including premium feeds
+    const allFeeds = [...NEWS_SOURCES.RSS_FEEDS, ...(NEWS_SOURCES.PREMIUM_FEEDS || [])];
     
-    const newsPromises = priorityFeeds.map(feed => 
-      this.withTimeout(
-        this.parseRSSFeed(feed),
-        this.feedTimeout,
-        `RSS feed ${feed.name} timed out`
-      )
+    // Filter by health status and enabled status
+    const enabledFeeds = allFeeds.filter(feed => 
+      feed.enabled && sourceHealthMonitor.isHealthy(feed.name)
     );
+    
+    // Sort by priority (lower number = higher priority)
+    const sortedFeeds = enabledFeeds.sort((a, b) => (a.priority || 4) - (b.priority || 4));
+    
+    // Limit to top priority feeds first to speed things up
+    const priorityFeeds = sortedFeeds.slice(0, 15); // Fetch top 15 feeds
+    
+    const newsPromises = priorityFeeds.map(async (feed) => {
+      const startTime = Date.now();
+      try {
+        const articles = await this.withTimeout(
+          this.parseRSSFeed(feed),
+          this.feedTimeout,
+          `RSS feed ${feed.name} timed out`
+        );
+        
+        const responseTime = Date.now() - startTime;
+        // Record success
+        sourceHealthMonitor.recordSuccess(feed.name, responseTime, articles?.length || 0);
+        
+        // Add source priority to articles
+        return articles.map(article => ({
+          ...article,
+          source_priority: feed.priority || 4
+        }));
+      } catch (error) {
+        const responseTime = Date.now() - startTime;
+        // Record failure
+        sourceHealthMonitor.recordFailure(feed.name, error);
+        return [];
+      }
+    });
     
     try {
       // Wrap all promises with a total timeout

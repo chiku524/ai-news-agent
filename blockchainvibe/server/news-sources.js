@@ -532,7 +532,8 @@ export const NEWS_SOURCES = {
       apiKey: null, // Set in wrangler.toml if needed
       enabled: false, // Enable when you have API key
       rateLimit: 1000, // requests per day
-      cost: "Free tier: 1000 requests/day"
+      cost: "Free tier: 1000 requests/day",
+      priority: 1
     },
     {
       name: "GNews",
@@ -540,7 +541,8 @@ export const NEWS_SOURCES = {
       apiKey: null, // Set in wrangler.toml if needed
       enabled: false, // Enable when you have API key
       rateLimit: 100, // requests per day
-      cost: "Free tier: 100 requests/day"
+      cost: "Free tier: 100 requests/day",
+      priority: 2
     },
     {
       name: "CryptoPanic",
@@ -548,7 +550,35 @@ export const NEWS_SOURCES = {
       apiKey: null, // Set in wrangler.toml if needed
       enabled: false, // Enable when you have API key
       rateLimit: 1000, // requests per day
-      cost: "Free tier: 1000 requests/day"
+      cost: "Free tier: 1000 requests/day",
+      priority: 1
+    },
+    {
+      name: "CryptoCompare",
+      url: "https://min-api.cryptocompare.com/data/v2/news/",
+      apiKey: null, // Optional API key for higher rate limits
+      enabled: true, // Free tier available
+      rateLimit: 100000, // requests per month (free tier)
+      cost: "Free tier: 100k requests/month",
+      priority: 1
+    },
+    {
+      name: "CoinMarketCap News",
+      url: "https://pro-api.coinmarketcap.com/v1/cryptocurrency/news",
+      apiKey: null, // Requires API key
+      enabled: false,
+      rateLimit: 10000, // requests per month
+      cost: "Paid service",
+      priority: 1
+    },
+    {
+      name: "Messari API",
+      url: "https://data.messari.io/api/v1/news",
+      apiKey: null, // Requires API key
+      enabled: false,
+      rateLimit: 1000, // requests per day
+      cost: "Paid service",
+      priority: 1
     }
   ],
 
@@ -558,19 +588,117 @@ export const NEWS_SOURCES = {
       name: "r/CryptoCurrency",
       subreddit: "CryptoCurrency",
       enabled: false, // Requires Reddit API setup
-      priority: 3
+      priority: 2,
+      url: "https://www.reddit.com/r/CryptoCurrency/hot.json"
     },
     {
       name: "r/ethereum", 
       subreddit: "ethereum",
       enabled: false,
-      priority: 3
+      priority: 2,
+      url: "https://www.reddit.com/r/ethereum/hot.json"
     },
     {
       name: "r/defi",
       subreddit: "defi", 
       enabled: false,
-      priority: 3
+      priority: 3,
+      url: "https://www.reddit.com/r/defi/hot.json"
+    },
+    {
+      name: "r/bitcoin",
+      subreddit: "bitcoin",
+      enabled: false,
+      priority: 2,
+      url: "https://www.reddit.com/r/bitcoin/hot.json"
+    },
+    {
+      name: "r/CryptoMarkets",
+      subreddit: "CryptoMarkets",
+      enabled: false,
+      priority: 3,
+      url: "https://www.reddit.com/r/CryptoMarkets/hot.json"
+    },
+    {
+      name: "r/ethfinance",
+      subreddit: "ethfinance",
+      enabled: false,
+      priority: 3,
+      url: "https://www.reddit.com/r/ethfinance/hot.json"
+    }
+  ],
+  
+  // Additional premium RSS feeds
+  PREMIUM_FEEDS: [
+    {
+      name: "Bloomberg Crypto",
+      url: "https://www.bloomberg.com/feeds/crypto.rss",
+      category: "general",
+      priority: 1,
+      enabled: true
+    },
+    {
+      name: "Reuters Crypto",
+      url: "https://www.reuters.com/rssFeed/cryptoCurrency",
+      category: "general",
+      priority: 1,
+      enabled: true
+    },
+    {
+      name: "Forbes Crypto",
+      url: "https://www.forbes.com/crypto-blockchain/feed/",
+      category: "general",
+      priority: 1,
+      enabled: true
+    },
+    {
+      name: "ConsenSys",
+      url: "https://consensys.net/blog/feed/",
+      category: "ethereum",
+      priority: 2,
+      enabled: true
+    },
+    {
+      name: "0x Labs",
+      url: "https://0x.org/blog/feed",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Balancer",
+      url: "https://balancer.fi/blog/feed",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Lido",
+      url: "https://blog.lido.fi/feed/",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Rocket Pool",
+      url: "https://rocketpool.net/blog/feed",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Frax Finance",
+      url: "https://frax.finance/blog/feed",
+      category: "defi",
+      priority: 3,
+      enabled: true
+    },
+    {
+      name: "Convex Finance",
+      url: "https://www.convexfinance.com/blog/feed",
+      category: "defi",
+      priority: 3,
+      enabled: true
     }
   ]
 };

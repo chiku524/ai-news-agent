@@ -383,6 +383,7 @@ const NewsCard = ({
   return (
     <CardContainer
       featured={featured}
+      isBreaking={articleData.is_breaking}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
@@ -420,14 +421,45 @@ const NewsCard = ({
           </CategoryBadge>
         )}
         
+        {/* Breaking News Badge */}
+        {articleData.is_breaking && (
+          <CategoryBadge style={{ 
+            background: '#ef4444', 
+            animation: 'pulse 2s infinite',
+            zIndex: 10
+          }}>
+            🔥 BREAKING
+          </CategoryBadge>
+        )}
+        
+        {/* Sentiment Badge */}
+        {articleData.sentiment && (
+          <RelevanceScore style={{
+            top: articleData.is_breaking ? '3.5rem' : '1rem',
+            right: '1rem',
+            background: articleData.sentiment.overall === 'bullish' ? 'rgba(34, 197, 94, 0.9)' :
+                       articleData.sentiment.overall === 'bearish' ? 'rgba(239, 68, 68, 0.9)' :
+                       'rgba(107, 114, 128, 0.9)',
+            zIndex: 9
+          }}>
+            {articleData.sentiment.overall === 'bullish' ? '📈' : 
+             articleData.sentiment.overall === 'bearish' ? '📉' : '➡️'}
+            {articleData.sentiment.overall?.toUpperCase()}
+          </RelevanceScore>
+        )}
+        
         {(showRelevance && relevanceScore) && (
-          <RelevanceScore>
+          <RelevanceScore style={{ 
+            top: articleData.sentiment ? (articleData.is_breaking ? '6rem' : '3.5rem') : (articleData.is_breaking ? '3.5rem' : '1rem'),
+            right: '1rem',
+            zIndex: 8
+          }}>
             <TrendingUp size={12} />
             {relevanceScore}%
           </RelevanceScore>
         )}
         
-        {articleData.relevance_score && !showRelevance && (
+        {articleData.relevance_score && !showRelevance && !articleData.sentiment && !articleData.is_breaking && (
           <RelevanceScore>
             <TrendingUp size={12} />
             {Math.round(articleData.relevance_score * 100)}%

@@ -536,25 +536,39 @@ async function handlePersonalizedNews(request, env) {
     const { 
       limit = 20, 
       timeFilter = 'today',
-      user_profile
+      user_profile,
+      userId
     } = await request.json();
     
-    // Create a default user profile if none provided
-    const defaultUserProfile = {
-      user_id: 'default_user',
-      preferences: {
-        topics: ['bitcoin', 'ethereum', 'defi', 'nft', 'web3'],
-        sources: ['CoinTelegraph', 'CoinDesk', 'Decrypt'],
-        frequency: 'daily'
-      },
-      activity: {
-        liked_articles: [],
-        saved_articles: [],
-        read_articles: []
-      }
-    };
+    // Import user profiling service
+    const { userProfilingService } = await import('./services/user-profiling.js');
     
-    const userProfile = user_profile || defaultUserProfile;
+    // Get or create user profile
+    let userProfile = user_profile;
+    if (userId && env.DB) {
+      try {
+        userProfile = await userProfilingService.getUserProfile(userId, env.DB);
+      } catch (error) {
+        console.error('Error loading user profile:', error);
+      }
+    }
+    
+    // Create a default user profile if none provided
+    if (!userProfile) {
+      userProfile = {
+        user_id: userId || 'default_user',
+        preferences: {
+          topics: ['bitcoin', 'ethereum', 'defi', 'nft', 'web3'],
+          sources: ['CoinTelegraph', 'CoinDesk', 'Decrypt'],
+          frequency: 'daily'
+        },
+        activity: {
+          liked_articles: [],
+          saved_articles: [],
+          read_articles: []
+        }
+      };
+    }
     
     // Fetch personalized news with timeout
     const newsItems = await withTimeout(
