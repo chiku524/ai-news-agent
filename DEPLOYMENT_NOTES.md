@@ -2,10 +2,23 @@
 
 ## Cloudflare Pages Configuration
 
+### Important: Repository Name Change
+If you renamed your repository from `ai-news-agent` to `blockchainvibe`, you must update your Cloudflare Pages project settings:
+
+1. **Update Repository Connection**:
+   - Go to Cloudflare Dashboard → Pages → Your Project → Settings → Builds & deployments
+   - Click "Connect to Git" or "Retry deployment" to reconnect to the new repository URL
+   - Ensure it's connected to: `https://github.com/chiku524/blockchainvibe` (or your new repo URL)
+
+2. **Update Root Directory**:
+   - Go to Settings → Builds & deployments
+   - Set **Root directory** to: `.` (or leave it blank/empty)
+   - **DO NOT** set it to `blockchainvibe` - the codebase is now at the root
+
 ### Build Settings
 - **Build command**: `npm run build:ci` (uses CI=true to treat warnings as errors)
 - **Build output directory**: `build`
-- **Root directory**: `.` (root of repository)
+- **Root directory**: `.` (root of repository) - **MUST be set to `.` or left empty**
 
 ### Environment Variables
 Cloudflare Pages automatically sets `CI=true` which causes react-scripts to treat ESLint warnings as errors.
