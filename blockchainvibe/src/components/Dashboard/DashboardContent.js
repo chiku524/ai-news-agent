@@ -13,7 +13,8 @@ import toast from 'react-hot-toast';
 import NewsCard from '../NewsCard';
 import NewsCardSkeleton from '../NewsCardSkeleton';
 import ProfileCompletionModal from '../Auth/ProfileCompletionModal';
-import { newsAPI } from '../../services/api';
+import { newsAPI, userAPI } from '../../services/api';
+import { handleApiError } from '../../utils/errorHandler';
 
 const DashboardContainer = styled.div`
   min-height: 100vh;
@@ -287,13 +288,23 @@ const DashboardContent = () => {
       try {
         const uid = userData?.user_id || userData?.id;
         if (!uid) return;
-        const res = await fetch(`https://blockchainvibe-api.nico-chikuji.workers.dev/api/analytics/summary?userId=${encodeURIComponent(uid)}`);
-        const data = await res.json();
-        setAnalytics({
-          articlesRead: data?.articlesRead || 0,
-          timeSpentMinutes: data?.timeSpentMinutes || 0,
+        // Use API service instead of direct fetch
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://blockchainvibe-api.nico-chikuji.workers.dev'}/api/analytics/summary?userId=${encodeURIComponent(uid)}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+          }
         });
-      } catch (_) {}
+        if (response.ok) {
+          const data = await response.json();
+          setAnalytics({
+            articlesRead: data?.articlesRead || 0,
+            timeSpentMinutes: data?.timeSpentMinutes || 0,
+          });
+        }
+      } catch (error) {
+        // Silently fail - analytics are not critical
+        console.error('Analytics fetch error:', error);
+      }
     })();
   }, []);
 
@@ -306,17 +317,9 @@ const DashboardContent = () => {
     }
   );
 
-  // Debug logging
-  useEffect(() => {
-    console.log('News data:', newsData);
-    console.log('News loading:', newsLoading);
-    console.log('News error:', newsError);
-  }, [newsData, newsLoading, newsError]);
 
   const handleProfileComplete = async (profileData) => {
     try {
-      console.log('Profile completion started with data:', profileData);
-      console.log('Current user data:', user);
 
       const backendProfileData = {
         name: profileData.name,
@@ -331,13 +334,10 @@ const DashboardContent = () => {
       };
 
       const userId = user?.user_id || user?.id;
-      console.log('User ID found:', userId);
       
       if (!userId) {
         throw new Error('User ID not found. Please try logging in again.');
       }
-
-      console.log('Calling API: /api/user/profile');
 
       const response = await fetch(`https://blockchainvibe-api.nico-chikuji.workers.dev/api/user/profile`, {
         method: 'PUT',
@@ -351,16 +351,12 @@ const DashboardContent = () => {
         })
       });
 
-      console.log('API response status:', response.status);
-
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('API error response:', errorData);
         throw new Error(errorData.message || 'Failed to update profile');
       }
 
-      const result = await response.json();
-      console.log('API success response:', result);
+      await response.json();
 
       const updatedUser = { ...user, ...profileData };
       localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -371,8 +367,9 @@ const DashboardContent = () => {
       setShowProfileModal(false);
       toast.success('Profile completed successfully!');
     } catch (error) {
-      console.error('Profile update error:', error);
-      toast.error(`Failed to complete profile: ${error.message}`);
+      handleApiError(error, toast.error, {
+        customMessage: 'Failed to complete profile. Please try again.',
+      });
     }
   };
 

@@ -1,8 +1,22 @@
 import axios from 'axios';
 
-// Force production URL since environment variables aren't working correctly
-const API_BASE_URL = 'https://blockchainvibe-api.nico-chikuji.workers.dev';
+// Get API URL from environment variables with fallback
+const getApiUrl = () => {
+  // Check for environment variable first
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  // Fallback to production URL if in production
+  if (process.env.NODE_ENV === 'production' && process.env.REACT_APP_API_URL_PROD) {
+    return process.env.REACT_APP_API_URL_PROD;
+  }
+  // Final fallback
+  return process.env.REACT_APP_API_URL_PROD || 'https://blockchainvibe-api.nico-chikuji.workers.dev';
+};
 
+const API_BASE_URL = getApiUrl();
+
+// Create axios instance with enhanced configuration
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000,
@@ -26,17 +40,45 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor
+// Response interceptor with retry logic
 api.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Handle 401 Unauthorized
     if (error.response?.status === 401) {
-      // Handle unauthorized access
-      localStorage.removeItem('authToken');
-      window.location.href = '/login';
+      // Clear auth tokens
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      // Redirect to login
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/signin') {
+        window.location.href = '/signin';
+      }
+      return Promise.reject(error);
     }
+
+    // Retry logic for network errors or 5xx errors
+    if (
+      (!error.response || (error.response.status >= 500 && error.response.status < 600)) &&
+      !originalRequest._retry &&
+      originalRequest.method !== 'get' // Only retry non-GET requests
+    ) {
+      originalRequest._retry = true;
+      
+      // Wait before retrying (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, 1000 * (originalRequest._retryCount || 1)));
+      originalRequest._retryCount = (originalRequest._retryCount || 1) + 1;
+      
+      // Retry the request (max 2 retries)
+      if (originalRequest._retryCount <= 2) {
+        return api(originalRequest);
+      }
+    }
+
     return Promise.reject(error);
   }
 );

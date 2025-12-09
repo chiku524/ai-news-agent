@@ -48,6 +48,8 @@ export const useNews = (params = {}) => {
       refetchOnMount: false, // Don't refetch on mount to prevent infinite loops
       keepPreviousData: true, // Keep previous data while loading new data
       retry: 2,
+      // Request cancellation is handled automatically by React Query
+      // When component unmounts, queries are automatically cancelled
     }
   );
 };

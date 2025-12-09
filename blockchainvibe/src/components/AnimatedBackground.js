@@ -194,10 +194,6 @@ const DataFlow = styled.div`
 const AnimatedBackground = ({ debug = false }) => {
   const containerRef = useRef(null);
 
-  // Debug logging
-  if (debug) {
-    console.log('AnimatedBackground rendering with debug mode');
-  }
 
   // Generate random positions and properties for elements
   const generateElements = () => {

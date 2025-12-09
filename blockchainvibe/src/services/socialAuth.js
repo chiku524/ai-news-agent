@@ -27,22 +27,6 @@ class SocialAuthService {
       this.apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
     }
     
-    // Log environment info for debugging
-    console.log('SocialAuth initialized:', {
-      environment: process.env.NODE_ENV,
-      hostname: window.location.hostname,
-      isProduction: isProduction,
-      redirectUri: this.redirectUri,
-      apiUrl: this.apiUrl,
-      hasGoogleClientId: !!this.googleClientId,
-      hasGithubClientId: !!this.githubClientId,
-      hasTwitterClientId: !!this.twitterClientId,
-      hasDiscordClientId: !!this.discordClientId,
-      googleClientId: this.googleClientId,
-      githubClientId: this.githubClientId,
-      twitterClientId: this.twitterClientId,
-      discordClientId: this.discordClientId
-    });
   }
 
   // Google OAuth
@@ -239,12 +223,6 @@ class SocialAuthService {
 
   async handleGoogleCallback(code) {
     try {
-      console.log('Google OAuth callback:', {
-        code: code ? code.substring(0, 10) + '...' : 'undefined',
-        redirectUri: this.redirectUri,
-        apiUrl: this.apiUrl
-      });
-      
       const response = await fetch(`${this.apiUrl}/api/auth/callback`, {
         method: 'POST',
         headers: {
@@ -255,12 +233,6 @@ class SocialAuthService {
           redirect_uri: this.redirectUri,
           provider: 'google'
         })
-      });
-
-      console.log('Google OAuth response:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok
       });
       
       if (!response.ok) {
@@ -300,12 +272,6 @@ class SocialAuthService {
 
   async handleGitHubCallback(code) {
     try {
-      console.log('GitHub OAuth callback:', {
-        code: code ? code.substring(0, 10) + '...' : 'undefined',
-        redirectUri: this.redirectUri,
-        apiUrl: this.apiUrl
-      });
-      
       const response = await fetch(`${this.apiUrl}/api/auth/callback`, {
         method: 'POST',
         headers: {
@@ -316,12 +282,6 @@ class SocialAuthService {
           redirect_uri: this.redirectUri,
           provider: 'github'
         })
-      });
-
-      console.log('GitHub OAuth response:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok
       });
       
       if (!response.ok) {

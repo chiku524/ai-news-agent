@@ -42,5 +42,22 @@
   "lang": "en",
   "dir": "ltr",
   "scope": "/",
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Trending News",
+      "short_name": "Trending",
+      "description": "View trending blockchain news",
+      "url": "/trending",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "For You",
+      "short_name": "For You",
+      "description": "Personalized news feed",
+      "url": "/foryou",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    }
+  ]
 }

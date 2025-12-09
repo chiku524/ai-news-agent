@@ -363,12 +363,6 @@ const Trending = () => {
     }
   );
 
-  // Debug logging
-  useEffect(() => {
-    console.log('Trending data:', trendingData);
-    console.log('Trending loading:', isLoading);
-    console.log('Trending error:', error);
-  }, [trendingData, isLoading, error]);
 
   const trendingTopics = [
     'Bitcoin ETF Approval',

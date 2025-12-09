@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { 
@@ -61,6 +62,7 @@ const NewsImage = styled.img`
   height: 100%;
   object-fit: cover;
   transition: transform ${props => props.theme.transitions.normal};
+  loading: lazy;
   
   ${CardContainer}:hover & {
     transform: scale(1.05);
@@ -386,7 +388,20 @@ const NewsCard = ({
     >
       <ImageContainer featured={featured}>
         {articleData.image_url ? (
-          <NewsImage src={articleData.image_url} alt={articleData.title} />
+          <NewsImage 
+            src={articleData.image_url} 
+            alt={articleData.title}
+            loading="lazy"
+            decoding="async"
+            onError={(e) => {
+              // Fallback to placeholder on image load error
+              e.target.style.display = 'none';
+              const placeholder = e.target.nextElementSibling;
+              if (placeholder) {
+                placeholder.style.display = 'flex';
+              }
+            }}
+          />
         ) : (
           <ImagePlaceholder>
             📰
@@ -510,4 +525,81 @@ const NewsCard = ({
   );
 };
 
-export default NewsCard;
+// PropTypes for type checking
+NewsCard.propTypes = {
+  news: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    title: PropTypes.string.isRequired,
+    content: PropTypes.string,
+    excerpt: PropTypes.string,
+    image_url: PropTypes.string,
+    url: PropTypes.string.isRequired,
+    source: PropTypes.string.isRequired,
+    published_at: PropTypes.string,
+    author: PropTypes.string,
+    categories: PropTypes.arrayOf(PropTypes.string),
+    tags: PropTypes.arrayOf(PropTypes.string),
+    relevance_score: PropTypes.number,
+    engagement_metrics: PropTypes.shape({
+      likes: PropTypes.number,
+      comments: PropTypes.number,
+      views: PropTypes.number,
+    }),
+    likes: PropTypes.number,
+  }),
+  article: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    title: PropTypes.string.isRequired,
+    content: PropTypes.string,
+    excerpt: PropTypes.string,
+    image_url: PropTypes.string,
+    url: PropTypes.string.isRequired,
+    source: PropTypes.string.isRequired,
+    published_at: PropTypes.string,
+    author: PropTypes.string,
+    categories: PropTypes.arrayOf(PropTypes.string),
+    tags: PropTypes.arrayOf(PropTypes.string),
+    relevance_score: PropTypes.number,
+    engagement_metrics: PropTypes.shape({
+      likes: PropTypes.number,
+      comments: PropTypes.number,
+      views: PropTypes.number,
+    }),
+    likes: PropTypes.number,
+  }),
+  featured: PropTypes.bool,
+  onInteraction: PropTypes.func,
+  showEngagement: PropTypes.bool,
+  showRelevance: PropTypes.bool,
+  relevanceScore: PropTypes.number,
+  rank: PropTypes.number,
+  onBookmark: PropTypes.func,
+  onLike: PropTypes.func,
+  onShare: PropTypes.func,
+};
+
+NewsCard.defaultProps = {
+  featured: false,
+  showEngagement: false,
+  showRelevance: false,
+  relevanceScore: null,
+  rank: null,
+  onInteraction: null,
+  onBookmark: null,
+  onLike: null,
+  onShare: null,
+};
+
+// Memoize NewsCard to prevent unnecessary re-renders
+export default memo(NewsCard, (prevProps, nextProps) => {
+  // Custom comparison function for better memoization
+  return (
+    prevProps.news?.id === nextProps.news?.id &&
+    prevProps.news?.image_url === nextProps.news?.image_url &&
+    prevProps.featured === nextProps.featured &&
+    prevProps.showEngagement === nextProps.showEngagement &&
+    prevProps.showRelevance === nextProps.showRelevance &&
+    prevProps.relevanceScore === nextProps.relevanceScore &&
+    prevProps.rank === nextProps.rank
+  );
+});

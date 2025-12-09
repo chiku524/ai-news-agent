@@ -12,6 +12,7 @@ import Register from './components/Auth/Register';
 import OAuthCallback from './components/Auth/OAuthCallback';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Context
 import { ThemeProvider as CustomThemeProvider, useTheme } from './contexts/ThemeContext';
@@ -37,12 +38,30 @@ const HelpCenter = lazy(() => import('./components/HelpCenter'));
 const ContactUsPage = lazy(() => import('./components/ContactUsPage'));
 const BugReportPage = lazy(() => import('./components/BugReportPage'));
 
+// Enhanced React Query configuration with optimized caching
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnMount: false, // Prevent unnecessary refetches
+      refetchOnReconnect: true, // Refetch when connection is restored
+      retry: (failureCount, error) => {
+        // Don't retry on 4xx errors (client errors)
+        if (error?.response?.status >= 400 && error?.response?.status < 500) {
+          return false;
+        }
+        // Retry up to 2 times for network errors or 5xx errors
+        return failureCount < 2;
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+      staleTime: 5 * 60 * 1000, // 5 minutes - data is fresh for 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes - keep unused data in cache for 10 minutes
+      keepPreviousData: true, // Keep previous data while fetching new data
+      structuralSharing: true, // Enable structural sharing for better performance
+    },
+    mutations: {
+      retry: 1, // Retry mutations once on failure
+      retryDelay: 1000,
     },
   },
 });
@@ -287,13 +306,16 @@ const AppContent = () => {
 
 function App() {
   return (
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <CustomThemeProvider>
-          <AppContent />
-        </CustomThemeProvider>
-      </QueryClientProvider>
-    </HelmetProvider>
+    <ErrorBoundary>
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <CustomThemeProvider>
+            <AppContent />
+          </CustomThemeProvider>
+        </QueryClientProvider>
+        <Toaster position="top-right" />
+      </HelmetProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -355,7 +355,7 @@ const Analytics = () => {
           <InteractiveChart 
             data={analyticsData?._trendSeries || []}
             title="Reading Trends"
-            onDataUpdate={(data) => console.log('Chart data updated:', data)}
+            onDataUpdate={() => {}}
           />
         </ChartCard>
 
