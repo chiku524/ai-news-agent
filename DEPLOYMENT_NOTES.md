@@ -5,15 +5,48 @@
 ### Important: Repository Name Change
 If you renamed your repository from `ai-news-agent` to `blockchainvibe`, you must update your Cloudflare Pages project settings:
 
-1. **Update Repository Connection**:
-   - Go to Cloudflare Dashboard → Pages → Your Project → Settings → Builds & deployments
-   - Click "Connect to Git" or "Retry deployment" to reconnect to the new repository URL
-   - Ensure it's connected to: `https://github.com/chiku524/blockchainvibe` (or your new repo URL)
+**The Issue**: Cloudflare Pages may fail to initialize the build environment if it's still connected to the old repository URL, even though GitHub redirects it.
 
-2. **Update Root Directory**:
-   - Go to Settings → Builds & deployments
+**Solution Options**:
+
+#### Option 1: Update Existing Project (Recommended if you can access settings)
+1. **Go to Cloudflare Dashboard** → Pages → Your Project → Settings → Builds & deployments
+2. **Update Repository Connection**:
+   - Look for "Source" or "Connected repository" section
+   - If there's an "Edit" or "Change" button, click it
+   - Reconnect to: `https://github.com/chiku524/blockchainvibe`
+   - If you can't edit, try disconnecting and reconnecting (see Option 2)
+
+3. **Update Root Directory**:
+   - In the same Settings → Builds & deployments section
    - Set **Root directory** to: `.` (or leave it blank/empty)
    - **DO NOT** set it to `blockchainvibe` - the codebase is now at the root
+
+#### Option 2: Create New Cloudflare Pages Project (If you can't disconnect)
+If you're unable to disconnect the old repository, create a new Cloudflare Pages project:
+
+1. **Create New Project**:
+   - Go to Cloudflare Dashboard → Pages → Create a project
+   - Connect to Git → Select GitHub
+   - Choose repository: `chiku524/blockchainvibe` (the new name)
+   - Click "Begin setup"
+
+2. **Configure Build Settings**:
+   - **Framework preset**: Create React App (or None)
+   - **Build command**: `npm run build:ci`
+   - **Build output directory**: `build`
+   - **Root directory**: `.` (or leave empty)
+
+3. **Set Environment Variables**:
+   - Add all your `REACT_APP_*` environment variables
+   - Set `REACT_APP_API_URL` to your Worker URL
+
+4. **Deploy**:
+   - Click "Save and Deploy"
+   - Once deployed, you can delete the old project
+
+#### Option 3: Update Git Remote (Already done locally)
+The local git remote has been updated to point to the new repository URL.
 
 ### Build Settings
 - **Build command**: `npm run build:ci` (uses CI=true to treat warnings as errors)
