@@ -164,7 +164,7 @@ A GitHub Actions workflow has been created at `.github/workflows/deploy-pages.ym
 **Option C: Manual Deployment Script**
 ```bash
 # Run the deployment script
-node configure-pages.js  # Updates build config
+# Build configuration is now handled via GitHub Actions workflow
 npm run build:ci          # Builds the project
 wrangler pages deploy ./build --project-name=blockchainvibe
 ```
@@ -222,7 +222,6 @@ Added to `package.json`:
 - `npm run deploy:pages` - Build and deploy Pages
 - `npm run deploy:worker` - Deploy Workers API
 - `npm run deploy:assets` - Deploy Assets Worker
-- `npm run configure:pages` - Update Pages config via API
 
 ### Recommended Future Enhancements
 

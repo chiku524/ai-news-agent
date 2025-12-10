@@ -86,13 +86,13 @@ wrangler pages deploy ./build --project-name=blockchainvibe
 - Testing before pushing to GitHub
 - Emergency deployments
 
-### Method 3: Configuration Script
+### Method 3: Manual Wrangler CLI (Alternative)
 
 ```bash
-# Update build configuration via API
-node configure-pages.js
+# Build and deploy in one command
+npm run deploy:pages
 
-# Then deploy
+# Or step by step:
 npm run build:ci
 wrangler pages deploy ./build --project-name=blockchainvibe
 ```
@@ -219,7 +219,7 @@ npm install -g wrangler@latest
 - [x] Created optimized wrangler.toml for Pages
 - [x] Updated Workers wrangler.toml files
 - [x] Created GitHub Actions workflow
-- [x] Configured build settings via API
+- [x] Configured build settings via GitHub Actions
 - [x] Documented deployment strategies
 - [x] Optimized configuration files
 

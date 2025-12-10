@@ -32,8 +32,7 @@
     "eject": "react-scripts eject",
     "deploy:pages": "npm run build:ci && wrangler pages deploy ./build --project-name=blockchainvibe",
     "deploy:worker": "cd server && wrangler deploy",
-    "deploy:assets": "cd server && wrangler deploy --config assets-wrangler.toml",
-    "configure:pages": "node configure-pages.js"
+    "deploy:assets": "cd server && wrangler deploy --config assets-wrangler.toml"
   },
   "eslintConfig": {
     "extends": [
