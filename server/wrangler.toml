@@ -2,7 +2,7 @@
 # Updated for latest Cloudflare features (2025-12-09)
 name = "blockchainvibe-api"
 main = "worker.js"
-compatibility_date = "2025-12-09"
+compatibility_date = "2025-12-10"
 compatibility_flags = []
 
 # Environment variables
