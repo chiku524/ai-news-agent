@@ -171,45 +171,78 @@ wrangler pages deploy ./build --project-name=blockchainvibe
 
 ---
 
-## 🚀 Cloudflare Pages Optimizations
+## 🚀 Cloudflare Pages Optimizations (2024-2025 Best Practices)
 
-### Current Optimizations
+### ✅ Implemented Optimizations
 
-1. **Static Asset Caching** (`public/_headers`):
-   - Static assets cached for 1 year with immutable flag
-   - API responses cached for 5 minutes
+1. **Enhanced Security Headers** (`public/_headers`):
+   - ✅ X-Frame-Options: DENY
+   - ✅ X-Content-Type-Options: nosniff
+   - ✅ X-XSS-Protection enabled
+   - ✅ Referrer-Policy: strict-origin-when-cross-origin
+   - ✅ Permissions-Policy configured
+   - ✅ **NEW**: Strict-Transport-Security (HSTS)
+   - ✅ **NEW**: Content-Security-Policy (CSP)
 
-2. **Security Headers** (`public/_headers`):
-   - X-Frame-Options: DENY
-   - X-Content-Type-Options: nosniff
-   - X-XSS-Protection enabled
-   - Referrer-Policy: strict-origin-when-cross-origin
-   - Permissions-Policy configured
+2. **Optimized Caching Strategy** (`public/_headers`):
+   - ✅ Static assets: 1 year cache with immutable flag
+   - ✅ Images: 1 year cache (jpg, png, webp, svg, gif)
+   - ✅ Fonts: 1 year cache (woff, woff2, ttf, eot)
+   - ✅ JavaScript/CSS: 1 year cache with immutable
+   - ✅ API responses: 5 minutes cache with Vary headers
+   - ✅ HTML: No cache (must-revalidate) for instant updates
 
 3. **Service Worker** (`public/sw.js`):
-   - PWA support with offline caching
-   - Runtime caching for dynamic content
-   - Cache versioning for updates
+   - ✅ PWA support with offline caching
+   - ✅ Runtime caching for dynamic content
+   - ✅ Cache versioning for updates
 
 4. **API Redirects** (`public/_redirects`):
-   - All `/api/*` requests proxied to Cloudflare Workers
-   - SPA fallback to index.html
+   - ✅ All `/api/*` requests proxied to Cloudflare Workers
+   - ✅ SPA fallback to index.html
+
+5. **Updated Compatibility Dates**:
+   - ✅ Pages: `2024-12-10` (latest)
+   - ✅ Workers API: `2024-12-10` (updated from 2024-01-01)
+   - ✅ Workers Assets: `2024-12-10` (updated from 2024-01-01)
+
+6. **Wrangler.toml Configuration**:
+   - ✅ Centralized configuration in codebase
+   - ✅ Environment-specific settings
+   - ✅ Build configuration optimized
+
+7. **GitHub Actions Workflow**:
+   - ✅ Automated deployments on push
+   - ✅ Preview deployments for PRs
+   - ✅ Optimized build process
+
+### 📦 Deployment Scripts
+
+Added to `package.json`:
+- `npm run deploy:pages` - Build and deploy Pages
+- `npm run deploy:worker` - Deploy Workers API
+- `npm run deploy:assets` - Deploy Assets Worker
+- `npm run configure:pages` - Update Pages config via API
 
 ### Recommended Future Enhancements
 
-1. **Cloudflare Pages Functions** (Optional):
-   - Can be used for edge-side API routes if needed
-   - Currently using Workers for backend (recommended approach)
+1. **Cloudflare Images** (Optional):
+   - Automatic image optimization
+   - WebP/AVIF conversion
+   - Responsive image delivery
 
-2. **Image Optimization**:
-   - Consider using Cloudflare Images for automatic optimization
-   - WebP format with fallbacks
-
-3. **Analytics**:
-   - Cloudflare Web Analytics (privacy-focused, no cookies)
+2. **Cloudflare Analytics**:
+   - Privacy-focused analytics (no cookies)
+   - Real-time metrics
    - Can be added via dashboard
+
+3. **Pages Functions** (If needed):
+   - Edge-side API routes
+   - Serverless functions at edge
+   - Reduced latency for specific routes
 
 4. **Performance Monitoring**:
    - Web Vitals tracking
    - Real User Monitoring (RUM)
+   - Cloudflare Browser Insights
 

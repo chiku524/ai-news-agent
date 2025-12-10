@@ -1,15 +1,53 @@
-# Security headers
+# Security headers (2024-2025 Best Practices)
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://blockchainvibe-api.nico-chikuji.workers.dev; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://blockchainvibe-api.nico-chikuji.workers.dev wss://blockchainvibe-api.nico-chikuji.workers.dev;
 
-# Cache static assets
+# Cache static assets (optimized for Cloudflare CDN)
 /static/*
   Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
 
-# Cache API responses
+# Cache images
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+/*.gif
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache fonts
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+/*.ttf
+  Cache-Control: public, max-age=31536000, immutable
+/*.eot
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache JavaScript and CSS
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache API responses (shorter TTL for dynamic content)
 /api/*
-  Cache-Control: public, max-age=300
+  Cache-Control: public, max-age=300, s-maxage=600
+  Vary: Accept, Authorization
+
+# HTML files (no cache for main HTML to ensure updates)
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate

@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -11,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy to Cloudflare Pages
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -22,10 +26,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      - name: Build
+      - name: Build project
         run: npm run build:ci
         env:
           CI: true
+          NODE_ENV: production
       
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
@@ -35,4 +40,6 @@ jobs:
           projectName: blockchainvibe
           directory: build
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          # Wrangler configuration file location
+          wranglerVersion: 'latest'
 

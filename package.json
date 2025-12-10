@@ -29,7 +29,11 @@
     "build:production": "CI=false REACT_APP_ENV=production react-scripts build",
     "build:ci": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy:pages": "npm run build:ci && wrangler pages deploy ./build --project-name=blockchainvibe",
+    "deploy:worker": "cd server && wrangler deploy",
+    "deploy:assets": "cd server && wrangler deploy --config assets-wrangler.toml",
+    "configure:pages": "node configure-pages.js"
   },
   "eslintConfig": {
     "extends": [

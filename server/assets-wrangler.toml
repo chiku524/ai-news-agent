@@ -1,7 +1,9 @@
 # Cloudflare Workers configuration for BlockchainVibe Assets
+# Updated for latest Cloudflare features (2024-12-10)
 name = "blockchainvibe-assets"
 main = "assets-worker.js"
-compatibility_date = "2024-01-01"
+compatibility_date = "2024-12-10"
+compatibility_flags = []
 
 # R2 Bucket binding for file storage
 [[r2_buckets]]
