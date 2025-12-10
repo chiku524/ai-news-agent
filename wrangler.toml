@@ -1,25 +1,6 @@
 # Cloudflare Pages Configuration for BlockchainVibe
-# Optimized for latest Cloudflare Pages features (2025-12-09)
+# Optimized for latest Cloudflare Pages features (2025-12-10)
+# Note: Build configuration is handled via GitHub Actions workflow
+# Pages projects have limited wrangler.toml support - build settings are configured in dashboard or CI/CD
 name = "blockchainvibe"
 compatibility_date = "2025-12-10"
-pages_build_output_dir = "./build"
-
-# Production branch
-production_branch = "main"
-
-# Build configuration
-[build]
-command = "npm run build:ci"
-cwd = "."
-
-# Deployment configuration
-[deployment]
-# Automatic deployments enabled via GitHub Actions or direct wrangler deploy
-
-# Environment variables (set via dashboard or wrangler pages secret)
-# Use: wrangler pages secret put <name> [--env production|preview]
-[env.production]
-# Production environment variables
-
-[env.preview]
-# Preview environment variables for pull requests
