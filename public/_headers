@@ -1,4 +1,4 @@
-# Security headers (2024-2025 Best Practices)
+# Security headers (December 2025 Best Practices)
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
