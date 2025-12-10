@@ -1,0 +1,19 @@
+# Cloudflare Pages Configuration for BlockchainVibe
+name = "blockchainvibe"
+compatibility_date = "2025-12-10"
+pages_build_output_dir = "./build"
+
+# Production branch
+production_branch = "main"
+
+# Build configuration
+[build]
+command = "npm run build:ci"
+cwd = "."
+
+# Environment variables (set via dashboard or wrangler pages secret)
+[env.production]
+# Add environment variables here or use: wrangler pages secret put <name>
+
+[env.preview]
+# Preview environment variables
